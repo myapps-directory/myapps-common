@@ -2,6 +2,10 @@
 
 #include "solid/system/exception.hpp"
 
+#include <boost/algorithm/string.hpp>
+#include <boost/archive/iterators/base64_from_binary.hpp>
+#include <boost/archive/iterators/binary_from_base64.hpp>
+#include <boost/archive/iterators/transform_width.hpp>
 #include <boost/uuid/uuid.hpp>
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/uuid/uuid_io.hpp>
@@ -41,6 +45,7 @@ struct Enigma::Data {
     EVP_CIPHER_CTX* enc_ctx_;
     EVP_CIPHER_CTX* dec_ctx_;
     string          iv_;
+    string          key_;
 
     Data()
     {
@@ -69,6 +74,8 @@ Enigma::~Enigma() {}
 
 void Enigma::configure(const std::string& _s)
 {
+    pimpl_->key_ = _s;
+
     const uint8_t* pkey = reinterpret_cast<const uint8_t*>(_s.c_str());
     const uint8_t* piv  = reinterpret_cast<const uint8_t*>(pimpl_->iv_.c_str());
 
@@ -89,6 +96,19 @@ void Enigma::configure(const std::string& _s)
 
 std::string Enigma::encode(const std::string& _plain_text)
 {
+
+    {
+        EVP_CIPHER_CTX_reset(pimpl_->enc_ctx_);
+        const uint8_t* pkey = reinterpret_cast<const uint8_t*>(pimpl_->key_.c_str());
+        const uint8_t* piv  = reinterpret_cast<const uint8_t*>(pimpl_->iv_.c_str());
+
+        /* Initialise the encryption operation. IMPORTANT - ensure you use a key
+        * and IV size appropriate for your cipher
+        * In this example we are using 256 bit AES (i.e. a 256 bit key). The
+        * IV size for *most* modes is the same as the block size. For AES this
+        * is 128 bits */
+        EVP_EncryptInit_ex(pimpl_->enc_ctx_, EVP_aes_256_cbc(), NULL, pkey, piv);
+    }
 
     int len;
 
@@ -124,12 +144,24 @@ std::string Enigma::encode(const std::string& _plain_text)
 std::string Enigma::decode(const std::string& _cipher_text)
 {
 
+    {
+        EVP_CIPHER_CTX_reset(pimpl_->dec_ctx_);
+        const uint8_t* pkey = reinterpret_cast<const uint8_t*>(pimpl_->key_.c_str());
+        const uint8_t* piv  = reinterpret_cast<const uint8_t*>(pimpl_->iv_.c_str());
+
+        /* Initialise the decryption operation. IMPORTANT - ensure you use a key
+        * and IV size appropriate for your cipher
+        * In this example we are using 256 bit AES (i.e. a 256 bit key). The
+        * IV size for *most* modes is the same as the block size. For AES this
+        * is 128 bits */
+        EVP_DecryptInit_ex(pimpl_->dec_ctx_, EVP_aes_256_cbc(), NULL, pkey, piv);
+    }
     int len;
 
     int plaintext_len = 0;
 
     string plain_text;
-    plain_text.resize(_cipher_text.size());
+    plain_text.resize(_cipher_text.size() + 64);
 
     uint8_t*       pplain_d  = reinterpret_cast<uint8_t*>(const_cast<char*>(plain_text.data()));
     const uint8_t* pcipher_d = reinterpret_cast<const uint8_t*>(_cipher_text.data());
@@ -153,6 +185,53 @@ std::string Enigma::decode(const std::string& _cipher_text)
 
     return plain_text;
 }
+//-----------------------------------------------------------------------------
+//https://stackoverflow.com/questions/7053538/how-do-i-encode-a-string-to-base64-using-only-boost
+namespace {
+const std::string base64_padding[] = {"", "==", "="};
+} //namespace
+std::string base64_encode(const std::string& _txt)
+{
+    namespace bai = boost::archive::iterators;
 
+    std::stringstream os;
+
+    // convert binary values to base64 characters
+    typedef bai::base64_from_binary
+        // retrieve 6 bit integers from a sequence of 8 bit bytes
+        <bai::transform_width<const char*, 6, 8>>
+            base64_enc; // compose all the above operations in to a new iterator
+
+    std::copy(base64_enc(_txt.c_str()), base64_enc(_txt.c_str() + _txt.size()),
+        std::ostream_iterator<char>(os));
+
+    os << base64_padding[_txt.size() % 3];
+    return os.str();
+}
+std::string base64_decode(const std::string& _txt)
+{
+    namespace bai = boost::archive::iterators;
+
+    std::stringstream os;
+
+    typedef bai::transform_width<bai::binary_from_base64<const char*>, 8, 6> base64_dec;
+
+    unsigned int size = _txt.size();
+
+    // Remove the padding characters, cf. https://svn.boost.org/trac/boost/ticket/5629
+    if (size && _txt[size - 1] == '=') {
+        --size;
+        if (size && _txt[size - 1] == '=')
+            --size;
+    }
+    if (size == 0)
+        return std::string();
+
+    std::copy(base64_dec(_txt.data()), base64_dec(_txt.data() + size),
+        std::ostream_iterator<char>(os));
+
+    return os.str();
+}
+//-----------------------------------------------------------------------------
 } //namespace utility
 } //namespace ola
