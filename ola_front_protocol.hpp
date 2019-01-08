@@ -7,7 +7,6 @@
 #include <string>
 
 namespace ola {
-
 namespace front {
 
 inline const char * default_port(){
