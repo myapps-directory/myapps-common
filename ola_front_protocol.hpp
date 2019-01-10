@@ -9,13 +9,15 @@
 namespace ola {
 namespace front {
 
-inline const char * default_port(){
+inline const char* default_port()
+{
     return "4443";
 }
 
 enum struct ErrorE : uint32_t {
     Generic = 1,
     Exist,
+    Backend,
 };
 
 struct AuthRequest : solid::frame::mprpc::Message {
@@ -80,7 +82,6 @@ struct ListOSesResponse : solid::frame::mprpc::Message {
     }
 };
 
-
 using ProtocolT = solid::frame::mprpc::serialization_v2::Protocol<uint8_t>;
 
 template <class R>
@@ -90,11 +91,10 @@ inline void protocol_setup(R _r, ProtocolT& _rproto)
 
     _r(_rproto, solid::TypeToType<AuthRequest>(), 1);
     _r(_rproto, solid::TypeToType<AuthResponse>(), 2);
-    
+
     _r(_rproto, solid::TypeToType<ListOSesRequest>(), 10);
     _r(_rproto, solid::TypeToType<ListOSesResponse>(), 11);
 }
 
 } //namespace front
 } //namespace ola
-
