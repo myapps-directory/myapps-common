@@ -57,6 +57,30 @@ struct AuthResponse : solid::frame::mprpc::Message {
     }
 };
 
+struct ListOSesRequest : solid::frame::mprpc::Message {
+    SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
+    {
+    }
+};
+
+struct ListOSesResponse : solid::frame::mprpc::Message {
+    std::vector<std::string> osvec_;
+
+    ListOSesResponse() {}
+
+    ListOSesResponse(
+        const ListOSesRequest& _rreq)
+        : solid::frame::mprpc::Message(_rreq)
+    {
+    }
+
+    SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
+    {
+        _s.add(_rthis.osvec_, _rctx, "osvec");
+    }
+};
+
+
 using ProtocolT = solid::frame::mprpc::serialization_v2::Protocol<uint8_t>;
 
 template <class R>
@@ -66,6 +90,9 @@ inline void protocol_setup(R _r, ProtocolT& _rproto)
 
     _r(_rproto, solid::TypeToType<AuthRequest>(), 1);
     _r(_rproto, solid::TypeToType<AuthResponse>(), 2);
+    
+    _r(_rproto, solid::TypeToType<ListOSesRequest>(), 10);
+    _r(_rproto, solid::TypeToType<ListOSesResponse>(), 11);
 }
 
 } //namespace front
