@@ -82,13 +82,13 @@ struct ListOSesResponse : solid::frame::mprpc::Message {
     }
 };
 
-struct GenericResponse : solid::frame::mprpc::Message {
+struct Response : solid::frame::mprpc::Message {
     uint32_t    error_;
     std::string message_;
 
-    GenericResponse() {}
+    Response() {}
 
-    GenericResponse(
+    Response(
         const solid::frame::mprpc::Message& _rreq)
         : solid::frame::mprpc::Message(_rreq)
         , error_(-1)
@@ -101,13 +101,13 @@ struct GenericResponse : solid::frame::mprpc::Message {
     }
 };
 
-struct AppConfig{
+struct AppConfig {
     using KVVectorT = std::vector<std::pair<std::string, std::string>>;
     std::string name_;
     std::string short_description_;
     std::string description_;
     KVVectorT   name_vec_;
-    
+
     SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
     {
         _s.add(_rthis.name_, _rctx, "name");
@@ -117,9 +117,9 @@ struct AppConfig{
     }
 };
 
-struct CreateAppRequest: solid::frame::mprpc::Message{
+struct CreateAppRequest : solid::frame::mprpc::Message {
     AppConfig config_;
-    
+
     SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
     {
         _s.add(_rthis.config_, _rctx, "config");
@@ -135,11 +135,11 @@ inline void protocol_setup(R _r, ProtocolT& _rproto)
 
     _r(_rproto, solid::TypeToType<AuthRequest>(), 1);
     _r(_rproto, solid::TypeToType<AuthResponse>(), 2);
-    _r(_rproto, solid::TypeToType<GenericResponse>(), 3);
+    _r(_rproto, solid::TypeToType<Response>(), 3);
 
     _r(_rproto, solid::TypeToType<ListOSesRequest>(), 10);
     _r(_rproto, solid::TypeToType<ListOSesResponse>(), 11);
-    
+
     _r(_rproto, solid::TypeToType<CreateAppRequest>(), 21);
 }
 
