@@ -1,8 +1,7 @@
 #pragma once
 
-#include "solid/frame/mprpc/mprpccontext.hpp"
-#include "solid/frame/mprpc/mprpcmessage.hpp"
-#include "solid/frame/mprpc/mprpcprotocol_serialization_v2.hpp"
+#include "ola/common/utility/ola_error.hpp"
+#include "ola/common/utility/ola_protocol.hpp"
 
 #include <string>
 
@@ -13,12 +12,6 @@ inline const char* default_port()
 {
     return "4443";
 }
-
-enum struct ErrorE : uint32_t {
-    Generic = 1,
-    Exist,
-    Backend,
-};
 
 struct AuthRequest : solid::frame::mprpc::Message {
     std::string auth_;
@@ -101,24 +94,8 @@ struct Response : solid::frame::mprpc::Message {
     }
 };
 
-struct AppConfig {
-    using KVVectorT = std::vector<std::pair<std::string, std::string>>;
-    std::string name_;
-    std::string short_description_;
-    std::string description_;
-    KVVectorT   name_vec_;
-
-    SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
-    {
-        _s.add(_rthis.name_, _rctx, "name");
-        _s.add(_rthis.short_description_, _rctx, "short_description");
-        _s.add(_rthis.description_, _rctx, "description");
-        _s.add(_rthis.name_vec_, _rctx, "name_vec");
-    }
-};
-
 struct CreateAppRequest : solid::frame::mprpc::Message {
-    AppConfig config_;
+    utility::AppConfig config_;
 
     SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
     {
