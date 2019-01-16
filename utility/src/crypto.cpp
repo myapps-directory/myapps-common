@@ -41,6 +41,10 @@ std::string sha256(const std::string& str)
 //-----------------------------------------------------------------------------
 //https://wiki.openssl.org/index.php/EVP_Symmetric_Encryption_and_Decryption
 
+namespace {
+const string iv = "fda66004-197a-11e9-a947-ff513e7f94ff";
+} //namespace
+
 struct Enigma::Data {
     EVP_CIPHER_CTX* enc_ctx_;
     EVP_CIPHER_CTX* dec_ctx_;
@@ -51,7 +55,7 @@ struct Enigma::Data {
     {
         enc_ctx_ = EVP_CIPHER_CTX_new();
         dec_ctx_ = EVP_CIPHER_CTX_new();
-        iv_      = to_string(boost::uuids::random_generator()());
+        iv_      = iv; //to_string(boost::uuids::random_generator()());
     }
 
     ~Data()
