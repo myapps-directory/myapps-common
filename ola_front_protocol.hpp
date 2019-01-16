@@ -76,10 +76,10 @@ struct ListOSesResponse : solid::frame::mprpc::Message {
 };
 
 struct ListAppsRequest : solid::frame::mprpc::Message {
-    uint8_t choice_;
-    std::string static_fields_;
+    uint8_t                  choice_;
+    std::string              static_fields_;
     std::vector<std::string> field_vec_;
-    
+
     SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
     {
         _s.add(_rthis.choice_, _rctx, "choice");
@@ -103,19 +103,20 @@ struct ListAppsResponse : solid::frame::mprpc::Message {
     {
         _s.add(_rthis.app_vec_, _rctx, "app_vec");
     }
-    
+
     template <class F>
-    void visit(F _f, const std::string &_static_fields, const std::vector<std::string> &_field_vec){
+    void visit(F _f, const std::string& _static_fields, const std::vector<std::string>& _field_vec)
+    {
         const size_t field_cnt = _static_fields.size() + _field_vec.size();
-        std::string empty;
-        for(size_t i = 0; i < app_vec_.size(); ++i){
-            const std::string &v = app_vec_[i];
-            const size_t field_idx = i % field_cnt;
-            const bool is_first = field_idx == 0;
-            const bool is_last = field_idx == (field_cnt - 1);
-            const char static_field = field_idx < _static_fields.size() ? _static_fields[field_idx] : '\0';
-            const std::string &field = field_idx < _static_fields.size() ? empty : _field_vec[field_idx];
-            
+        std::string  empty;
+        for (size_t i = 0; i < app_vec_.size(); ++i) {
+            const std::string& v            = app_vec_[i];
+            const size_t       field_idx    = i % field_cnt;
+            const bool         is_first     = field_idx == 0;
+            const bool         is_last      = field_idx == (field_cnt - 1);
+            const char         static_field = field_idx < _static_fields.size() ? _static_fields[field_idx] : '\0';
+            const std::string& field        = field_idx < _static_fields.size() ? empty : _field_vec[field_idx];
+
             _f(static_field, field, v, is_first, is_last);
         }
     }
@@ -164,7 +165,7 @@ inline void protocol_setup(R _r, ProtocolT& _rproto)
     _r(_rproto, solid::TypeToType<ListOSesResponse>(), 11);
 
     _r(_rproto, solid::TypeToType<CreateAppRequest>(), 21);
-    
+
     _r(_rproto, solid::TypeToType<ListAppsRequest>(), 30);
     _r(_rproto, solid::TypeToType<ListAppsResponse>(), 31);
 }

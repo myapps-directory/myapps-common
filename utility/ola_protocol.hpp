@@ -4,8 +4,8 @@
 #include <string>
 #include <vector>
 
-namespace ola{
-namespace utility{
+namespace ola {
+namespace utility {
 
 struct AppConfig {
     using KVVectorT = std::vector<std::pair<std::string, std::string>>;
@@ -21,7 +21,7 @@ struct AppConfig {
         _s.add(_rthis.description_, _rctx, "description");
         _s.add(_rthis.name_vec_, _rctx, "name_vec");
     }
-    
+
     template <class Archive>
     void serialize(Archive& _a)
     {
@@ -29,6 +29,5 @@ struct AppConfig {
     }
 };
 
-
-}//namespace utility
-}//namespace ola
+} //namespace utility
+} //namespace ola
