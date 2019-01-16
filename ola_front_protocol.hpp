@@ -164,6 +164,9 @@ inline void protocol_setup(R _r, ProtocolT& _rproto)
     _r(_rproto, solid::TypeToType<ListOSesResponse>(), 11);
 
     _r(_rproto, solid::TypeToType<CreateAppRequest>(), 21);
+    
+    _r(_rproto, solid::TypeToType<ListAppsRequest>(), 30);
+    _r(_rproto, solid::TypeToType<ListAppsResponse>(), 31);
 }
 
 } //namespace front
