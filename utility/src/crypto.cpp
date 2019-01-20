@@ -38,14 +38,15 @@ std::string sha256(const std::string& str)
     return ss.str();
 }
 
-std::string sha256(std::istream& _ris){
+std::string sha256(std::istream& _ris)
+{
     unsigned char hash[SHA256_DIGEST_LENGTH];
     SHA256_CTX    sha256;
     SHA256_Init(&sha256);
     //SHA256_Update(&sha256, str.c_str(), str.size());
-    constexpr size_t bufsz = 1024*64;
-    char buf[bufsz];
-    while(!_ris.eof()){
+    constexpr size_t bufsz = 1024 * 64;
+    char             buf[bufsz];
+    while (!_ris.eof()) {
         _ris.read(buf, bufsz);
         SHA256_Update(&sha256, buf, _ris.gcount());
     }

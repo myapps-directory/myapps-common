@@ -1,8 +1,8 @@
 #pragma once
 
 #include "solid/system/pimpl.hpp"
-#include <string>
 #include <istream>
+#include <string>
 
 namespace ola {
 
