@@ -2,12 +2,14 @@
 
 #include "solid/system/pimpl.hpp"
 #include <string>
+#include <istream>
 
 namespace ola {
 
 namespace utility {
 
 std::string sha256(const std::string& str);
+std::string sha256(std::istream& _ris);
 
 class Enigma {
     struct Data;
