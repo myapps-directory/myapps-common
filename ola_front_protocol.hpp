@@ -3,6 +3,8 @@
 #include "ola/common/utility/ola_error.hpp"
 #include "ola/common/utility/ola_protocol.hpp"
 
+#include <fstream>
+#include <sstream>
 #include <string>
 
 namespace ola {
@@ -150,6 +152,49 @@ struct CreateAppRequest : solid::frame::mprpc::Message {
     }
 };
 
+struct CreateBuildRequest : solid::frame::mprpc::Message {
+    std::string          app_id_;
+    std::string          tag_; //there cannot be two builds with the same tag per application
+    uint64_t             size_;
+    std::string          sha_sum_;
+    utility::BuildConfig config_;
+
+    CreateBuildRequest()
+        : size_(0)
+    {
+    }
+
+    SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
+    {
+        _s.add(_rthis.app_id_, _rctx, "app_id");
+        _s.add(_rthis.tag_, _rctx, "tag");
+        _s.add(_rthis.size_, _rctx, "size");
+        _s.add(_rthis.sha_sum_, _rctx, "sha_sum");
+        _s.add(_rthis.config_, _rctx, "config");
+    }
+};
+
+struct UploadBuildRequest : solid::frame::mprpc::Message {
+    mutable std::ifstream ifs_;
+    std::ostringstream    oss_;
+
+    template <class S>
+    void solidSerializeV2(S& _s, solid::frame::mprpc::ConnectionContext& _rctx, const char* _name) const
+    {
+        //on serializer side
+        auto progress_lambda = [](std::istream& _ris, uint64_t _len, const bool _done, solid::frame::mprpc::ConnectionContext& _rctx, const char* _name) {
+        };
+        _s.add(ifs_, 100 * 1024, progress_lambda, _rctx, "file");
+    }
+
+    template <class S>
+    void solidSerializeV2(S& _s, solid::frame::mprpc::ConnectionContext& _rctx, const char* _name)
+    {
+        auto progress_lambda = [](std::ostream& _ros, uint64_t _len, const bool _done, solid::frame::mprpc::ConnectionContext& _rctx, const char* _name) {
+        };
+        _s.add(oss_, progress_lambda, _rctx, "file");
+    }
+};
 using ProtocolT = solid::frame::mprpc::serialization_v2::Protocol<uint8_t>;
 
 template <class R>
@@ -168,6 +213,9 @@ inline void protocol_setup(R _r, ProtocolT& _rproto)
 
     _r(_rproto, solid::TypeToType<ListAppsRequest>(), 30);
     _r(_rproto, solid::TypeToType<ListAppsResponse>(), 31);
+
+    _r(_rproto, solid::TypeToType<CreateBuildRequest>(), 40);
+    _r(_rproto, solid::TypeToType<UploadBuildRequest>(), 44);
 }
 
 } //namespace front
