@@ -195,6 +195,7 @@ struct UploadBuildRequest : solid::frame::mprpc::Message {
         _s.add(oss_, progress_lambda, _rctx, "file");
     }
 };
+
 using ProtocolT = solid::frame::mprpc::serialization_v2::Protocol<uint8_t>;
 
 template <class R>
