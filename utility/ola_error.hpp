@@ -18,5 +18,7 @@ extern const solid::ErrorConditionT error_account_no_reservation;
 extern const solid::ErrorConditionT error_storage_limit;
 extern const solid::ErrorConditionT error_storage_sum;
 extern const solid::ErrorConditionT error_storage_zip;
+extern const solid::ErrorConditionT error_application_invalid;
+extern const solid::ErrorConditionT error_application_reservation;
 } //namespace utility
 } //namespace ola
