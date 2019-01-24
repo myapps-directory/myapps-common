@@ -124,6 +124,43 @@ struct ListAppsResponse : solid::frame::mprpc::Message {
     }
 };
 
+struct ListBuildsRequest : solid::frame::mprpc::Message {
+    uint8_t                  choice_;
+    std::string              app_id_;
+    std::string              static_fields_;
+    std::vector<std::string> field_vec_;
+
+    ListBuildsRequest()
+        : choice_(0)
+    {
+    }
+
+    SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
+    {
+        _s.add(_rthis.choice_, _rctx, "choice");
+        _s.add(_rthis.app_id_, _rctx, "app_id");
+        _s.add(_rthis.static_fields_, _rctx, "static_fields");
+        _s.add(_rthis.field_vec_, _rctx, "field_vec");
+    }
+};
+
+struct ListBuildsResponse : solid::frame::mprpc::Message {
+    std::vector<std::string> build_vec_;
+
+    ListBuildsResponse() {}
+
+    ListBuildsResponse(
+        const ListBuildsRequest& _rreq)
+        : solid::frame::mprpc::Message(_rreq)
+    {
+    }
+
+    SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
+    {
+        _s.add(_rthis.build_vec_, _rctx, "build_vec");
+    }
+};
+
 struct Response : solid::frame::mprpc::Message {
     uint32_t    error_;
     std::string message_;
@@ -149,6 +186,15 @@ struct CreateAppRequest : solid::frame::mprpc::Message {
     SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
     {
         _s.add(_rthis.config_, _rctx, "config");
+    }
+};
+
+struct AcquireAppRequest : solid::frame::mprpc::Message {
+    std::string app_id_;
+
+    SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
+    {
+        _s.add(_rthis.app_id_, _rctx, "app_id");
     }
 };
 
@@ -217,6 +263,11 @@ inline void protocol_setup(R _r, ProtocolT& _rproto)
 
     _r(_rproto, solid::TypeToType<CreateBuildRequest>(), 40);
     _r(_rproto, solid::TypeToType<UploadBuildRequest>(), 44);
+
+    _r(_rproto, solid::TypeToType<ListBuildsRequest>(), 50);
+    _r(_rproto, solid::TypeToType<ListBuildsResponse>(), 51);
+
+    _r(_rproto, solid::TypeToType<AcquireAppRequest>(), 60);
 }
 
 } //namespace front
