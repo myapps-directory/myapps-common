@@ -226,8 +226,7 @@ std::string base64_encode(const std::string& _txt)
         <bai::transform_width<const char*, 6, 8>>
             base64_enc; // compose all the above operations in to a new iterator
 
-    std::copy(base64_enc(_txt.c_str()), base64_enc(_txt.c_str() + _txt.size()),
-        std::ostream_iterator<char>(os));
+    std::copy(base64_enc(_txt.c_str()), base64_enc(_txt.c_str() + _txt.size()), std::ostream_iterator<char>(os));
 
     os << base64_padding[_txt.size() % 3];
     return os.str();
@@ -251,8 +250,7 @@ std::string base64_decode(const std::string& _txt)
     if (size == 0)
         return std::string();
 
-    std::copy(base64_dec(_txt.data()), base64_dec(_txt.data() + size),
-        std::ostream_iterator<char>(os));
+    std::copy(base64_dec(_txt.data()), base64_dec(_txt.data() + size), std::ostream_iterator<char>(os));
 
     return os.str();
 }

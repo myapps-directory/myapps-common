@@ -78,20 +78,18 @@ struct ListOSesResponse : solid::frame::mprpc::Message {
 };
 
 struct ListAppsRequest : solid::frame::mprpc::Message {
-    uint8_t                  choice_;
-    std::string              static_fields_;
-    std::vector<std::string> field_vec_;
+    uint8_t choice_; //o - owned applications
+        //a - aquired applications
+        //A - all applications
 
     SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
     {
         _s.add(_rthis.choice_, _rctx, "choice");
-        _s.add(_rthis.static_fields_, _rctx, "static_fields");
-        _s.add(_rthis.field_vec_, _rctx, "field_vec");
     }
 };
 
 struct ListAppsResponse : solid::frame::mprpc::Message {
-    std::vector<std::string> app_vec_;
+    std::vector<std::string> app_id_vec_;
 
     ListAppsResponse() {}
 
@@ -103,61 +101,71 @@ struct ListAppsResponse : solid::frame::mprpc::Message {
 
     SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
     {
-        _s.add(_rthis.app_vec_, _rctx, "app_vec");
-    }
-
-    template <class F>
-    void visit(F _f, const std::string& _static_fields, const std::vector<std::string>& _field_vec)
-    {
-        const size_t field_cnt = _static_fields.size() + _field_vec.size();
-        std::string  empty;
-        for (size_t i = 0; i < app_vec_.size(); ++i) {
-            const std::string& v            = app_vec_[i];
-            const size_t       field_idx    = i % field_cnt;
-            const bool         is_first     = field_idx == 0;
-            const bool         is_last      = field_idx == (field_cnt - 1);
-            const char         static_field = field_idx < _static_fields.size() ? _static_fields[field_idx] : '\0';
-            const std::string& field        = field_idx < _static_fields.size() ? empty : _field_vec[field_idx];
-
-            _f(static_field, field, v, is_first, is_last);
-        }
+        _s.add(_rthis.app_id_vec_, _rctx, "app_id_vec");
     }
 };
 
-struct ListBuildsRequest : solid::frame::mprpc::Message {
-    uint8_t                  choice_;
-    std::string              app_id_;
-    std::string              static_fields_;
-    std::vector<std::string> field_vec_;
-
-    ListBuildsRequest()
-        : choice_(0)
-    {
-    }
+struct FetchAppRequest : solid::frame::mprpc::Message {
+    std::string app_id_;
+    std::string lang_;
 
     SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
     {
-        _s.add(_rthis.choice_, _rctx, "choice");
         _s.add(_rthis.app_id_, _rctx, "app_id");
-        _s.add(_rthis.static_fields_, _rctx, "static_fields");
-        _s.add(_rthis.field_vec_, _rctx, "field_vec");
+        _s.add(_rthis.lang_, _rctx, "lang");
     }
 };
 
-struct ListBuildsResponse : solid::frame::mprpc::Message {
-    std::vector<std::string> build_vec_;
+struct FetchAppResponse : solid::frame::mprpc::Message {
+    utility::AppConfig       config_;
+    std::vector<std::string> build_id_vec_;
 
-    ListBuildsResponse() {}
+    FetchAppResponse() {}
 
-    ListBuildsResponse(
-        const ListBuildsRequest& _rreq)
+    FetchAppResponse(
+        const FetchAppRequest& _rreq)
         : solid::frame::mprpc::Message(_rreq)
     {
     }
 
     SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
     {
-        _s.add(_rthis.build_vec_, _rctx, "build_vec");
+        _s.add(_rthis.config_, _rctx, "config");
+        _s.add(_rthis.build_id_vec_, _rctx, "build_id_vec");
+    }
+};
+
+struct FetchBuildRequest : solid::frame::mprpc::Message {
+    std::string app_id_;
+    std::string build_id_; //empty -> last build
+    std::string lang_;
+    std::string os_id_;
+
+    SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
+    {
+        _s.add(_rthis.app_id_, _rctx, "app_id");
+        _s.add(_rthis.build_id_, _rctx, "build_id");
+        _s.add(_rthis.lang_, _rctx, "lang");
+        _s.add(_rthis.os_id_, _rctx, "os_id");
+    }
+};
+
+struct FetchBuildResponse : solid::frame::mprpc::Message {
+    std::string          remote_root_;
+    utility::BuildConfig config_;
+
+    FetchBuildResponse() {}
+
+    FetchBuildResponse(
+        const FetchBuildRequest& _rreq)
+        : solid::frame::mprpc::Message(_rreq)
+    {
+    }
+
+    SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
+    {
+        _s.add(_rthis.remote_root_, _rctx, "remote_root");
+        _s.add(_rthis.config_, _rctx, "config");
     }
 };
 
@@ -200,7 +208,7 @@ struct AcquireAppRequest : solid::frame::mprpc::Message {
 
 struct CreateBuildRequest : solid::frame::mprpc::Message {
     std::string          app_id_;
-    std::string          tag_; //there cannot be two builds with the same tag per application
+    std::string          unique_; //there cannot be two builds with the same tag per application
     uint64_t             size_;
     std::string          sha_sum_;
     utility::BuildConfig config_;
@@ -213,7 +221,7 @@ struct CreateBuildRequest : solid::frame::mprpc::Message {
     SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
     {
         _s.add(_rthis.app_id_, _rctx, "app_id");
-        _s.add(_rthis.tag_, _rctx, "tag");
+        _s.add(_rthis.unique_, _rctx, "unique");
         _s.add(_rthis.size_, _rctx, "size");
         _s.add(_rthis.sha_sum_, _rctx, "sha_sum");
         _s.add(_rthis.config_, _rctx, "config");
@@ -264,10 +272,13 @@ inline void protocol_setup(R _r, ProtocolT& _rproto)
     _r(_rproto, solid::TypeToType<CreateBuildRequest>(), 40);
     _r(_rproto, solid::TypeToType<UploadBuildRequest>(), 44);
 
-    _r(_rproto, solid::TypeToType<ListBuildsRequest>(), 50);
-    _r(_rproto, solid::TypeToType<ListBuildsResponse>(), 51);
+    _r(_rproto, solid::TypeToType<FetchAppRequest>(), 50);
+    _r(_rproto, solid::TypeToType<FetchAppResponse>(), 51);
 
-    _r(_rproto, solid::TypeToType<AcquireAppRequest>(), 60);
+    _r(_rproto, solid::TypeToType<FetchBuildRequest>(), 60);
+    _r(_rproto, solid::TypeToType<FetchBuildResponse>(), 61);
+
+    _r(_rproto, solid::TypeToType<AcquireAppRequest>(), 100);
 }
 
 } //namespace front
