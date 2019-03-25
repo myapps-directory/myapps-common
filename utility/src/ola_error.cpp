@@ -11,6 +11,7 @@ enum struct ErrorE : uint32_t {
     Exist,
     Backend,
     Pending,
+    RequestInvalid,
     AccountInvalid,
     AccountApplicationQuota,
     AccountStorageQuota,
@@ -61,6 +62,9 @@ std::string ErrorCategory::message(int _ev) const
     case cast(ErrorE::Pending):
         oss << "Operation pending";
         break;
+    case cast(ErrorE::RequestInvalid):
+        oss << "Request Invalid";
+        break;
     case cast(ErrorE::AccountInvalid):
         oss << "Account: Invalid";
         break;
@@ -106,6 +110,7 @@ solid::ErrorConditionT make_error(const uint32_t _err)
 /*extern*/ const solid::ErrorConditionT error_exist(cast(ErrorE::Exist), category);
 /*extern*/ const solid::ErrorConditionT error_backend(cast(ErrorE::Backend), category);
 /*extern*/ const solid::ErrorConditionT error_pending(cast(ErrorE::Pending), category);
+/*extern*/ const solid::ErrorConditionT error_request_invalid(cast(ErrorE::RequestInvalid), category);
 /*extern*/ const solid::ErrorConditionT error_account_invalid(cast(ErrorE::AccountInvalid), category);
 /*extern*/ const solid::ErrorConditionT error_account_application_quota(cast(ErrorE::AccountApplicationQuota), category);
 /*extern*/ const solid::ErrorConditionT error_account_storage_quota(cast(ErrorE::AccountStorageQuota), category);

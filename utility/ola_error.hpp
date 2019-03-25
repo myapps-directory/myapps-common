@@ -11,6 +11,7 @@ extern const solid::ErrorConditionT error_generic;
 extern const solid::ErrorConditionT error_exist;
 extern const solid::ErrorConditionT error_backend;
 extern const solid::ErrorConditionT error_pending;
+extern const solid::ErrorConditionT error_request_invalid;
 extern const solid::ErrorConditionT error_account_invalid;
 extern const solid::ErrorConditionT error_account_application_quota;
 extern const solid::ErrorConditionT error_account_storage_quota;

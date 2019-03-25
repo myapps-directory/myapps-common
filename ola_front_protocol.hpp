@@ -89,6 +89,7 @@ struct ListAppsRequest : solid::frame::mprpc::Message {
 };
 
 struct ListAppsResponse : solid::frame::mprpc::Message {
+    uint32_t                 error_ = -1;
     std::vector<std::string> app_id_vec_;
 
     ListAppsResponse() {}
@@ -101,6 +102,7 @@ struct ListAppsResponse : solid::frame::mprpc::Message {
 
     SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
     {
+        _s.add(_rthis.error_, _rctx, "error");
         _s.add(_rthis.app_id_vec_, _rctx, "app_id_vec");
     }
 };
@@ -117,6 +119,7 @@ struct FetchAppRequest : solid::frame::mprpc::Message {
 };
 
 struct FetchAppResponse : solid::frame::mprpc::Message {
+    uint32_t                 error_ = -1;
     utility::AppConfig       config_;
     std::vector<std::string> build_id_vec_;
 
@@ -130,6 +133,7 @@ struct FetchAppResponse : solid::frame::mprpc::Message {
 
     SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
     {
+        _s.add(_rthis.error_, _rctx, "error");
         _s.add(_rthis.config_, _rctx, "config");
         _s.add(_rthis.build_id_vec_, _rctx, "build_id_vec");
     }
@@ -151,6 +155,7 @@ struct FetchBuildRequest : solid::frame::mprpc::Message {
 };
 
 struct FetchBuildResponse : solid::frame::mprpc::Message {
+    uint32_t             error_ = -1;
     std::string          remote_root_;
     utility::BuildConfig config_;
 
@@ -164,13 +169,14 @@ struct FetchBuildResponse : solid::frame::mprpc::Message {
 
     SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
     {
+        _s.add(_rthis.error_, _rctx, "error");
         _s.add(_rthis.remote_root_, _rctx, "remote_root");
         _s.add(_rthis.config_, _rctx, "config");
     }
 };
 
 struct Response : solid::frame::mprpc::Message {
-    uint32_t    error_;
+    uint32_t    error_ = -1;
     std::string message_;
 
     Response() {}
@@ -178,7 +184,6 @@ struct Response : solid::frame::mprpc::Message {
     Response(
         const solid::frame::mprpc::Message& _rreq)
         : solid::frame::mprpc::Message(_rreq)
-        , error_(-1)
     {
     }
 
