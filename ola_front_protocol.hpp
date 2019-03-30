@@ -3,10 +3,10 @@
 #include "ola/common/utility/ola_error.hpp"
 #include "ola/common/utility/ola_protocol.hpp"
 
+#include <deque>
 #include <fstream>
 #include <sstream>
 #include <string>
-#include <deque>
 
 namespace ola {
 namespace front {
@@ -119,18 +119,9 @@ struct ListStoreRequest : solid::frame::mprpc::Message {
     }
 };
 
-struct ListStoreNode{
-    std::string name_;
-    
-    SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
-    {
-        _s.add(_rthis.name_, _rctx, "name");
-    }
-};
-
 struct ListStoreResponse : solid::frame::mprpc::Message {
-    uint32_t                 error_ = -1;
-    std::deque<ListStoreNode> node_dq_;
+    uint32_t                                error_ = -1;
+    std::deque<ola::utility::ListStoreNode> node_dq_;
 
     ListStoreResponse() {}
 
@@ -214,8 +205,6 @@ struct FetchBuildResponse : solid::frame::mprpc::Message {
         _s.add(_rthis.config_, _rctx, "config");
     }
 };
-
-
 
 struct Response : solid::frame::mprpc::Message {
     uint32_t    error_ = -1;
@@ -309,13 +298,13 @@ inline void protocol_setup(R _r, ProtocolT& _rproto)
     _r(_rproto, solid::TypeToType<Response>(), 3);
 
     _r(_rproto, solid::TypeToType<CreateAppRequest>(), 10);
-    
+
     _r(_rproto, solid::TypeToType<ListOSesRequest>(), 20);
     _r(_rproto, solid::TypeToType<ListOSesResponse>(), 21);
 
     _r(_rproto, solid::TypeToType<ListAppsRequest>(), 22);
     _r(_rproto, solid::TypeToType<ListAppsResponse>(), 23);
-    
+
     _r(_rproto, solid::TypeToType<ListStoreRequest>(), 24);
     _r(_rproto, solid::TypeToType<ListStoreResponse>(), 25);
 

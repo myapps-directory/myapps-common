@@ -120,5 +120,26 @@ struct BuildConfig {
     }
 };
 
+struct ListStoreNode {
+    std::string name_;
+
+    ListStoreNode() {}
+
+    ListStoreNode(const std::string& _name)
+        : name_(_name)
+    {
+    }
+
+    ListStoreNode(std::string&& _name)
+        : name_(std::move(_name))
+    {
+    }
+
+    SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
+    {
+        _s.add(_rthis.name_, _rctx, "name");
+    }
+};
+
 } //namespace utility
 } //namespace ola
