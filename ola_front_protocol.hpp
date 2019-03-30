@@ -6,6 +6,7 @@
 #include <fstream>
 #include <sstream>
 #include <string>
+#include <deque>
 
 namespace ola {
 namespace front {
@@ -107,6 +108,45 @@ struct ListAppsResponse : solid::frame::mprpc::Message {
     }
 };
 
+struct ListStoreRequest : solid::frame::mprpc::Message {
+    std::string storage_id_;
+    std::string path_;
+
+    SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
+    {
+        _s.add(_rthis.storage_id_, _rctx, "storage_id");
+        _s.add(_rthis.path_, _rctx, "path");
+    }
+};
+
+struct ListStoreNode{
+    std::string name_;
+    
+    SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
+    {
+        _s.add(_rthis.name_, _rctx, "name");
+    }
+};
+
+struct ListStoreResponse : solid::frame::mprpc::Message {
+    uint32_t                 error_ = -1;
+    std::deque<ListStoreNode> node_dq_;
+
+    ListStoreResponse() {}
+
+    ListStoreResponse(
+        const ListStoreRequest& _rreq)
+        : solid::frame::mprpc::Message(_rreq)
+    {
+    }
+
+    SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
+    {
+        _s.add(_rthis.error_, _rctx, "error");
+        _s.add(_rthis.node_dq_, _rctx, "node_dq");
+    }
+};
+
 struct FetchAppRequest : solid::frame::mprpc::Message {
     std::string app_id_;
     std::string lang_;
@@ -156,7 +196,7 @@ struct FetchBuildRequest : solid::frame::mprpc::Message {
 
 struct FetchBuildResponse : solid::frame::mprpc::Message {
     uint32_t             error_ = -1;
-    std::string          remote_root_;
+    std::string          storage_id_;
     utility::BuildConfig config_;
 
     FetchBuildResponse() {}
@@ -170,10 +210,12 @@ struct FetchBuildResponse : solid::frame::mprpc::Message {
     SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
     {
         _s.add(_rthis.error_, _rctx, "error");
-        _s.add(_rthis.remote_root_, _rctx, "remote_root");
+        _s.add(_rthis.storage_id_, _rctx, "storage_id");
         _s.add(_rthis.config_, _rctx, "config");
     }
 };
+
+
 
 struct Response : solid::frame::mprpc::Message {
     uint32_t    error_ = -1;
