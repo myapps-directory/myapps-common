@@ -308,13 +308,16 @@ inline void protocol_setup(R _r, ProtocolT& _rproto)
     _r(_rproto, solid::TypeToType<AuthResponse>(), 2);
     _r(_rproto, solid::TypeToType<Response>(), 3);
 
-    _r(_rproto, solid::TypeToType<ListOSesRequest>(), 10);
-    _r(_rproto, solid::TypeToType<ListOSesResponse>(), 11);
+    _r(_rproto, solid::TypeToType<CreateAppRequest>(), 10);
+    
+    _r(_rproto, solid::TypeToType<ListOSesRequest>(), 20);
+    _r(_rproto, solid::TypeToType<ListOSesResponse>(), 21);
 
-    _r(_rproto, solid::TypeToType<CreateAppRequest>(), 21);
-
-    _r(_rproto, solid::TypeToType<ListAppsRequest>(), 30);
-    _r(_rproto, solid::TypeToType<ListAppsResponse>(), 31);
+    _r(_rproto, solid::TypeToType<ListAppsRequest>(), 22);
+    _r(_rproto, solid::TypeToType<ListAppsResponse>(), 23);
+    
+    _r(_rproto, solid::TypeToType<ListStoreRequest>(), 24);
+    _r(_rproto, solid::TypeToType<ListStoreResponse>(), 25);
 
     _r(_rproto, solid::TypeToType<CreateBuildRequest>(), 40);
     _r(_rproto, solid::TypeToType<UploadBuildRequest>(), 44);
