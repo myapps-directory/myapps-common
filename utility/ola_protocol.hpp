@@ -122,22 +122,26 @@ struct BuildConfig {
 
 struct ListStoreNode {
     std::string name_;
+    uint64_t    size_ = 0;
 
     ListStoreNode() {}
 
-    ListStoreNode(const std::string& _name)
+    ListStoreNode(const std::string& _name, uint64_t _size = 0)
         : name_(_name)
+        , size_(_size)
     {
     }
 
-    ListStoreNode(std::string&& _name)
+    ListStoreNode(std::string&& _name, uint64_t _size = 0)
         : name_(std::move(_name))
+        , size_(_size)
     {
     }
 
     SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
     {
         _s.add(_rthis.name_, _rctx, "name");
+        _s.add(_rthis.size_, _rctx, "size");
     }
 };
 
