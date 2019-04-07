@@ -10,28 +10,22 @@ namespace utility {
 struct AppConfig {
     using StringPairVectorT = std::vector<std::pair<std::string, std::string>>;
 
-    std::string       name_;
-    std::string       short_description_;
-    std::string       description_;
-    StringPairVectorT name_vec_;
+    StringPairVectorT translation_vec_;
 
     SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
     {
-        _s.add(_rthis.name_, _rctx, "name");
-        _s.add(_rthis.short_description_, _rctx, "short_description");
-        _s.add(_rthis.description_, _rctx, "description");
-        _s.add(_rthis.name_vec_, _rctx, "name_vec");
+        _s.add(_rthis.translation_vec_, _rctx, "translation_vec");
     }
 
     template <class Archive>
     void serialize(Archive& _a)
     {
-        _a(name_, short_description_, description_, name_vec_);
+        _a(translation_vec_);
     }
 
     bool operator==(const AppConfig& _ac) const
     {
-        return name_ == _ac.name_ && description_ == _ac.description_ && short_description_ == _ac.short_description_ && name_vec_ == _ac.name_vec_;
+        return translation_vec_ == _ac.translation_vec_;
     }
 };
 
@@ -69,6 +63,7 @@ struct BuildConfig {
 
     struct Component {
         std::string       name_;
+        std::string       directory_;
         StringVectorT     os_vec_;
         StringPairVectorT mount_vec_;
         StringVectorT     exe_vec_;
@@ -77,6 +72,7 @@ struct BuildConfig {
         SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
         {
             _s.add(_rthis.name_, _rctx, "name");
+            _s.add(_rthis.directory_, _rctx, "directory");
             _s.add(_rthis.os_vec_, _rctx, "os_vec");
             _s.add(_rthis.mount_vec_, _rctx, "mount_vec");
             _s.add(_rthis.exe_vec_, _rctx, "exe_vec");
@@ -86,37 +82,39 @@ struct BuildConfig {
         template <class Archive>
         void serialize(Archive& _a)
         {
-            _a(name_, os_vec_, mount_vec_, exe_vec_, shortcut_vec_);
+            _a(name_, directory_, os_vec_, mount_vec_, exe_vec_, shortcut_vec_);
         }
 
         bool operator==(const Component& _c) const
         {
-            return name_ == _c.name_ && os_vec_ == _c.os_vec_ && mount_vec_ == _c.mount_vec_ && exe_vec_ == _c.exe_vec_ && shortcut_vec_ == _c.shortcut_vec_;
+            return name_ == _c.name_ && directory_ == _c.directory_ && os_vec_ == _c.os_vec_ && mount_vec_ == _c.mount_vec_ && exe_vec_ == _c.exe_vec_ && shortcut_vec_ == _c.shortcut_vec_;
         }
     };
 
     using ComponentVectorT = std::vector<Component>;
 
-    std::string      name_;
-    std::string      tag_;
-    ComponentVectorT component_vec_;
+    std::string       name_;
+    std::string       tag_;
+    StringPairVectorT translation_vec_;
+    ComponentVectorT  component_vec_;
 
     SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
     {
         _s.add(_rthis.name_, _rctx, "name");
         _s.add(_rthis.tag_, _rctx, "tag");
+        _s.add(_rthis.translation_vec_, _rctx, "translation_vec");
         _s.add(_rthis.component_vec_, _rctx, "component_vec");
     }
 
     template <class Archive>
     void serialize(Archive& _a)
     {
-        _a(name_, tag_, component_vec_);
+        _a(name_, tag_, translation_vec_, component_vec_);
     }
 
     bool operator==(const BuildConfig& _bc) const
     {
-        return name_ == _bc.name_ && tag_ == _bc.tag_ && component_vec_ == _bc.component_vec_;
+        return name_ == _bc.name_ && tag_ == _bc.tag_ && component_vec_ == _bc.component_vec_ && translation_vec_ == _bc.translation_vec_;
     }
 };
 
