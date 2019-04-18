@@ -171,10 +171,11 @@ struct FetchAppResponse : solid::frame::mprpc::Message {
 };
 
 struct FetchBuildRequest : solid::frame::mprpc::Message {
-    std::string app_id_;
-    std::string build_id_; //empty -> last build
-    std::string lang_;
-    std::string os_id_;
+    std::string              app_id_;
+    std::string              build_id_; //empty -> last build
+    std::string              lang_;
+    std::string              os_id_;
+    std::vector<std::string> property_vec_;
 
     SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
     {
@@ -182,6 +183,7 @@ struct FetchBuildRequest : solid::frame::mprpc::Message {
         _s.add(_rthis.build_id_, _rctx, "build_id");
         _s.add(_rthis.lang_, _rctx, "lang");
         _s.add(_rthis.os_id_, _rctx, "os_id");
+        _s.add(_rthis.property_vec_, _rctx, "property_vec");
     }
 };
 
