@@ -8,7 +8,7 @@
 namespace ola {
 namespace utility {
 
-struct AppConfig {
+struct Application {
     using StringPairDequeT  = std::deque<std::pair<std::string, std::string>>;
     using StringPairVectorT = std::vector<std::pair<std::string, std::string>>;
 
@@ -27,13 +27,13 @@ struct AppConfig {
         _a(dictionary_dq_, property_vec_);
     }
 
-    bool operator==(const AppConfig& _ac) const
+    bool operator==(const Application& _ac) const
     {
         return dictionary_dq_ == _ac.dictionary_dq_ && property_vec_ == _ac.property_vec_;
     }
 };
 
-struct BuildConfig {
+struct Build {
     using StringPairVectorT = std::vector<std::pair<std::string, std::string>>;
     using StringPairDequeT  = std::deque<std::pair<std::string, std::string>>;
     using StringVectorT     = std::vector<std::string>;
@@ -66,14 +66,14 @@ struct BuildConfig {
 
     using ShortcutVectorT = std::deque<Shortcut>;
 
-    struct Component {
+    struct Configuration {
         std::string       name_;
         std::string       directory_;
         StringVectorT     os_vec_;
         StringPairVectorT mount_vec_;
         StringVectorT     exe_vec_;
         ShortcutVectorT   shortcut_vec_;
-        StringVectorT     property_vec_;
+        StringPairVectorT property_vec_;
 
         SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
         {
@@ -92,19 +92,19 @@ struct BuildConfig {
             _a(name_, directory_, os_vec_, mount_vec_, exe_vec_, shortcut_vec_, property_vec_);
         }
 
-        bool operator==(const Component& _c) const
+        bool operator==(const Configuration& _c) const
         {
             return name_ == _c.name_ && directory_ == _c.directory_ && os_vec_ == _c.os_vec_ && mount_vec_ == _c.mount_vec_ && exe_vec_ == _c.exe_vec_ && shortcut_vec_ == _c.shortcut_vec_ && property_vec_ == _c.property_vec_;
         }
     };
 
-    using ComponentVectorT = std::deque<Component>;
+    using ConfigurationVectorT = std::deque<Configuration>;
 
     std::string      name_;
     std::string      tag_;
     StringPairDequeT dictionary_dq_;
-    StringVectorT    property_vec_;
-    ComponentVectorT component_vec_;
+    StringPairVectorT    property_vec_;
+    ConfigurationVectorT configuration_vec_;
 
     SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
     {
@@ -112,18 +112,18 @@ struct BuildConfig {
         _s.add(_rthis.tag_, _rctx, "tag");
         _s.add(_rthis.dictionary_dq_, _rctx, "dictionary_dq");
         _s.add(_rthis.property_vec_, _rctx, "property_vec");
-        _s.add(_rthis.component_vec_, _rctx, "component_vec");
+        _s.add(_rthis.configuration_vec_, _rctx, "configuration_vec");
     }
 
     template <class Archive>
     void serialize(Archive& _a)
     {
-        _a(name_, tag_, dictionary_dq_, component_vec_);
+        _a(name_, tag_, dictionary_dq_, configuration_vec_);
     }
 
-    bool operator==(const BuildConfig& _bc) const
+    bool operator==(const Build& _bc) const
     {
-        return name_ == _bc.name_ && tag_ == _bc.tag_ && component_vec_ == _bc.component_vec_ && property_vec_ == _bc.property_vec_ && dictionary_dq_ == _bc.dictionary_dq_;
+        return name_ == _bc.name_ && tag_ == _bc.tag_ && configuration_vec_ == _bc.configuration_vec_ && property_vec_ == _bc.property_vec_ && dictionary_dq_ == _bc.dictionary_dq_;
     }
 };
 

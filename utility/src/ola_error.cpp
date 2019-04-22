@@ -22,6 +22,7 @@ enum struct ErrorE : uint32_t {
     StorageInvalid,
     ApplicationInvalid,
     ApplicationReservation,
+    ApplicationSystem,
 };
 
 constexpr uint32_t cast(const ErrorE _e)
@@ -96,6 +97,9 @@ std::string ErrorCategory::message(int _ev) const
     case cast(ErrorE::ApplicationReservation):
         oss << "Application: Reservation";
         break;
+    case cast(ErrorE::ApplicationSystem):
+        oss << "Application: System";
+        break;
     default:
         oss << "Unknown";
         break;
@@ -125,6 +129,7 @@ solid::ErrorConditionT make_error(const uint32_t _err)
 /*extern*/ const solid::ErrorConditionT error_storage_invalid(cast(ErrorE::StorageInvalid), category);
 /*extern*/ const solid::ErrorConditionT error_application_invalid(cast(ErrorE::ApplicationInvalid), category);
 /*extern*/ const solid::ErrorConditionT error_application_reservation(cast(ErrorE::ApplicationReservation), category);
+/*extern*/ const solid::ErrorConditionT error_application_system(cast(ErrorE::ApplicationSystem), category);
 
 } //namespace utility
 } //namespace ola
