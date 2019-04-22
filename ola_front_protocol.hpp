@@ -151,7 +151,7 @@ struct FetchAppRequest : solid::frame::mprpc::Message {
 
 struct FetchAppResponse : solid::frame::mprpc::Message {
     uint32_t                 error_ = -1;
-    utility::AppConfig       config_;
+    utility::Application     application_;
     std::vector<std::string> build_id_vec_;
 
     FetchAppResponse() {}
@@ -165,32 +165,26 @@ struct FetchAppResponse : solid::frame::mprpc::Message {
     SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
     {
         _s.add(_rthis.error_, _rctx, "error");
-        _s.add(_rthis.config_, _rctx, "config");
+        _s.add(_rthis.application_, _rctx, "application");
         _s.add(_rthis.build_id_vec_, _rctx, "build_id_vec");
     }
 };
 
 struct FetchBuildRequest : solid::frame::mprpc::Message {
-    std::string              app_id_;
-    std::string              build_id_; //empty -> last build
-    std::string              lang_;
-    std::string              os_id_;
-    std::vector<std::string> property_vec_;
+    std::string app_id_;
+    std::string build_id_;
 
     SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
     {
         _s.add(_rthis.app_id_, _rctx, "app_id");
         _s.add(_rthis.build_id_, _rctx, "build_id");
-        _s.add(_rthis.lang_, _rctx, "lang");
-        _s.add(_rthis.os_id_, _rctx, "os_id");
-        _s.add(_rthis.property_vec_, _rctx, "property_vec");
     }
 };
 
 struct FetchBuildResponse : solid::frame::mprpc::Message {
-    uint32_t             error_ = -1;
-    std::string          storage_id_;
-    utility::BuildConfig config_;
+    uint32_t       error_ = -1;
+    std::string    storage_id_;
+    utility::Build build_;
 
     FetchBuildResponse() {}
 
@@ -204,7 +198,43 @@ struct FetchBuildResponse : solid::frame::mprpc::Message {
     {
         _s.add(_rthis.error_, _rctx, "error");
         _s.add(_rthis.storage_id_, _rctx, "storage_id");
-        _s.add(_rthis.config_, _rctx, "config");
+        _s.add(_rthis.build_, _rctx, "build");
+    }
+};
+
+struct FetchBuildConfigurationRequest : solid::frame::mprpc::Message {
+    std::string              app_id_;
+    std::string              lang_;
+    std::string              os_id_;
+    std::vector<std::string> property_vec_;
+
+    SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
+    {
+        _s.add(_rthis.app_id_, _rctx, "app_id");
+        _s.add(_rthis.lang_, _rctx, "lang");
+        _s.add(_rthis.os_id_, _rctx, "os_id");
+        _s.add(_rthis.property_vec_, _rctx, "property_vec");
+    }
+};
+
+struct FetchBuildConfigurationResponse : solid::frame::mprpc::Message {
+    uint32_t                           error_ = -1;
+    std::string                        storage_id_;
+    ola::utility::Build::Configuration build_configuration_;
+
+    FetchBuildConfigurationResponse() {}
+
+    FetchBuildConfigurationResponse(
+        const FetchBuildConfigurationRequest& _rreq)
+        : solid::frame::mprpc::Message(_rreq)
+    {
+    }
+
+    SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
+    {
+        _s.add(_rthis.error_, _rctx, "error");
+        _s.add(_rthis.storage_id_, _rctx, "storage_id");
+        _s.add(_rthis.build_configuration_, _rctx, "build_configuration");
     }
 };
 
@@ -227,11 +257,11 @@ struct Response : solid::frame::mprpc::Message {
 };
 
 struct CreateAppRequest : solid::frame::mprpc::Message {
-    utility::AppConfig config_;
+    utility::Application application_;
 
     SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
     {
-        _s.add(_rthis.config_, _rctx, "config");
+        _s.add(_rthis.application_, _rctx, "application");
     }
 };
 
@@ -245,11 +275,11 @@ struct AcquireAppRequest : solid::frame::mprpc::Message {
 };
 
 struct CreateBuildRequest : solid::frame::mprpc::Message {
-    std::string          app_id_;
-    std::string          unique_; //there cannot be two builds with the same tag per application
-    uint64_t             size_;
-    std::string          sha_sum_;
-    utility::BuildConfig config_;
+    std::string    app_id_;
+    std::string    unique_; //there cannot be two builds with the same tag per application
+    uint64_t       size_;
+    std::string    sha_sum_;
+    utility::Build build_;
 
     CreateBuildRequest()
         : size_(0)
@@ -262,7 +292,7 @@ struct CreateBuildRequest : solid::frame::mprpc::Message {
         _s.add(_rthis.unique_, _rctx, "unique");
         _s.add(_rthis.size_, _rctx, "size");
         _s.add(_rthis.sha_sum_, _rctx, "sha_sum");
-        _s.add(_rthis.config_, _rctx, "config");
+        _s.add(_rthis.build_, _rctx, "build");
     }
 };
 
@@ -318,6 +348,8 @@ inline void protocol_setup(R _r, ProtocolT& _rproto)
 
     _r(_rproto, solid::TypeToType<FetchBuildRequest>(), 60);
     _r(_rproto, solid::TypeToType<FetchBuildResponse>(), 61);
+    _r(_rproto, solid::TypeToType<FetchBuildConfigurationRequest>(), 62);
+    _r(_rproto, solid::TypeToType<FetchBuildConfigurationResponse>(), 63);
 
     _r(_rproto, solid::TypeToType<AcquireAppRequest>(), 100);
 }

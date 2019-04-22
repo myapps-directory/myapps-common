@@ -100,9 +100,9 @@ struct Build {
 
     using ConfigurationVectorT = std::deque<Configuration>;
 
-    std::string      name_;
-    std::string      tag_;
-    StringPairDequeT dictionary_dq_;
+    std::string          name_;
+    std::string          tag_;
+    StringPairDequeT     dictionary_dq_;
     StringPairVectorT    property_vec_;
     ConfigurationVectorT configuration_vec_;
 
