@@ -383,6 +383,9 @@ inline void protocol_setup(R _r, ProtocolT& _rproto)
 
     _r(_rproto, solid::TypeToType<ListStoreRequest>(), 24);
     _r(_rproto, solid::TypeToType<ListStoreResponse>(), 25);
+    
+    _r(_rproto, solid::TypeToType<FetchStoreRequest>(), 30);
+    _r(_rproto, solid::TypeToType<FetchStoreResponse>(), 31);
 
     _r(_rproto, solid::TypeToType<CreateBuildRequest>(), 40);
     _r(_rproto, solid::TypeToType<UploadBuildRequest>(), 44);
