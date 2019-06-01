@@ -141,11 +141,15 @@ struct ListStoreResponse : solid::frame::mprpc::Message {
 struct FetchStoreRequest : solid::frame::mprpc::Message {
     std::string storage_id_;
     std::string path_;
+    uint64_t    offset_ = 0;
+    uint64_t    size_   = 0;
 
     SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
     {
         _s.add(_rthis.storage_id_, _rctx, "storage_id");
         _s.add(_rthis.path_, _rctx, "path");
+        _s.add(_rthis.offset_, _rctx, "offset");
+        _s.add(_rthis.size_, _rctx, "size");
     }
 };
 
@@ -153,7 +157,7 @@ struct FetchStoreResponse : solid::frame::mprpc::Message {
     uint32_t                   error_ = -1;
     int64_t                    size_  = 0;
     mutable std::istringstream iss_;
-    std::ostringstream         oss_;
+    std::stringstream          ioss_;
 
     FetchStoreResponse() {}
 
@@ -177,7 +181,7 @@ struct FetchStoreResponse : solid::frame::mprpc::Message {
             auto progress_lambda = [](std::ostream& _ros, uint64_t _len, const bool _done, solid::frame::mprpc::ConnectionContext& _rctx, const char* _name) {
 
             };
-            _s.add(_rthis.oss_, progress_lambda, _rctx, _name);
+            _s.add(_rthis.ioss_, progress_lambda, _rctx, _name);
         }
     }
 };
