@@ -138,6 +138,50 @@ struct ListStoreResponse : solid::frame::mprpc::Message {
     }
 };
 
+struct FetchStoreRequest : solid::frame::mprpc::Message {
+    std::string storage_id_;
+    std::string path_;
+
+    SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
+    {
+        _s.add(_rthis.storage_id_, _rctx, "storage_id");
+        _s.add(_rthis.path_, _rctx, "path");
+    }
+};
+
+struct FetchStoreResponse : solid::frame::mprpc::Message {
+    uint32_t           error_ = -1;
+    uint64_t           size_  = 0;
+    std::istringstream iss_;
+    std::ostringstream oss_;
+
+    FetchStoreResponse() {}
+
+    FetchStoreResponse(
+        const FetchStoreRequest& _rreq)
+        : solid::frame::mprpc::Message(_rreq)
+    {
+    }
+
+    SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
+    {
+        _s.add(_rthis.error_, _rctx, "error");
+        _s.add(_rthis.size_, _rctx, "size");
+
+        if constexpr (_s.is_serializer) {
+            auto progress_lambda = [](std::istream& _ris, uint64_t _len, const bool _done, solid::frame::mprpc::ConnectionContext& _rctx, const char* _name) {
+
+            };
+            _s.add(_rthis.iss_, progress_lambda, _rctx, _name);
+        } else {
+            auto progress_lambda = [](std::ostream& _ros, uint64_t _len, const bool _done, solid::frame::mprpc::ConnectionContext& _rctx, const char* _name) {
+
+            };
+            _s.add(_rthis.oss_, progress_lambda, _rctx, _name);
+        }
+    }
+};
+
 struct FetchAppRequest : solid::frame::mprpc::Message {
     std::string app_id_;
     std::string lang_;
