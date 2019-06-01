@@ -150,10 +150,10 @@ struct FetchStoreRequest : solid::frame::mprpc::Message {
 };
 
 struct FetchStoreResponse : solid::frame::mprpc::Message {
-    uint32_t           error_ = -1;
-    uint64_t           size_  = 0;
-    std::istringstream iss_;
-    std::ostringstream oss_;
+    uint32_t                   error_ = -1;
+    int64_t                    size_  = 0;
+    mutable std::istringstream iss_;
+    std::ostringstream         oss_;
 
     FetchStoreResponse() {}
 
@@ -383,7 +383,7 @@ inline void protocol_setup(R _r, ProtocolT& _rproto)
 
     _r(_rproto, solid::TypeToType<ListStoreRequest>(), 24);
     _r(_rproto, solid::TypeToType<ListStoreResponse>(), 25);
-    
+
     _r(_rproto, solid::TypeToType<FetchStoreRequest>(), 30);
     _r(_rproto, solid::TypeToType<FetchStoreResponse>(), 31);
 
