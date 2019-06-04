@@ -134,12 +134,12 @@ std::string Enigma::encode(const std::string& _plain_text)
         EVP_EncryptInit_ex(pimpl_->enc_ctx_, EVP_aes_256_cbc(), NULL, pkey, piv);
     }
 
-    int len;
+    int len = 0;
 
     int ciphertext_len = 0;
 
     string res;
-    res.resize(_plain_text.size() * 2);
+    res.resize(_plain_text.size() + EVP_CIPHER_block_size(EVP_aes_256_cbc()));
 
     uint8_t*       pres_d   = reinterpret_cast<uint8_t*>(const_cast<char*>(res.data()));
     const uint8_t* pplain_d = reinterpret_cast<const uint8_t*>(_plain_text.data());
@@ -180,12 +180,12 @@ std::string Enigma::decode(const std::string& _cipher_text)
         * is 128 bits */
         EVP_DecryptInit_ex(pimpl_->dec_ctx_, EVP_aes_256_cbc(), NULL, pkey, piv);
     }
-    int len;
+    int len = 0;
 
     int plaintext_len = 0;
 
     string plain_text;
-    plain_text.resize(_cipher_text.size() + 64);
+    plain_text.resize(_cipher_text.size() + EVP_CIPHER_block_size(EVP_aes_256_cbc()));
 
     uint8_t*       pplain_d  = reinterpret_cast<uint8_t*>(const_cast<char*>(plain_text.data()));
     const uint8_t* pcipher_d = reinterpret_cast<const uint8_t*>(_cipher_text.data());
