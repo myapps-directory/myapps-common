@@ -139,7 +139,7 @@ std::string Enigma::encode(const std::string& _plain_text)
     int ciphertext_len = 0;
 
     string res;
-    res.resize(_plain_text.size() + EVP_CIPHER_block_size(EVP_aes_256_cbc()));
+    res.resize(_plain_text.size() + EVP_CIPHER_block_size(EVP_aes_256_cbc()) + 1);
 
     uint8_t*       pres_d   = reinterpret_cast<uint8_t*>(const_cast<char*>(res.data()));
     const uint8_t* pplain_d = reinterpret_cast<const uint8_t*>(_plain_text.data());
