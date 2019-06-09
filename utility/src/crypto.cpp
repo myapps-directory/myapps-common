@@ -11,6 +11,7 @@
 #include <boost/uuid/uuid_io.hpp>
 
 #include <iomanip>
+#include <mutex>
 #include <openssl/conf.h>
 #include <openssl/err.h>
 #include <openssl/evp.h>
@@ -62,28 +63,33 @@ std::string sha256(std::istream& _ris)
 //https://wiki.openssl.org/index.php/EVP_Symmetric_Encryption_and_Decryption
 
 namespace {
-const string iv = "fda66004-197a-11e9-a947-ff513e7f94ff";
+const string salt = "fda66rt4";
 } //namespace
 
 struct Enigma::Data {
-    EVP_CIPHER_CTX* enc_ctx_;
-    EVP_CIPHER_CTX* dec_ctx_;
-    string          iv_;
-    string          key_;
+    static constexpr size_t key_capacity = 256;
+
+    std::mutex      enc_mtx_; //TODO: move the mutexes out of Enigma
+    std::mutex      dec_mtx_;
+    EVP_CIPHER_CTX* enc_ctx_ = nullptr;
+    EVP_CIPHER_CTX* dec_ctx_ = nullptr;
+    uint8_t         iv_[key_capacity];
+    uint8_t         key_[key_capacity];
 
     Data()
     {
         enc_ctx_ = EVP_CIPHER_CTX_new();
         dec_ctx_ = EVP_CIPHER_CTX_new();
-        iv_      = iv; //to_string(boost::uuids::random_generator()());
     }
 
     ~Data()
     {
         if (enc_ctx_) {
+            lock_guard<mutex> lock(enc_mtx_);
             EVP_CIPHER_CTX_free(enc_ctx_);
         }
         if (dec_ctx_) {
+            lock_guard<mutex> lock(dec_mtx_);
             EVP_CIPHER_CTX_free(dec_ctx_);
         }
     }
@@ -96,50 +102,40 @@ Enigma::Enigma()
 
 Enigma::~Enigma() {}
 
-void Enigma::configure(const std::string& _s)
+void Enigma::configure(const std::string& _pass)
 {
-    pimpl_->key_ = _s;
+    lock_guard<mutex> lock1(pimpl_->enc_mtx_);
+    lock_guard<mutex> lock2(pimpl_->dec_mtx_);
+    memset(pimpl_->key_, Data::key_capacity, 0);
+    memset(pimpl_->iv_, Data::key_capacity, 0);
+    int count = EVP_BytesToKey(EVP_aes_256_cbc(), EVP_sha1(), (unsigned char*)salt.c_str(), nullptr, 0, 1, pimpl_->key_, pimpl_->iv_);
+    solid_check(count > 0 && count < Data::key_capacity);
+    count = EVP_BytesToKey(EVP_aes_256_cbc(), EVP_sha1(), (unsigned char*)salt.c_str(), (unsigned char*)_pass.c_str(), _pass.length(), 1, pimpl_->key_, pimpl_->iv_);
+    solid_check(count > 0 && count < Data::key_capacity);
+}
 
-    const uint8_t* pkey = reinterpret_cast<const uint8_t*>(_s.c_str());
-    const uint8_t* piv  = reinterpret_cast<const uint8_t*>(pimpl_->iv_.c_str());
+//https://eclipsesource.com/blogs/2017/01/17/tutorial-aes-encryption-and-decryption-with-openssl/
+
+std::string Enigma::encode(const std::string& _plain_text)
+{
+
+    lock_guard<mutex> lock(pimpl_->enc_mtx_);
 
     /* Initialise the encryption operation. IMPORTANT - ensure you use a key
     * and IV size appropriate for your cipher
     * In this example we are using 256 bit AES (i.e. a 256 bit key). The
     * IV size for *most* modes is the same as the block size. For AES this
     * is 128 bits */
-    EVP_EncryptInit_ex(pimpl_->enc_ctx_, EVP_aes_256_cbc(), NULL, pkey, piv);
+    EVP_EncryptInit_ex(pimpl_->enc_ctx_, EVP_aes_256_cbc(), nullptr, pimpl_->key_, pimpl_->iv_);
 
-    /* Initialise the decryption operation. IMPORTANT - ensure you use a key
-    * and IV size appropriate for your cipher
-    * In this example we are using 256 bit AES (i.e. a 256 bit key). The
-    * IV size for *most* modes is the same as the block size. For AES this
-    * is 128 bits */
-    EVP_DecryptInit_ex(pimpl_->dec_ctx_, EVP_aes_256_cbc(), NULL, pkey, piv);
-}
-
-std::string Enigma::encode(const std::string& _plain_text)
-{
-
-    {
-        EVP_CIPHER_CTX_reset(pimpl_->enc_ctx_);
-        const uint8_t* pkey = reinterpret_cast<const uint8_t*>(pimpl_->key_.c_str());
-        const uint8_t* piv  = reinterpret_cast<const uint8_t*>(pimpl_->iv_.c_str());
-
-        /* Initialise the encryption operation. IMPORTANT - ensure you use a key
-        * and IV size appropriate for your cipher
-        * In this example we are using 256 bit AES (i.e. a 256 bit key). The
-        * IV size for *most* modes is the same as the block size. For AES this
-        * is 128 bits */
-        EVP_EncryptInit_ex(pimpl_->enc_ctx_, EVP_aes_256_cbc(), NULL, pkey, piv);
-    }
+    EVP_CIPHER_CTX_set_key_length(pimpl_->enc_ctx_, EVP_MAX_KEY_LENGTH);
 
     int len = 0;
 
     int ciphertext_len = 0;
 
     string res;
-    res.resize(_plain_text.size() + EVP_CIPHER_block_size(EVP_aes_256_cbc()) + 1);
+    res.resize(_plain_text.size() + EVP_CIPHER_block_size(EVP_aes_256_cbc()) + 2);
 
     uint8_t*       pres_d   = reinterpret_cast<uint8_t*>(const_cast<char*>(res.data()));
     const uint8_t* pplain_d = reinterpret_cast<const uint8_t*>(_plain_text.data());
@@ -158,7 +154,7 @@ std::string Enigma::encode(const std::string& _plain_text)
         }
     }
 
-    solid_check(ciphertext_len < res.size());
+    solid_check(ciphertext_len <= res.size());
 
     res.resize(ciphertext_len);
 
@@ -168,24 +164,23 @@ std::string Enigma::encode(const std::string& _plain_text)
 std::string Enigma::decode(const std::string& _cipher_text)
 {
 
-    {
-        EVP_CIPHER_CTX_reset(pimpl_->dec_ctx_);
-        const uint8_t* pkey = reinterpret_cast<const uint8_t*>(pimpl_->key_.c_str());
-        const uint8_t* piv  = reinterpret_cast<const uint8_t*>(pimpl_->iv_.c_str());
+    lock_guard<mutex> lock(pimpl_->dec_mtx_);
 
-        /* Initialise the decryption operation. IMPORTANT - ensure you use a key
-        * and IV size appropriate for your cipher
-        * In this example we are using 256 bit AES (i.e. a 256 bit key). The
-        * IV size for *most* modes is the same as the block size. For AES this
-        * is 128 bits */
-        EVP_DecryptInit_ex(pimpl_->dec_ctx_, EVP_aes_256_cbc(), NULL, pkey, piv);
-    }
+    /* Initialise the decryption operation. IMPORTANT - ensure you use a key
+    * and IV size appropriate for your cipher
+    * In this example we are using 256 bit AES (i.e. a 256 bit key). The
+    * IV size for *most* modes is the same as the block size. For AES this
+    * is 128 bits */
+    EVP_DecryptInit_ex(pimpl_->dec_ctx_, EVP_aes_256_cbc(), nullptr, pimpl_->key_, pimpl_->iv_);
+
+    EVP_CIPHER_CTX_set_key_length(pimpl_->dec_ctx_, EVP_MAX_KEY_LENGTH);
+
     int len = 0;
 
     int plaintext_len = 0;
 
     string plain_text;
-    plain_text.resize(_cipher_text.size() + EVP_CIPHER_block_size(EVP_aes_256_cbc()));
+    plain_text.resize(_cipher_text.size() + EVP_CIPHER_block_size(EVP_aes_256_cbc()) + 2, 0);
 
     uint8_t*       pplain_d  = reinterpret_cast<uint8_t*>(const_cast<char*>(plain_text.data()));
     const uint8_t* pcipher_d = reinterpret_cast<const uint8_t*>(_cipher_text.data());
@@ -209,6 +204,7 @@ std::string Enigma::decode(const std::string& _cipher_text)
 
     return plain_text;
 }
+
 //-----------------------------------------------------------------------------
 //https://stackoverflow.com/questions/7053538/how-do-i-encode-a-string-to-base64-using-only-boost
 namespace {
