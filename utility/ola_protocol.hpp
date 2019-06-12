@@ -41,6 +41,7 @@ struct Build {
     struct Shortcut {
         std::string name_;
         std::string command_;
+        std::string arguments_;
         std::string run_folder_;
         std::string icon_;
 
@@ -48,6 +49,7 @@ struct Build {
         {
             _s.add(_rthis.name_, _rctx, "name");
             _s.add(_rthis.command_, _rctx, "command");
+            _s.add(_rthis.arguments_, _rctx, "arguments");
             _s.add(_rthis.run_folder_, _rctx, "run_folder");
             _s.add(_rthis.icon_, _rctx, "icon");
         }
@@ -55,12 +57,12 @@ struct Build {
         template <class Archive>
         void serialize(Archive& _a)
         {
-            _a(name_, command_, run_folder_, icon_);
+            _a(name_, command_, arguments_, run_folder_, icon_);
         }
 
         bool operator==(const Shortcut& _s) const
         {
-            return name_ == _s.name_ && command_ == _s.command_ && run_folder_ == _s.run_folder_ && icon_ == _s.icon_;
+            return name_ == _s.name_ && command_ == _s.command_ && run_folder_ == _s.run_folder_ && icon_ == _s.icon_ && arguments_ == _s.arguments_;
         }
     };
 
