@@ -1,4 +1,4 @@
-#include "ola/common/utility/crypto.hpp"
+#include "ola/common/utility/encode.hpp"
 #include "solid/system/exception.hpp"
 #include <iostream>
 #include <string>
