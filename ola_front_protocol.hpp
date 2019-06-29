@@ -267,6 +267,7 @@ struct FetchBuildConfigurationRequest : solid::frame::mprpc::Message {
 
 struct FetchBuildConfigurationResponse : solid::frame::mprpc::Message {
     uint32_t                           error_ = -1;
+    std::string                        build_unique_;
     std::string                        storage_id_;
     ola::utility::Build::Configuration build_configuration_;
 
@@ -281,6 +282,7 @@ struct FetchBuildConfigurationResponse : solid::frame::mprpc::Message {
     SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
     {
         _s.add(_rthis.error_, _rctx, "error");
+        _s.add(_rthis.build_unique_, _rctx, "build_unique_");
         _s.add(_rthis.storage_id_, _rctx, "storage_id");
         _s.add(_rthis.build_configuration_, _rctx, "build_configuration");
     }
