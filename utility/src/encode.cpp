@@ -25,7 +25,7 @@ namespace ola {
 namespace utility {
 
 //https://stackoverflow.com/questions/2262386/generate-sha256-with-openssl-and-c
-std::string sha256(const std::string& str)
+std::string sha256hex(const std::string& str)
 {
     unsigned char hash[SHA256_DIGEST_LENGTH];
     SHA256_CTX    sha256;
@@ -39,7 +39,7 @@ std::string sha256(const std::string& str)
     return ss.str();
 }
 
-std::string sha256(std::istream& _ris)
+std::string sha256hex(std::istream& _ris)
 {
     unsigned char hash[SHA256_DIGEST_LENGTH];
     SHA256_CTX    sha256;
@@ -59,6 +59,32 @@ std::string sha256(std::istream& _ris)
     return ss.str();
 }
 
+std::string sha256(const std::string& str)
+{
+    unsigned char hash[SHA256_DIGEST_LENGTH];
+    SHA256_CTX    sha256;
+    SHA256_Init(&sha256);
+    SHA256_Update(&sha256, str.c_str(), str.size());
+    SHA256_Final(hash, &sha256);
+
+    return string(reinterpret_cast<char*>(hash), SHA256_DIGEST_LENGTH);
+}
+
+std::string sha256(std::istream& _ris)
+{
+    unsigned char hash[SHA256_DIGEST_LENGTH];
+    SHA256_CTX    sha256;
+    SHA256_Init(&sha256);
+    //SHA256_Update(&sha256, str.c_str(), str.size());
+    constexpr size_t bufsz = 1024 * 64;
+    char             buf[bufsz];
+    while (!_ris.eof()) {
+        _ris.read(buf, bufsz);
+        SHA256_Update(&sha256, buf, _ris.gcount());
+    }
+    SHA256_Final(hash, &sha256);
+    return string(reinterpret_cast<char*>(hash), SHA256_DIGEST_LENGTH);
+}
 //-----------------------------------------------------------------------------
 //https://wiki.openssl.org/index.php/EVP_Symmetric_Encryption_and_Decryption
 
