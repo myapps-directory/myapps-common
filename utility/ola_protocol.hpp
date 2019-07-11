@@ -1,6 +1,8 @@
 #pragma once
 
+#include "cereal/cereal.hpp"
 #include "solid/frame/mprpc/mprpcprotocol_serialization_v2.hpp"
+#include "solid/system/cassert.hpp"
 #include <deque>
 #include <string>
 #include <vector>
@@ -8,9 +10,11 @@
 namespace ola {
 namespace utility {
 
+//NOTE: class versioning at the end of the file
 struct Application {
-    using StringPairDequeT  = std::deque<std::pair<std::string, std::string>>;
-    using StringPairVectorT = std::vector<std::pair<std::string, std::string>>;
+    static constexpr uint32_t version = 1;
+    using StringPairDequeT            = std::deque<std::pair<std::string, std::string>>;
+    using StringPairVectorT           = std::vector<std::pair<std::string, std::string>>;
 
     StringPairDequeT  dictionary_dq_;
     StringPairVectorT property_vec_;
@@ -22,8 +26,9 @@ struct Application {
     }
 
     template <class Archive>
-    void serialize(Archive& _a)
+    void serialize(Archive& _a, const uint32_t _version)
     {
+        solid_assert(version == _version);
         _a(dictionary_dq_, property_vec_);
     }
 
@@ -33,12 +38,18 @@ struct Application {
     }
 };
 
+//NOTE: class versioning at the end of the file
 struct Build {
+    static constexpr uint32_t version = 1;
+
     using StringPairVectorT = std::vector<std::pair<std::string, std::string>>;
     using StringPairDequeT  = std::deque<std::pair<std::string, std::string>>;
     using StringVectorT     = std::vector<std::string>;
 
+    //NOTE: class versioning at the end of the file
     struct Shortcut {
+        static constexpr uint32_t version = 1;
+
         std::string name_;
         std::string command_;
         std::string arguments_;
@@ -55,8 +66,9 @@ struct Build {
         }
 
         template <class Archive>
-        void serialize(Archive& _a)
+        void serialize(Archive& _a, std::uint32_t const _version)
         {
+            solid_assert(_version == _version);
             _a(name_, command_, arguments_, run_folder_, icon_);
         }
 
@@ -67,8 +79,10 @@ struct Build {
     };
 
     using ShortcutVectorT = std::deque<Shortcut>;
-
+    //NOTE: class versioning at the end of the file
     struct Configuration {
+        static constexpr uint32_t version = 1;
+
         std::string       name_;
         std::string       directory_;
         StringVectorT     os_vec_;
@@ -89,8 +103,9 @@ struct Build {
         }
 
         template <class Archive>
-        void serialize(Archive& _a)
+        void serialize(Archive& _a, std::uint32_t const _version)
         {
+            solid_assert(version == _version);
             _a(name_, directory_, os_vec_, mount_vec_, exe_vec_, shortcut_vec_, property_vec_);
         }
 
@@ -118,8 +133,9 @@ struct Build {
     }
 
     template <class Archive>
-    void serialize(Archive& _a)
+    void serialize(Archive& _a, std::uint32_t const _version)
     {
+        solid_assert(version == _version);
         _a(name_, tag_, dictionary_dq_, configuration_vec_);
     }
 
@@ -156,3 +172,8 @@ struct ListStoreNode {
 
 } //namespace utility
 } //namespace ola
+
+CEREAL_CLASS_VERSION(ola::utility::Application, ola::utility::Application::version);
+CEREAL_CLASS_VERSION(ola::utility::Build, ola::utility::Build::version);
+CEREAL_CLASS_VERSION(ola::utility::Build::Shortcut, ola::utility::Build::Shortcut::version);
+CEREAL_CLASS_VERSION(ola::utility::Build::Configuration, ola::utility::Build::Configuration::version);
