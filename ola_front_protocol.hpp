@@ -156,6 +156,54 @@ struct ListStoreResponse : solid::frame::mprpc::Message {
     }
 };
 
+struct FetchStoreRequest : solid::frame::mprpc::Message {
+    std::string storage_id_;
+    std::string path_;
+    uint64_t    offset_ = 0;
+    uint64_t    size_   = 0;
+
+    SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
+    {
+        _s.add(_rthis.storage_id_, _rctx, "storage_id");
+        _s.add(_rthis.path_, _rctx, "path");
+        _s.add(_rthis.offset_, _rctx, "offset");
+        _s.add(_rthis.size_, _rctx, "size");
+    }
+};
+
+struct FetchStoreResponse : solid::frame::mprpc::Message {
+    uint32_t                   error_ = -1;
+    int64_t                    size_  = 0;
+    mutable std::istringstream iss_;
+    std::stringstream          ioss_;
+
+    FetchStoreResponse() {}
+
+    FetchStoreResponse(
+        const FetchStoreRequest& _rreq)
+        : solid::frame::mprpc::Message(_rreq)
+    {
+    }
+
+    SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
+    {
+        _s.add(_rthis.error_, _rctx, "error");
+        _s.add(_rthis.size_, _rctx, "size");
+
+        if constexpr (_s.is_serializer) {
+            auto progress_lambda = [](std::istream& _ris, uint64_t _len, const bool _done, solid::frame::mprpc::ConnectionContext& _rctx, const char* _name) {
+
+            };
+            _s.add(_rthis.iss_, progress_lambda, _rctx, _name);
+        } else {
+            auto progress_lambda = [](std::ostream& _ros, uint64_t _len, const bool _done, solid::frame::mprpc::ConnectionContext& _rctx, const char* _name) {
+
+            };
+            _s.add(_rthis.ioss_, progress_lambda, _rctx, _name);
+        }
+    }
+};
+
 struct FetchAppRequest : solid::frame::mprpc::Message {
     std::string app_id_;
     std::string lang_;
@@ -237,6 +285,7 @@ struct FetchBuildConfigurationRequest : solid::frame::mprpc::Message {
 
 struct FetchBuildConfigurationResponse : solid::frame::mprpc::Message {
     uint32_t                           error_ = -1;
+    std::string                        build_unique_;
     std::string                        storage_id_;
     ola::utility::Build::Configuration build_configuration_;
 
@@ -251,6 +300,7 @@ struct FetchBuildConfigurationResponse : solid::frame::mprpc::Message {
     SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
     {
         _s.add(_rthis.error_, _rctx, "error");
+        _s.add(_rthis.build_unique_, _rctx, "build_unique_");
         _s.add(_rthis.storage_id_, _rctx, "storage_id");
         _s.add(_rthis.build_configuration_, _rctx, "build_configuration");
     }
@@ -362,6 +412,9 @@ inline void protocol_setup(R _r, ProtocolT& _rproto)
 
     _r(_rproto, solid::TypeToType<ListStoreRequest>(), 24);
     _r(_rproto, solid::TypeToType<ListStoreResponse>(), 25);
+
+    _r(_rproto, solid::TypeToType<FetchStoreRequest>(), 30);
+    _r(_rproto, solid::TypeToType<FetchStoreResponse>(), 31);
 
     _r(_rproto, solid::TypeToType<CreateBuildRequest>(), 40);
     _r(_rproto, solid::TypeToType<UploadBuildRequest>(), 44);

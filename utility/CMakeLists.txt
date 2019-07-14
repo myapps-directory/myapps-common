@@ -1,4 +1,4 @@
-add_library(ola_utility crypto.hpp ola_error.hpp ola_protocol.hpp src/crypto.cpp src/ola_error.cpp)
+add_library(ola_utility encode.hpp ola_error.hpp ola_protocol.hpp src/encode.cpp src/ola_error.cpp)
 
 target_link_libraries(ola_utility ${OPENSSL_CRYPTO_LIBRARY} solid_system)
 

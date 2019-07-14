@@ -8,6 +8,9 @@ namespace ola {
 
 namespace utility {
 
+std::string sha256hex(const std::string& str);
+std::string sha256hex(std::istream& _ris);
+
 std::string sha256(const std::string& str);
 std::string sha256(std::istream& _ris);
 
