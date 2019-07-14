@@ -16,6 +16,24 @@ inline const char* default_port()
     return "4443";
 }
 
+struct InitRequest : solid::frame::mprpc::Message {
+    SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
+    {
+        _rctx.addVersion(_s);
+    }
+};
+
+struct InitResponse : solid::frame::mprpc::Message {
+    uint32_t    error_;
+    std::string message_;
+
+    SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
+    {
+        _rctx.addVersion(_s);
+        _s.add(_rthis.error_, _rctx, "error").add(_rthis.message_, _rctx, "message");
+    }
+};
+
 struct AuthRequest : solid::frame::mprpc::Message {
     std::string auth_;
     std::string pass_;
@@ -323,11 +341,16 @@ using ProtocolT = solid::frame::mprpc::serialization_v2::Protocol<uint8_t>;
 template <class R>
 inline void protocol_setup(R _r, ProtocolT& _rproto)
 {
+    _rproto.version(1, 1);
+
     _rproto.null(static_cast<ProtocolT::TypeIdT>(0));
 
-    _r(_rproto, solid::TypeToType<AuthRequest>(), 1);
-    _r(_rproto, solid::TypeToType<AuthResponse>(), 2);
-    _r(_rproto, solid::TypeToType<Response>(), 3);
+    _r(_rproto, solid::TypeToType<InitRequest>(), 1);
+    _r(_rproto, solid::TypeToType<InitResponse>(), 2);
+
+    _r(_rproto, solid::TypeToType<AuthRequest>(), 4);
+    _r(_rproto, solid::TypeToType<AuthResponse>(), 5);
+    _r(_rproto, solid::TypeToType<Response>(), 6);
 
     _r(_rproto, solid::TypeToType<CreateAppRequest>(), 10);
 
