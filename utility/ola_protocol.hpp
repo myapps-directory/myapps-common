@@ -13,8 +13,9 @@ namespace utility {
 //NOTE: class versioning at the end of the file
 struct Application {
     static constexpr uint32_t version = 1;
-    using StringPairDequeT            = std::deque<std::pair<std::string, std::string>>;
-    using StringPairVectorT           = std::vector<std::pair<std::string, std::string>>;
+
+    using StringPairDequeT  = std::deque<std::pair<std::string, std::string>>;
+    using StringPairVectorT = std::vector<std::pair<std::string, std::string>>;
 
     StringPairDequeT  dictionary_dq_;
     StringPairVectorT property_vec_;
@@ -146,6 +147,8 @@ struct Build {
 };
 
 struct ListStoreNode {
+    static constexpr uint32_t version = 1;
+
     std::string name_;
     uint64_t    size_ = 0;
 
