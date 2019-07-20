@@ -8,6 +8,7 @@ namespace utility {
 solid::ErrorConditionT make_error(uint32_t _err);
 
 extern const solid::ErrorConditionT error_version;
+extern const solid::ErrorConditionT error_state;
 extern const solid::ErrorConditionT error_generic;
 extern const solid::ErrorConditionT error_exist;
 extern const solid::ErrorConditionT error_backend;
