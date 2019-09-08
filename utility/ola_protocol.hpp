@@ -74,9 +74,13 @@ struct Build {
     //NOTE: class versioning at the end of the file
     struct Configuration {
         static constexpr uint32_t version = 1;
+        enum {
+            HiddenDirectory = 0,
+        };
 
         std::string       name_;
         std::string       directory_;
+        uint64_t          flags_;
         StringVectorT     os_vec_;
         StringPairVectorT mount_vec_;
         StringVectorT     exe_vec_;
@@ -87,6 +91,7 @@ struct Build {
         {
             _s.add(_rthis.name_, _rctx, "name");
             _s.add(_rthis.directory_, _rctx, "directory");
+            _s.add(_rthis.flags_, _rctx, "flags");
             _s.add(_rthis.os_vec_, _rctx, "os_vec");
             _s.add(_rthis.mount_vec_, _rctx, "mount_vec");
             _s.add(_rthis.exe_vec_, _rctx, "exe_vec");
@@ -98,12 +103,12 @@ struct Build {
         void serialize(Archive& _a, std::uint32_t const _version)
         {
             solid_assert(version == _version);
-            _a(name_, directory_, os_vec_, mount_vec_, exe_vec_, shortcut_vec_, property_vec_);
+            _a(name_, directory_, flags_, os_vec_, mount_vec_, exe_vec_, shortcut_vec_, property_vec_);
         }
 
         bool operator==(const Configuration& _c) const
         {
-            return name_ == _c.name_ && directory_ == _c.directory_ && os_vec_ == _c.os_vec_ && mount_vec_ == _c.mount_vec_ && exe_vec_ == _c.exe_vec_ && shortcut_vec_ == _c.shortcut_vec_ && property_vec_ == _c.property_vec_;
+            return name_ == _c.name_ && directory_ == _c.directory_ && flags_ == _c.flags_ && os_vec_ == _c.os_vec_ && mount_vec_ == _c.mount_vec_ && exe_vec_ == _c.exe_vec_ && shortcut_vec_ == _c.shortcut_vec_ && property_vec_ == _c.property_vec_;
         }
     };
 
