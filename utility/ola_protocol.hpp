@@ -14,28 +14,19 @@ namespace utility {
 struct Application {
     static constexpr uint32_t version = 1;
 
-    using StringPairDequeT  = std::deque<std::pair<std::string, std::string>>;
-    using StringPairVectorT = std::vector<std::pair<std::string, std::string>>;
-
-    StringPairDequeT  dictionary_dq_;
-    StringPairVectorT property_vec_;
-
     SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
     {
-        _s.add(_rthis.dictionary_dq_, _rctx, "dictionary_dq");
-        _s.add(_rthis.property_vec_, _rctx, "property_vec");
     }
 
     template <class Archive>
     void serialize(Archive& _a, const uint32_t _version)
     {
         solid_assert(version == _version);
-        _a(dictionary_dq_, property_vec_);
     }
 
     bool operator==(const Application& _ac) const
     {
-        return dictionary_dq_ == _ac.dictionary_dq_ && property_vec_ == _ac.property_vec_;
+        return true;
     }
 };
 

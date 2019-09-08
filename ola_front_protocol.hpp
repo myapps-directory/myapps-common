@@ -537,13 +537,14 @@ struct AcquireAppRequest : solid::frame::mprpc::Message {
 struct CreateBuildRequest : solid::frame::mprpc::Message {
     static constexpr uint32_t version = 1;
 
-    uint32_t       version_       = version;
-    uint32_t       build_version_ = utility::Build::version;
-    std::string    app_id_;
-    std::string    unique_; //there cannot be two builds with the same tag per application
-    uint64_t       size_;
-    std::string    sha_sum_;
-    utility::Build build_;
+    uint32_t          version_       = version;
+    uint32_t          build_version_ = utility::Build::version;
+    std::string       app_id_;
+    std::string       unique_; //there cannot be two builds with the same tag per application
+    uint64_t          size_;
+    std::string       sha_sum_;
+    std::vector<char> icon_blob_;
+    utility::Build    build_;
 
     CreateBuildRequest()
         : size_(0)
@@ -560,6 +561,7 @@ struct CreateBuildRequest : solid::frame::mprpc::Message {
             _s.add(_rthis.unique_, _rctx, "unique");
             _s.add(_rthis.size_, _rctx, "size");
             _s.add(_rthis.sha_sum_, _rctx, "sha_sum");
+            _s.add(_rthis.icon_blob_, _rctx, "icon_blob");
             _s.add(_rthis.build_, _rctx, "build");
         },
             _rctx, _name);
