@@ -13,20 +13,24 @@ namespace utility {
 //NOTE: class versioning at the end of the file
 struct Application {
     static constexpr uint32_t version = 1;
+    
+    std::string name_;
 
     SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
     {
+        _s.add(_rthis.name_, _rctx, "name");
     }
 
     template <class Archive>
     void serialize(Archive& _a, const uint32_t _version)
     {
         solid_assert(version == _version);
+        _a(name_);
     }
 
     bool operator==(const Application& _ac) const
     {
-        return true;
+        return name_ == _ac.name_;
     }
 };
 
