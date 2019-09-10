@@ -13,7 +13,7 @@ namespace utility {
 //NOTE: class versioning at the end of the file
 struct Application {
     static constexpr uint32_t version = 1;
-    
+
     std::string name_;
 
     SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
@@ -80,11 +80,45 @@ struct Build {
         static constexpr uint32_t version = 1;
         enum {
             HiddenDirectory = 0,
+
+            LastFlagId //add above
         };
+
+        static constexpr const char* flag_names[LastFlagId] = {
+            "HiddenDirectory"};
+
+        static uint64_t flag(const char* _name)
+        {
+            for (size_t i = 0; i < LastFlagId; ++i) {
+                if (strcasecmp(flag_names[i], _name) == 0) {
+                    return 1ULL << i;
+                }
+            }
+            return 0;
+        }
+
+        template <class F>
+        static void for_each_flag(const uint64_t _flags, F _f)
+        {
+            for (size_t i = 0; i < LastFlagId; ++i) {
+                if ((_flags & (1ULL << i)) != 0) {
+                    _f(flag_names[i]);
+                }
+            }
+        }
+
+        static uint64_t compute_flags(std::initializer_list<const char*> l)
+        {
+            uint64_t flags = 0;
+            for (const auto& f : l) {
+                flags |= flag(f);
+            }
+            return flags;
+        }
 
         std::string       name_;
         std::string       directory_;
-        uint64_t          flags_;
+        uint64_t          flags_ = 0;
         StringVectorT     os_vec_;
         StringPairVectorT mount_vec_;
         StringVectorT     exe_vec_;
