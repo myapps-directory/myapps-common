@@ -384,12 +384,13 @@ struct FetchBuildRequest : solid::frame::mprpc::Message {
 struct FetchBuildResponse : solid::frame::mprpc::Message {
     static constexpr uint32_t version = 1;
 
-    uint32_t       version_       = version;
-    uint32_t       build_version_ = utility::Build::version;
-    uint32_t       error_         = -1;
-    std::string    message_;
-    std::string    storage_id_;
-    utility::Build build_;
+    uint32_t          version_       = version;
+    uint32_t          build_version_ = utility::Build::version;
+    uint32_t          error_         = -1;
+    std::string       message_;
+    std::string       storage_id_;
+    std::vector<char> icon_blob_;
+    utility::Build    build_;
 
     FetchBuildResponse() {}
 
@@ -408,6 +409,7 @@ struct FetchBuildResponse : solid::frame::mprpc::Message {
 
             _s.add(_rthis.error_, _rctx, "error").add(_rthis.message_, _rctx, "message");
             _s.add(_rthis.storage_id_, _rctx, "storage_id");
+            _s.add(_rthis.icon_blob_, _rctx, "icon_blob");
             _s.add(_rthis.build_, _rctx, "build");
         },
             _rctx, _name);
