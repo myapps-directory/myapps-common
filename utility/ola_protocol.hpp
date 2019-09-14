@@ -150,9 +150,10 @@ struct Build {
             return name_ == _c.name_ && directory_ == _c.directory_ && flags_ == _c.flags_ && os_vec_ == _c.os_vec_ && mount_vec_ == _c.mount_vec_ && exe_vec_ == _c.exe_vec_ && shortcut_vec_ == _c.shortcut_vec_ && property_vec_ == _c.property_vec_;
         }
 
-        bool hasHiddenDirectoryFlag() const {
+        bool hasHiddenDirectoryFlag() const
+        {
             return flags_ & (1 << HiddenDirectory);
-		}
+        }
     };
 
     using ConfigurationVectorT = std::deque<Configuration>;
