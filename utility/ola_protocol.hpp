@@ -3,6 +3,7 @@
 #include "cereal/cereal.hpp"
 #include "solid/frame/mprpc/mprpcprotocol_serialization_v2.hpp"
 #include "solid/system/cassert.hpp"
+#include "solid/system/cstring.hpp"
 #include <deque>
 #include <string>
 #include <vector>
@@ -90,7 +91,7 @@ struct Build {
         static uint64_t flag(const char* _name)
         {
             for (size_t i = 0; i < LastFlagId; ++i) {
-                if (strcasecmp(flag_names[i], _name) == 0) {
+                if (solid::cstring::casecmp(flag_names[i], _name) == 0) {
                     return 1ULL << i;
                 }
             }
@@ -148,6 +149,10 @@ struct Build {
         {
             return name_ == _c.name_ && directory_ == _c.directory_ && flags_ == _c.flags_ && os_vec_ == _c.os_vec_ && mount_vec_ == _c.mount_vec_ && exe_vec_ == _c.exe_vec_ && shortcut_vec_ == _c.shortcut_vec_ && property_vec_ == _c.property_vec_;
         }
+
+        bool hasHiddenDirectoryFlag() const {
+            return flags_ & (1 << HiddenDirectory);
+		}
     };
 
     using ConfigurationVectorT = std::deque<Configuration>;
