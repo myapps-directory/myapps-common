@@ -3,6 +3,7 @@
 #include "cereal/cereal.hpp"
 #include "solid/frame/mprpc/mprpcprotocol_serialization_v2.hpp"
 #include "solid/system/cassert.hpp"
+#include "solid/system/cstring.hpp"
 #include <deque>
 #include <string>
 #include <vector>
@@ -14,28 +15,23 @@ namespace utility {
 struct Application {
     static constexpr uint32_t version = 1;
 
-    using StringPairDequeT  = std::deque<std::pair<std::string, std::string>>;
-    using StringPairVectorT = std::vector<std::pair<std::string, std::string>>;
-
-    StringPairDequeT  dictionary_dq_;
-    StringPairVectorT property_vec_;
+    std::string name_;
 
     SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
     {
-        _s.add(_rthis.dictionary_dq_, _rctx, "dictionary_dq");
-        _s.add(_rthis.property_vec_, _rctx, "property_vec");
+        _s.add(_rthis.name_, _rctx, "name");
     }
 
     template <class Archive>
     void serialize(Archive& _a, const uint32_t _version)
     {
         solid_assert(version == _version);
-        _a(dictionary_dq_, property_vec_);
+        _a(name_);
     }
 
     bool operator==(const Application& _ac) const
     {
-        return dictionary_dq_ == _ac.dictionary_dq_ && property_vec_ == _ac.property_vec_;
+        return name_ == _ac.name_;
     }
 };
 
@@ -83,9 +79,47 @@ struct Build {
     //NOTE: class versioning at the end of the file
     struct Configuration {
         static constexpr uint32_t version = 1;
+        enum {
+            HiddenDirectory = 0,
+
+            LastFlagId //add above
+        };
+
+        static constexpr const char* flag_names[LastFlagId] = {
+            "HiddenDirectory"};
+
+        static uint64_t flag(const char* _name)
+        {
+            for (size_t i = 0; i < LastFlagId; ++i) {
+                if (solid::cstring::casecmp(flag_names[i], _name) == 0) {
+                    return 1ULL << i;
+                }
+            }
+            return 0;
+        }
+
+        template <class F>
+        static void for_each_flag(const uint64_t _flags, F _f)
+        {
+            for (size_t i = 0; i < LastFlagId; ++i) {
+                if ((_flags & (1ULL << i)) != 0) {
+                    _f(flag_names[i]);
+                }
+            }
+        }
+
+        static uint64_t compute_flags(std::initializer_list<const char*> l)
+        {
+            uint64_t flags = 0;
+            for (const auto& f : l) {
+                flags |= flag(f);
+            }
+            return flags;
+        }
 
         std::string       name_;
         std::string       directory_;
+        uint64_t          flags_ = 0;
         StringVectorT     os_vec_;
         StringPairVectorT mount_vec_;
         StringVectorT     exe_vec_;
@@ -96,6 +130,7 @@ struct Build {
         {
             _s.add(_rthis.name_, _rctx, "name");
             _s.add(_rthis.directory_, _rctx, "directory");
+            _s.add(_rthis.flags_, _rctx, "flags");
             _s.add(_rthis.os_vec_, _rctx, "os_vec");
             _s.add(_rthis.mount_vec_, _rctx, "mount_vec");
             _s.add(_rthis.exe_vec_, _rctx, "exe_vec");
@@ -107,12 +142,17 @@ struct Build {
         void serialize(Archive& _a, std::uint32_t const _version)
         {
             solid_assert(version == _version);
-            _a(name_, directory_, os_vec_, mount_vec_, exe_vec_, shortcut_vec_, property_vec_);
+            _a(name_, directory_, flags_, os_vec_, mount_vec_, exe_vec_, shortcut_vec_, property_vec_);
         }
 
         bool operator==(const Configuration& _c) const
         {
-            return name_ == _c.name_ && directory_ == _c.directory_ && os_vec_ == _c.os_vec_ && mount_vec_ == _c.mount_vec_ && exe_vec_ == _c.exe_vec_ && shortcut_vec_ == _c.shortcut_vec_ && property_vec_ == _c.property_vec_;
+            return name_ == _c.name_ && directory_ == _c.directory_ && flags_ == _c.flags_ && os_vec_ == _c.os_vec_ && mount_vec_ == _c.mount_vec_ && exe_vec_ == _c.exe_vec_ && shortcut_vec_ == _c.shortcut_vec_ && property_vec_ == _c.property_vec_;
+        }
+
+        bool hasHiddenDirectoryFlag() const
+        {
+            return flags_ & (1 << HiddenDirectory);
         }
     };
 
