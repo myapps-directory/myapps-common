@@ -570,7 +570,39 @@ struct CreateBuildRequest : solid::frame::mprpc::Message {
     }
 };
 
-struct UploadBuildRequest : solid::frame::mprpc::Message {
+struct CreateMediaRequest : solid::frame::mprpc::Message {
+    static constexpr uint32_t version = 1;
+
+    uint32_t       version_       = version;
+    uint32_t       media_version_ = utility::Media::version;
+    std::string    app_id_;
+    std::string    unique_; //there cannot be two builds with the same tag per application
+    uint64_t       size_;
+    std::string    sha_sum_;
+    utility::Media media_;
+
+    CreateMediaRequest()
+        : size_(0)
+    {
+    }
+
+    SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
+    {
+        solid::serialization::addVersion<CreateMediaRequest>(_s, _rthis.version_, "version");
+
+        _s.add([&_rthis](S& _s, solid::frame::mprpc::ConnectionContext& _rctx, const char* /*_name*/) {
+            solid::serialization::addVersion<utility::Media>(_s, _rthis.media_version_, "media_version");
+            _s.add(_rthis.app_id_, _rctx, "app_id");
+            _s.add(_rthis.unique_, _rctx, "unique");
+            _s.add(_rthis.size_, _rctx, "size");
+            _s.add(_rthis.sha_sum_, _rctx, "sha_sum");
+            _s.add(_rthis.media_, _rctx, "media");
+        },
+            _rctx, _name);
+    }
+};
+
+struct UploadRequest : solid::frame::mprpc::Message {
     static constexpr uint32_t version = 1;
 
     uint32_t              version_ = version;
@@ -580,7 +612,7 @@ struct UploadBuildRequest : solid::frame::mprpc::Message {
     template <class S>
     void solidSerializeV2(S& _s, solid::frame::mprpc::ConnectionContext& _rctx, const char* _name) const
     {
-        solid::serialization::addVersion<UploadBuildRequest>(_s, version_, "version");
+        solid::serialization::addVersion<UploadRequest>(_s, version_, "version");
 
         _s.add([this](S& _s, solid::frame::mprpc::ConnectionContext& _rctx, const char* /*_name*/) {
             //on serializer side
@@ -594,7 +626,7 @@ struct UploadBuildRequest : solid::frame::mprpc::Message {
     template <class S>
     void solidSerializeV2(S& _s, solid::frame::mprpc::ConnectionContext& _rctx, const char* _name)
     {
-        solid::serialization::addVersion<UploadBuildRequest>(_s, version_, "version");
+        solid::serialization::addVersion<UploadRequest>(_s, version_, "version");
 
         _s.add([this](S& _s, solid::frame::mprpc::ConnectionContext& _rctx, const char* /*_name*/) {
             auto progress_lambda = [](std::ostream& _ros, uint64_t _len, const bool _done, solid::frame::mprpc::ConnectionContext& _rctx, const char* _name) {
@@ -636,7 +668,8 @@ inline void protocol_setup(R _r, ProtocolT& _rproto)
     _r(_rproto, solid::TypeToType<FetchStoreResponse>(), 31);
 
     _r(_rproto, solid::TypeToType<CreateBuildRequest>(), 40);
-    _r(_rproto, solid::TypeToType<UploadBuildRequest>(), 44);
+    _r(_rproto, solid::TypeToType<CreateMediaRequest>(), 41);
+    _r(_rproto, solid::TypeToType<UploadRequest>(), 44);
 
     _r(_rproto, solid::TypeToType<FetchAppRequest>(), 50);
     _r(_rproto, solid::TypeToType<FetchAppResponse>(), 51);

@@ -186,6 +186,90 @@ struct Build {
     }
 };
 
+struct Media {
+    static constexpr uint32_t version = 1;
+
+    using StringVectorT = std::vector<std::string>;
+
+    struct Entry {
+        static constexpr uint32_t version = 1;
+        std::string               thumbnail_path_;
+        std::string               path_;
+
+        Entry() {}
+
+        Entry(const std::string& _thumbnail, const std::string& _path)
+            : thumbnail_path_(_thumbnail)
+            , path_(_path)
+        {
+        }
+
+        SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
+        {
+            _s.add(_rthis.thumbnail_path_, _rctx, "thumbnail_path");
+            _s.add(_rthis.path_, _rctx, "path");
+        }
+
+        template <class Archive>
+        void serialize(Archive& _a, std::uint32_t const _version)
+        {
+            solid_assert(version == _version);
+            _a(thumbnail_path_, path_);
+        }
+        bool operator==(const Entry& _bc) const
+        {
+            return thumbnail_path_ == _bc.thumbnail_path_ && path_ == _bc.path_;
+        }
+    };
+
+    using EntryVectorT = std::vector<Entry>;
+
+    struct Configuration {
+        static constexpr uint32_t version = 1;
+        StringVectorT             os_vec_;
+        EntryVectorT              entry_vec_;
+
+        SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
+        {
+            _s.add(_rthis.os_vec_, _rctx, "os_vec");
+            _s.add(_rthis.entry_vec_, _rctx, "entry_vec");
+        }
+
+        template <class Archive>
+        void serialize(Archive& _a, std::uint32_t const _version)
+        {
+            solid_assert(version == _version);
+            _a(os_vec_, entry_vec_);
+        }
+
+        bool operator==(const Configuration& _c) const
+        {
+            return os_vec_ == _c.os_vec_ && entry_vec_ == _c.entry_vec_;
+        }
+    };
+
+    using ConfigurationVectorT = std::deque<Configuration>;
+
+    ConfigurationVectorT configuration_vec_;
+
+    SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
+    {
+        _s.add(_rthis.configuration_vec_, _rctx, "configuration_vec");
+    }
+
+    template <class Archive>
+    void serialize(Archive& _a, std::uint32_t const _version)
+    {
+        solid_assert(version == _version);
+        _a(configuration_vec_);
+    }
+
+    bool operator==(const Media& _bc) const
+    {
+        return configuration_vec_ == _bc.configuration_vec_;
+    }
+};
+
 struct ListStoreNode {
     static constexpr uint32_t version = 1;
 
