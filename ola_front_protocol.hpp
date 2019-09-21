@@ -446,9 +446,9 @@ struct FetchBuildConfigurationResponse : solid::frame::mprpc::Message {
     uint32_t                           configuration_version_ = ola::utility::Build::Configuration::version;
     uint32_t                           error_                 = -1;
     std::string                        message_;
-    std::string                        build_unique_;
+    std::string                        unique_;
     std::string                        storage_id_;
-    ola::utility::Build::Configuration build_configuration_;
+    ola::utility::Build::Configuration configuration_;
 
     FetchBuildConfigurationResponse() {}
 
@@ -466,9 +466,66 @@ struct FetchBuildConfigurationResponse : solid::frame::mprpc::Message {
             solid::serialization::addVersion<ola::utility::Build::Configuration>(_s, _rthis.configuration_version_, "configuration_version");
 
             _s.add(_rthis.error_, _rctx, "error").add(_rthis.message_, _rctx, "message");
-            _s.add(_rthis.build_unique_, _rctx, "build_unique_");
+            _s.add(_rthis.unique_, _rctx, "unique_");
             _s.add(_rthis.storage_id_, _rctx, "storage_id");
-            _s.add(_rthis.build_configuration_, _rctx, "build_configuration");
+            _s.add(_rthis.configuration_, _rctx, "configuration");
+        },
+            _rctx, _name);
+    }
+};
+
+struct FetchMediaConfigurationRequest : solid::frame::mprpc::Message {
+    static constexpr uint32_t version = 1;
+
+    uint32_t    version_ = version;
+    std::string app_id_;
+    std::string lang_;
+    std::string os_id_;
+
+    SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
+    {
+        solid::serialization::addVersion<FetchMediaConfigurationRequest>(_s, _rthis.version_, "version");
+
+        _s.add([&_rthis](S& _s, solid::frame::mprpc::ConnectionContext& _rctx, const char* /*_name*/) {
+            _s.add(_rthis.app_id_, _rctx, "app_id");
+            _s.add(_rthis.lang_, _rctx, "lang");
+            _s.add(_rthis.os_id_, _rctx, "os_id");
+        },
+            _rctx, _name);
+    }
+};
+
+struct FetchMediaConfigurationResponse : solid::frame::mprpc::Message {
+    static constexpr uint32_t version = 1;
+
+    uint32_t                           version_               = version;
+    uint32_t                           configuration_version_ = ola::utility::Build::Configuration::version;
+    uint32_t                           error_                 = -1;
+    std::string                        message_;
+    std::string                        unique_;
+    std::string                        storage_id_;
+    ola::utility::Media::Configuration configuration_;
+
+    FetchMediaConfigurationResponse() {}
+
+    FetchMediaConfigurationResponse(
+        const FetchMediaConfigurationRequest& _rreq)
+        : solid::frame::mprpc::Message(_rreq)
+    {
+    }
+
+    SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
+    {
+        solid::serialization::addVersion<FetchMediaConfigurationResponse>(_s, _rthis.version_, "version");
+
+        _s.add([&_rthis](S& _s, solid::frame::mprpc::ConnectionContext& _rctx, const char* /*_name*/) {
+            solid::serialization::addVersion<ola::utility::Media::Configuration>(_s, _rthis.configuration_version_, "configuration_version");
+
+            _s.add(_rthis.error_, _rctx, "error");
+            _s.add(_rthis.message_, _rctx, "message");
+            _s.add(_rthis.unique_, _rctx, "unique_");
+            _s.add(_rthis.storage_id_, _rctx, "storage_id");
+            _s.add(_rthis.configuration_, _rctx, "configuration");
         },
             _rctx, _name);
     }
@@ -678,6 +735,8 @@ inline void protocol_setup(R _r, ProtocolT& _rproto)
     _r(_rproto, solid::TypeToType<FetchBuildResponse>(), 61);
     _r(_rproto, solid::TypeToType<FetchBuildConfigurationRequest>(), 62);
     _r(_rproto, solid::TypeToType<FetchBuildConfigurationResponse>(), 63);
+    _r(_rproto, solid::TypeToType<FetchMediaConfigurationRequest>(), 64);
+    _r(_rproto, solid::TypeToType<FetchMediaConfigurationResponse>(), 65);
 
     _r(_rproto, solid::TypeToType<AcquireAppRequest>(), 100);
 }
