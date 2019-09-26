@@ -29,5 +29,8 @@ public:
 std::string base64_encode(const std::string& _txt);
 std::string base64_decode(const std::string& _txt);
 
+std::string hex_encode(const std::string& _txt);
+std::string hex_decode(const std::string& _txt);
+
 } //namespace utility
 } //namespace ola

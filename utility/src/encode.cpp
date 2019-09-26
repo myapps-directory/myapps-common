@@ -277,5 +277,47 @@ std::string base64_decode(const std::string& _txt)
     return os.str();
 }
 //-----------------------------------------------------------------------------
+std::string hex_encode(const std::string& _txt)
+{
+    std::ostringstream oss;
+    for (const auto& c : _txt) {
+        oss << hex << setw(2) << setfill('0') << static_cast<int>(static_cast<uint8_t>(c));
+    }
+    return oss.str();
+}
+//-----------------------------------------------------------------------------
+
+namespace {
+
+inline constexpr int hex_char_decode(const char c)
+{
+
+    if (c >= '0' && c <= '9') {
+        return (c - '0');
+    } else {
+        return ((c - 'a') + 10);
+    }
+}
+
+inline char hex_char_decode(const char* _pc)
+{
+    const int rv = (hex_char_decode(*_pc) << 4) | hex_char_decode(*(_pc + 1));
+    return static_cast<char>(static_cast<uint8_t>(rv));
+}
+
+} //namespace
+
+std::string hex_decode(const std::string& _txt)
+{
+    string out;
+    out.resize(_txt.size() / 2);
+    const char* p = _txt.c_str();
+    for (size_t i = 0; i < out.size(); ++i) {
+        out[i] = hex_char_decode(p);
+        p += 2;
+    }
+    return out;
+}
+//-----------------------------------------------------------------------------
 } //namespace utility
 } //namespace ola
