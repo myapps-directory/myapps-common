@@ -197,6 +197,52 @@ struct ListAppsResponse : solid::frame::mprpc::Message {
     }
 };
 
+struct FetchBuildUpdatesRequest : solid::frame::mprpc::Message {
+    static constexpr uint32_t version = 1;
+
+    uint32_t version_ = version;
+    std::vector<std::string> app_id_vec_;
+
+    SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
+    {
+        solid::serialization::addVersion<FetchBuildUpdatesRequest>(_s, _rthis.version_, "version");
+        _s.add([&_rthis](S& _s, solid::frame::mprpc::ConnectionContext& _rctx, const char* /*_name*/) {
+            _s.add(_rthis.app_id_vec_, _rctx, "app_id_vec");
+        },
+            _rctx, _name);
+    }
+};
+
+
+struct FetchBuildUpdatesResponse : solid::frame::mprpc::Message {
+    static constexpr uint32_t version = 1;
+
+    uint32_t                 version_ = version;
+    uint32_t                 error_   = -1;
+    std::string              message_;
+    std::vector<std::pair<std::string, std::string>> app_vec_;
+
+    FetchBuildUpdatesResponse() {}
+
+    FetchBuildUpdatesResponse(
+        const FetchBuildUpdatesRequest& _rreq)
+        : solid::frame::mprpc::Message(_rreq)
+    {
+    }
+
+    SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
+    {
+        solid::serialization::addVersion<FetchBuildUpdatesResponse>(_s, _rthis.version_, "version");
+
+        _s.add([&_rthis](S& _s, solid::frame::mprpc::ConnectionContext& _rctx, const char* /*_name*/) {
+            _s.add(_rthis.error_, _rctx, "error").add(_rthis.message_, _rctx, "message");
+            _s.add(_rthis.app_vec_, _rctx, "app_vec");
+        },
+            _rctx, _name);
+    }
+};
+
+
 struct ListStoreRequest : solid::frame::mprpc::Message {
     static constexpr uint32_t version = 1;
 
@@ -739,6 +785,9 @@ inline void protocol_setup(R _r, ProtocolT& _rproto)
     _r(_rproto, solid::TypeToType<FetchBuildConfigurationResponse>(), 63);
     _r(_rproto, solid::TypeToType<FetchMediaConfigurationRequest>(), 64);
     _r(_rproto, solid::TypeToType<FetchMediaConfigurationResponse>(), 65);
+
+    _r(_rproto, solid::TypeToType<FetchBuildUpdatesRequest>(), 70);
+    _r(_rproto, solid::TypeToType<FetchBuildUpdatesResponse>(), 71);
 
     _r(_rproto, solid::TypeToType<AcquireAppRequest>(), 100);
 }
