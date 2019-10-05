@@ -446,7 +446,8 @@ struct FetchBuildConfigurationResponse : solid::frame::mprpc::Message {
     uint32_t                           configuration_version_ = ola::utility::Build::Configuration::version;
     uint32_t                           error_                 = -1;
     std::string                        message_;
-    std::string                        unique_;
+    std::string                        app_unique_;
+    std::string                        build_unique_;
     std::string                        storage_id_;
     ola::utility::Build::Configuration configuration_;
 
@@ -466,7 +467,8 @@ struct FetchBuildConfigurationResponse : solid::frame::mprpc::Message {
             solid::serialization::addVersion<ola::utility::Build::Configuration>(_s, _rthis.configuration_version_, "configuration_version");
 
             _s.add(_rthis.error_, _rctx, "error").add(_rthis.message_, _rctx, "message");
-            _s.add(_rthis.unique_, _rctx, "unique_");
+            _s.add(_rthis.app_unique_, _rctx, "app_unique");
+            _s.add(_rthis.build_unique_, _rctx, "build_unique");
             _s.add(_rthis.storage_id_, _rctx, "storage_id");
             _s.add(_rthis.configuration_, _rctx, "configuration");
         },
