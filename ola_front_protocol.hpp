@@ -200,27 +200,30 @@ struct ListAppsResponse : solid::frame::mprpc::Message {
 struct FetchBuildUpdatesRequest : solid::frame::mprpc::Message {
     static constexpr uint32_t version = 1;
 
-    uint32_t version_ = version;
+    uint32_t                 version_ = version;
+    std::string              lang_;
+    std::string              os_id_;
     std::vector<std::string> app_id_vec_;
 
     SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
     {
         solid::serialization::addVersion<FetchBuildUpdatesRequest>(_s, _rthis.version_, "version");
         _s.add([&_rthis](S& _s, solid::frame::mprpc::ConnectionContext& _rctx, const char* /*_name*/) {
+            _s.add(_rthis.lang_, _rctx, "lang");
+            _s.add(_rthis.os_id_, _rctx, "os_id");
             _s.add(_rthis.app_id_vec_, _rctx, "app_id_vec");
         },
             _rctx, _name);
     }
 };
 
-
 struct FetchBuildUpdatesResponse : solid::frame::mprpc::Message {
     static constexpr uint32_t version = 1;
 
-    uint32_t                 version_ = version;
-    uint32_t                 error_   = -1;
-    std::string              message_;
-    std::vector<std::pair<std::string, std::string>> app_vec_;
+    uint32_t                                         version_ = version;
+    uint32_t                                         error_   = -1;
+    std::string                                      message_;
+    std::vector<std::pair<std::string, std::string>> app_vec_; //first means app_unique, second means build_unique
 
     FetchBuildUpdatesResponse() {}
 
@@ -241,7 +244,6 @@ struct FetchBuildUpdatesResponse : solid::frame::mprpc::Message {
             _rctx, _name);
     }
 };
-
 
 struct ListStoreRequest : solid::frame::mprpc::Message {
     static constexpr uint32_t version = 1;
