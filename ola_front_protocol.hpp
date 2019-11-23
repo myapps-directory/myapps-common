@@ -437,7 +437,7 @@ struct FetchBuildResponse : solid::frame::mprpc::Message {
     uint32_t          error_         = -1;
     std::string       message_;
     std::string       storage_id_;
-    std::vector<char> icon_blob_;
+    std::vector<char> image_blob_;
     utility::Build    build_;
 
     FetchBuildResponse() {}
@@ -457,7 +457,7 @@ struct FetchBuildResponse : solid::frame::mprpc::Message {
 
             _s.add(_rthis.error_, _rctx, "error").add(_rthis.message_, _rctx, "message");
             _s.add(_rthis.storage_id_, _rctx, "storage_id");
-            _s.add(_rthis.icon_blob_, _rctx, "icon_blob");
+            _s.add(_rthis.image_blob_, _rctx, "image_blob");
             _s.add(_rthis.build_, _rctx, "build");
         },
             _rctx, _name);
@@ -471,7 +471,9 @@ struct FetchBuildConfigurationRequest : solid::frame::mprpc::Message {
     std::string              app_id_;
     std::string              lang_;
     std::string              os_id_;
+    ola::utility::Build::FetchOptionBitsetT            fetch_options_;
     std::vector<std::string> property_vec_;
+    
 
     SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
     {
@@ -481,6 +483,7 @@ struct FetchBuildConfigurationRequest : solid::frame::mprpc::Message {
             _s.add(_rthis.app_id_, _rctx, "app_id");
             _s.add(_rthis.lang_, _rctx, "lang");
             _s.add(_rthis.os_id_, _rctx, "os_id");
+            _s.add(_rthis.fetch_options_, _rctx, "fetch_options");
             _s.add(_rthis.property_vec_, _rctx, "property_vec");
         },
             _rctx, _name);
@@ -498,6 +501,7 @@ struct FetchBuildConfigurationResponse : solid::frame::mprpc::Message {
     std::string                        build_unique_;
     std::string                        storage_id_;
     ola::utility::Build::Configuration configuration_;
+    std::vector<char>                  image_blob_;
 
     FetchBuildConfigurationResponse() {}
 
@@ -519,6 +523,7 @@ struct FetchBuildConfigurationResponse : solid::frame::mprpc::Message {
             _s.add(_rthis.build_unique_, _rctx, "build_unique");
             _s.add(_rthis.storage_id_, _rctx, "storage_id");
             _s.add(_rthis.configuration_, _rctx, "configuration");
+            _s.add(_rthis.image_blob_, _rctx, "image_blob");
         },
             _rctx, _name);
     }
@@ -652,7 +657,7 @@ struct CreateBuildRequest : solid::frame::mprpc::Message {
     std::string       unique_; //there cannot be two builds with the same tag per application
     uint64_t          size_;
     std::string       sha_sum_;
-    std::vector<char> icon_blob_;
+    std::vector<char> image_blob_;
     utility::Build    build_;
 
     CreateBuildRequest()
@@ -670,7 +675,7 @@ struct CreateBuildRequest : solid::frame::mprpc::Message {
             _s.add(_rthis.unique_, _rctx, "unique");
             _s.add(_rthis.size_, _rctx, "size");
             _s.add(_rthis.sha_sum_, _rctx, "sha_sum");
-            _s.add(_rthis.icon_blob_, _rctx, "icon_blob");
+            _s.add(_rthis.image_blob_, _rctx, "image_blob");
             _s.add(_rthis.build_, _rctx, "build");
         },
             _rctx, _name);
