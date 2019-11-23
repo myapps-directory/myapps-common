@@ -467,13 +467,12 @@ struct FetchBuildResponse : solid::frame::mprpc::Message {
 struct FetchBuildConfigurationRequest : solid::frame::mprpc::Message {
     static constexpr uint32_t version = 1;
 
-    uint32_t                 version_ = version;
-    std::string              app_id_;
-    std::string              lang_;
-    std::string              os_id_;
-    ola::utility::Build::FetchOptionBitsetT            fetch_options_;
-    std::vector<std::string> property_vec_;
-    
+    uint32_t                                version_ = version;
+    std::string                             app_id_;
+    std::string                             lang_;
+    std::string                             os_id_;
+    ola::utility::Build::FetchOptionBitsetT fetch_options_;
+    std::vector<std::string>                property_vec_;
 
     SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
     {

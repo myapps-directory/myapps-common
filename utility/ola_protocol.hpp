@@ -4,10 +4,10 @@
 #include "solid/frame/mprpc/mprpcprotocol_serialization_v2.hpp"
 #include "solid/system/cassert.hpp"
 #include "solid/system/cstring.hpp"
+#include <bitset>
 #include <deque>
 #include <string>
 #include <vector>
-#include <bitset>
 
 namespace ola {
 namespace utility {
@@ -39,8 +39,8 @@ struct Application {
 //NOTE: class versioning at the end of the file
 struct Build {
     static constexpr uint32_t version = 1;
-    
-    enum struct FetchOptionsE: size_t{
+
+    enum struct FetchOptionsE : size_t {
         Name = 0,
         Directory,
         Flags,
@@ -49,26 +49,29 @@ struct Build {
         EXEs,
         Shortcuts,
         Image,
-        
-        FetchCount,//NOTE: add above
+
+        FetchCount, //NOTE: add above
     };
-    
+
     static constexpr size_t OptionsCount = static_cast<size_t>(FetchOptionsE::FetchCount);
-    using FetchOptionBitsetT = std::bitset<OptionsCount>;
+    using FetchOptionBitsetT             = std::bitset<OptionsCount>;
 
     using StringPairVectorT = std::vector<std::pair<std::string, std::string>>;
     using StringPairDequeT  = std::deque<std::pair<std::string, std::string>>;
     using StringVectorT     = std::vector<std::string>;
-    
-    static void set_option(FetchOptionBitsetT &_opt_bs, const FetchOptionsE _opt){
+
+    static void set_option(FetchOptionBitsetT& _opt_bs, const FetchOptionsE _opt)
+    {
         _opt_bs.set(static_cast<size_t>(_opt));
     }
-    
-    static void reset_option(FetchOptionBitsetT &_opt_bs, const FetchOptionsE _opt){
+
+    static void reset_option(FetchOptionBitsetT& _opt_bs, const FetchOptionsE _opt)
+    {
         _opt_bs.reset(static_cast<size_t>(_opt));
     }
-    
-    static bool has_option(const FetchOptionBitsetT &_opt_bs, const FetchOptionsE _opt){
+
+    static bool has_option(const FetchOptionBitsetT& _opt_bs, const FetchOptionsE _opt)
+    {
         return _opt_bs[static_cast<size_t>(_opt)];
     }
 
