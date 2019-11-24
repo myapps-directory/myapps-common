@@ -522,7 +522,9 @@ struct FetchBuildConfigurationResponse : solid::frame::mprpc::Message {
             _s.add(_rthis.build_unique_, _rctx, "build_unique");
             _s.add(_rthis.storage_id_, _rctx, "storage_id");
             _s.add(_rthis.configuration_, _rctx, "configuration");
+            _s.limitString(1024 * 1024, "limit_string");
             _s.add(_rthis.image_blob_, _rctx, "image_blob");
+            _s.limitString(_s.limits().string(), "limit_string");
         },
             _rctx, _name);
     }
