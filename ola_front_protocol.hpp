@@ -524,9 +524,7 @@ struct FetchBuildConfigurationResponse : solid::frame::mprpc::Message {
             _s.add(_rthis.build_unique_, _rctx, "build_unique");
             _s.add(_rthis.storage_id_, _rctx, "storage_id");
             _s.add(_rthis.configuration_, _rctx, "configuration");
-            _s.limitString(1024 * 1024, "limit_string");
-            _s.add(_rthis.image_blob_, _rctx, "image_blob");
-            _s.limitString(_s.limits().string(), "limit_string");
+            _s.add(_rthis.image_blob_, 1024 * 1024, _rctx, "image_blob");
         },
             _rctx, _name);
     }
@@ -679,9 +677,7 @@ struct CreateBuildRequest : solid::frame::mprpc::Message {
             _s.add(_rthis.unique_, _rctx, "unique");
             _s.add(_rthis.size_, _rctx, "size");
             _s.add(_rthis.sha_sum_, _rctx, "sha_sum");
-            _s.limitString(1024 * 1024, "limit_string");
-            _s.add(_rthis.image_blob_, _rctx, "image_blob");
-            _s.limitString(_s.limits().string(), "limit_string");
+            _s.add(_rthis.image_blob_, 1024 * 1024, _rctx, "image_blob");
             _s.add(_rthis.build_, _rctx, "build");
         },
             _rctx, _name);
