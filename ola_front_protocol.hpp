@@ -524,7 +524,7 @@ struct FetchBuildConfigurationResponse : solid::frame::mprpc::Message {
             _s.add(_rthis.build_unique_, _rctx, "build_unique");
             _s.add(_rthis.storage_id_, _rctx, "storage_id");
             _s.add(_rthis.configuration_, _rctx, "configuration");
-            _s.add(_rthis.image_blob_, 1024 * 1024, _rctx, "image_blob");
+            _s.add(_rthis.image_blob_, solid::serialization::limit(1024 * 1024), _rctx, "image_blob");
         },
             _rctx, _name);
     }
@@ -677,7 +677,7 @@ struct CreateBuildRequest : solid::frame::mprpc::Message {
             _s.add(_rthis.unique_, _rctx, "unique");
             _s.add(_rthis.size_, _rctx, "size");
             _s.add(_rthis.sha_sum_, _rctx, "sha_sum");
-            _s.add(_rthis.image_blob_, 1024 * 1024, _rctx, "image_blob");
+            _s.add(_rthis.image_blob_, solid::serialization::limit(1024 * 1024), _rctx, "image_blob");
             _s.add(_rthis.build_, _rctx, "build");
         },
             _rctx, _name);
@@ -732,7 +732,7 @@ struct UploadRequest : solid::frame::mprpc::Message {
             //on serializer side
             auto progress_lambda = [](std::istream& _ris, uint64_t _len, const bool _done, solid::frame::mprpc::ConnectionContext& _rctx, const char* _name) {
             };
-            _s.add(ifs_, 100 * 1024, progress_lambda, _rctx, "file");
+            _s.add(ifs_, solid::serialization::limit(100 * 1024), progress_lambda, _rctx, "file");
         },
             _rctx, _name);
     }
