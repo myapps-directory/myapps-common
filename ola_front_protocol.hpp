@@ -637,6 +637,7 @@ struct AcquireAppRequest : solid::frame::mprpc::Message {
 
     uint32_t    version_ = version;
     std::string app_id_;
+    bool        aquire_ = true;
 
     SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
     {
@@ -644,6 +645,7 @@ struct AcquireAppRequest : solid::frame::mprpc::Message {
 
         _s.add([&_rthis](S& _s, solid::frame::mprpc::ConnectionContext& _rctx, const char* /*_name*/) {
             _s.add(_rthis.app_id_, _rctx, "app_id");
+            _s.add(_rthis.aquire_, _rctx, "aquire");
         },
             _rctx, _name);
     }
