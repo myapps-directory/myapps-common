@@ -734,7 +734,7 @@ struct UploadRequest : solid::frame::mprpc::Message {
             //on serializer side
             auto progress_lambda = [](std::istream& _ris, uint64_t _len, const bool _done, solid::frame::mprpc::ConnectionContext& _rctx, const char* _name) {
             };
-            _s.add(ifs_, solid::serialization::limit(100 * 1024), progress_lambda, _rctx, "file");
+            _s.add(ifs_, 100 * 1024, solid::serialization::limit(100 * 1024), progress_lambda, _rctx, "file");
         },
             _rctx, _name);
     }
