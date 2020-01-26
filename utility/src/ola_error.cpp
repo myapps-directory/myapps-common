@@ -7,6 +7,7 @@ namespace utility {
 namespace {
 
 enum struct ErrorE : uint32_t {
+    //NOTE: Always add at the end
     Generic = 1,
     Exist,
     Backend,
@@ -25,6 +26,7 @@ enum struct ErrorE : uint32_t {
     ApplicationInvalid,
     ApplicationReservation,
     ApplicationSystem,
+    Retry,
 };
 
 constexpr uint32_t cast(const ErrorE _e)
@@ -108,6 +110,9 @@ std::string ErrorCategory::message(int _ev) const
     case cast(ErrorE::ApplicationSystem):
         oss << "Application: System";
         break;
+    case cast(ErrorE::Retry):
+        oss << "Retry";
+        break;
     default:
         oss << "Unknown";
         break;
@@ -124,6 +129,7 @@ solid::ErrorConditionT make_error(const uint32_t _err)
 
 /*extern*/ const solid::ErrorConditionT error_generic(cast(ErrorE::Generic), category);
 /*extern*/ const solid::ErrorConditionT error_exist(cast(ErrorE::Exist), category);
+/*extern*/ const solid::ErrorConditionT error_retry(cast(ErrorE::Retry), category);
 /*extern*/ const solid::ErrorConditionT error_backend(cast(ErrorE::Backend), category);
 /*extern*/ const solid::ErrorConditionT error_pending(cast(ErrorE::Pending), category);
 /*extern*/ const solid::ErrorConditionT error_version(cast(ErrorE::Version), category);

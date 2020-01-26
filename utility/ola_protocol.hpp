@@ -329,6 +329,28 @@ struct ListStoreNode {
     }
 };
 
+struct ListApplicationItem {
+    static constexpr uint32_t version = 1;
+    std::string               id_;
+    std::string               unique_;
+    std::string               name_;
+
+    ListApplicationItem() {}
+
+    ListApplicationItem(const std::string& _id, const std::string& _unique, const std::string& _name)
+        : id_(_id)
+        , unique_(_unique)
+        , name_(_name)
+    {
+    }
+    SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
+    {
+        _s.add(_rthis.id_, _rctx, "id");
+        _s.add(_rthis.unique_, _rctx, "unique");
+        _s.add(_rthis.name_, _rctx, "name");
+    }
+};
+
 } //namespace utility
 } //namespace ola
 

@@ -172,12 +172,12 @@ struct ListAppsRequest : solid::frame::mprpc::Message {
 struct ListAppsResponse : solid::frame::mprpc::Message {
     static constexpr uint32_t version = 1;
 
-    using AppIdVectorT = std::vector<std::pair<std::string, std::string>>;
+    using AppVectorT = std::vector<utility::ListApplicationItem>;
 
-    uint32_t     version_ = version;
-    uint32_t     error_   = -1;
-    std::string  message_;
-    AppIdVectorT app_id_vec_;
+    uint32_t    version_ = version;
+    uint32_t    error_   = -1;
+    std::string message_;
+    AppVectorT  app_vec_;
 
     ListAppsResponse() {}
 
@@ -193,7 +193,7 @@ struct ListAppsResponse : solid::frame::mprpc::Message {
 
         _s.add([&_rthis](S& _s, solid::frame::mprpc::ConnectionContext& _rctx, const char* /*_name*/) {
             _s.add(_rthis.error_, _rctx, "error").add(_rthis.message_, _rctx, "message");
-            _s.add(_rthis.app_id_vec_, _rctx, "app_id_vec");
+            _s.add(_rthis.app_vec_, _rctx, "app_vec");
         },
             _rctx, _name);
     }

@@ -11,6 +11,7 @@ extern const solid::ErrorConditionT error_version;
 extern const solid::ErrorConditionT error_state;
 extern const solid::ErrorConditionT error_generic;
 extern const solid::ErrorConditionT error_exist;
+extern const solid::ErrorConditionT error_retry;
 extern const solid::ErrorConditionT error_backend;
 extern const solid::ErrorConditionT error_pending;
 extern const solid::ErrorConditionT error_request_invalid;
