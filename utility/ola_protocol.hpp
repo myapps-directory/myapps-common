@@ -337,7 +337,7 @@ struct ListApplicationItem {
 
     ListApplicationItem() {}
 
-    ListApplicationItem(const std::string& _id, const std::string& _unique, const std::string& _name)
+    ListApplicationItem(const std::string& _id, const std::string& _unique, const std::string& _name = "")
         : id_(_id)
         , unique_(_unique)
         , name_(_name)
