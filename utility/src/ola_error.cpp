@@ -19,6 +19,7 @@ enum struct ErrorE : uint32_t {
     AccountApplicationQuota,
     AccountStorageQuota,
     AccountNoReservation,
+    Storage,
     StorageLimit,
     StorageSum,
     StorageZip,
@@ -89,6 +90,9 @@ std::string ErrorCategory::message(int _ev) const
     case cast(ErrorE::AccountNoReservation):
         oss << "Account: No reservation";
         break;
+    case cast(ErrorE::Storage):
+        oss << "Storage";
+        break;
     case cast(ErrorE::StorageLimit):
         oss << "Storage: Limit";
         break;
@@ -139,6 +143,7 @@ solid::ErrorConditionT make_error(const uint32_t _err)
 /*extern*/ const solid::ErrorConditionT error_account_application_quota(cast(ErrorE::AccountApplicationQuota), category);
 /*extern*/ const solid::ErrorConditionT error_account_storage_quota(cast(ErrorE::AccountStorageQuota), category);
 /*extern*/ const solid::ErrorConditionT error_account_no_reservation(cast(ErrorE::AccountNoReservation), category);
+/*extern*/ const solid::ErrorConditionT error_storage(cast(ErrorE::Storage), category);
 /*extern*/ const solid::ErrorConditionT error_storage_limit(cast(ErrorE::StorageLimit), category);
 /*extern*/ const solid::ErrorConditionT error_storage_sum(cast(ErrorE::StorageSum), category);
 /*extern*/ const solid::ErrorConditionT error_storage_zip(cast(ErrorE::StorageSum), category);

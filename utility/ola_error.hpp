@@ -26,5 +26,6 @@ extern const solid::ErrorConditionT error_application_invalid;
 extern const solid::ErrorConditionT error_application_reservation;
 extern const solid::ErrorConditionT error_application_system;
 extern const solid::ErrorConditionT error_storage_invalid;
+extern const solid::ErrorConditionT error_storage;
 } //namespace utility
 } //namespace ola
