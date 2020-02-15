@@ -23,6 +23,7 @@ enum struct ErrorE : uint32_t {
     StorageLimit,
     StorageSum,
     StorageZip,
+    StorageSize,
     StorageInvalid,
     ApplicationInvalid,
     ApplicationReservation,
@@ -105,6 +106,9 @@ std::string ErrorCategory::message(int _ev) const
     case cast(ErrorE::StorageZip):
         oss << "Storage: Zip";
         break;
+    case cast(ErrorE::StorageSize):
+        oss << "Storage: Size";
+        break;
     case cast(ErrorE::ApplicationInvalid):
         oss << "Application: Invalid";
         break;
@@ -146,7 +150,8 @@ solid::ErrorConditionT make_error(const uint32_t _err)
 /*extern*/ const solid::ErrorConditionT error_storage(cast(ErrorE::Storage), category);
 /*extern*/ const solid::ErrorConditionT error_storage_limit(cast(ErrorE::StorageLimit), category);
 /*extern*/ const solid::ErrorConditionT error_storage_sum(cast(ErrorE::StorageSum), category);
-/*extern*/ const solid::ErrorConditionT error_storage_zip(cast(ErrorE::StorageSum), category);
+/*extern*/ const solid::ErrorConditionT error_storage_zip(cast(ErrorE::StorageZip), category);
+/*extern*/ const solid::ErrorConditionT error_storage_size(cast(ErrorE::StorageSize), category);
 /*extern*/ const solid::ErrorConditionT error_storage_invalid(cast(ErrorE::StorageInvalid), category);
 /*extern*/ const solid::ErrorConditionT error_application_invalid(cast(ErrorE::ApplicationInvalid), category);
 /*extern*/ const solid::ErrorConditionT error_application_reservation(cast(ErrorE::ApplicationReservation), category);
