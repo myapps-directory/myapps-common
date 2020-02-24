@@ -7,6 +7,7 @@ namespace utility {
 namespace {
 
 enum struct ErrorE : uint32_t {
+    //NOTE: Always add at the end
     Generic = 1,
     Exist,
     Backend,
@@ -18,13 +19,16 @@ enum struct ErrorE : uint32_t {
     AccountApplicationQuota,
     AccountStorageQuota,
     AccountNoReservation,
+    Storage,
     StorageLimit,
     StorageSum,
     StorageZip,
+    StorageSize,
     StorageInvalid,
     ApplicationInvalid,
     ApplicationReservation,
     ApplicationSystem,
+    Retry,
 };
 
 constexpr uint32_t cast(const ErrorE _e)
@@ -87,6 +91,9 @@ std::string ErrorCategory::message(int _ev) const
     case cast(ErrorE::AccountNoReservation):
         oss << "Account: No reservation";
         break;
+    case cast(ErrorE::Storage):
+        oss << "Storage";
+        break;
     case cast(ErrorE::StorageLimit):
         oss << "Storage: Limit";
         break;
@@ -99,6 +106,9 @@ std::string ErrorCategory::message(int _ev) const
     case cast(ErrorE::StorageZip):
         oss << "Storage: Zip";
         break;
+    case cast(ErrorE::StorageSize):
+        oss << "Storage: Size";
+        break;
     case cast(ErrorE::ApplicationInvalid):
         oss << "Application: Invalid";
         break;
@@ -107,6 +117,9 @@ std::string ErrorCategory::message(int _ev) const
         break;
     case cast(ErrorE::ApplicationSystem):
         oss << "Application: System";
+        break;
+    case cast(ErrorE::Retry):
+        oss << "Retry";
         break;
     default:
         oss << "Unknown";
@@ -124,6 +137,7 @@ solid::ErrorConditionT make_error(const uint32_t _err)
 
 /*extern*/ const solid::ErrorConditionT error_generic(cast(ErrorE::Generic), category);
 /*extern*/ const solid::ErrorConditionT error_exist(cast(ErrorE::Exist), category);
+/*extern*/ const solid::ErrorConditionT error_retry(cast(ErrorE::Retry), category);
 /*extern*/ const solid::ErrorConditionT error_backend(cast(ErrorE::Backend), category);
 /*extern*/ const solid::ErrorConditionT error_pending(cast(ErrorE::Pending), category);
 /*extern*/ const solid::ErrorConditionT error_version(cast(ErrorE::Version), category);
@@ -133,9 +147,11 @@ solid::ErrorConditionT make_error(const uint32_t _err)
 /*extern*/ const solid::ErrorConditionT error_account_application_quota(cast(ErrorE::AccountApplicationQuota), category);
 /*extern*/ const solid::ErrorConditionT error_account_storage_quota(cast(ErrorE::AccountStorageQuota), category);
 /*extern*/ const solid::ErrorConditionT error_account_no_reservation(cast(ErrorE::AccountNoReservation), category);
+/*extern*/ const solid::ErrorConditionT error_storage(cast(ErrorE::Storage), category);
 /*extern*/ const solid::ErrorConditionT error_storage_limit(cast(ErrorE::StorageLimit), category);
 /*extern*/ const solid::ErrorConditionT error_storage_sum(cast(ErrorE::StorageSum), category);
-/*extern*/ const solid::ErrorConditionT error_storage_zip(cast(ErrorE::StorageSum), category);
+/*extern*/ const solid::ErrorConditionT error_storage_zip(cast(ErrorE::StorageZip), category);
+/*extern*/ const solid::ErrorConditionT error_storage_size(cast(ErrorE::StorageSize), category);
 /*extern*/ const solid::ErrorConditionT error_storage_invalid(cast(ErrorE::StorageInvalid), category);
 /*extern*/ const solid::ErrorConditionT error_application_invalid(cast(ErrorE::ApplicationInvalid), category);
 /*extern*/ const solid::ErrorConditionT error_application_reservation(cast(ErrorE::ApplicationReservation), category);

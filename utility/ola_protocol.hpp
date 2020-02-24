@@ -4,8 +4,10 @@
 #include "solid/frame/mprpc/mprpcprotocol_serialization_v2.hpp"
 #include "solid/system/cassert.hpp"
 #include "solid/system/cstring.hpp"
+#include "solid/system/exception.hpp"
 #include <bitset>
 #include <deque>
+#include <functional>
 #include <string>
 #include <vector>
 
@@ -34,6 +36,11 @@ struct Application {
     {
         return name_ == _ac.name_;
     }
+
+    uint64_t computeCheck() const
+    {
+        return std::hash<std::string>{}(name_);
+    }
 };
 
 //NOTE: class versioning at the end of the file
@@ -55,10 +62,9 @@ struct Build {
 
     static constexpr size_t OptionsCount = static_cast<size_t>(FetchOptionsE::FetchCount);
     using FetchOptionBitsetT             = std::bitset<OptionsCount>;
-
-    using StringPairVectorT = std::vector<std::pair<std::string, std::string>>;
-    using StringPairDequeT  = std::deque<std::pair<std::string, std::string>>;
-    using StringVectorT     = std::vector<std::string>;
+    using StringPairVectorT              = std::vector<std::pair<std::string, std::string>>;
+    using StringPairDequeT               = std::deque<std::pair<std::string, std::string>>;
+    using StringVectorT                  = std::vector<std::string>;
 
     static void set_option(FetchOptionBitsetT& _opt_bs, const FetchOptionsE _opt)
     {
@@ -209,12 +215,17 @@ struct Build {
     void serialize(Archive& _a, std::uint32_t const _version)
     {
         solid_assert(version == _version);
-        _a(name_, tag_, dictionary_dq_, configuration_vec_);
+        _a(name_, tag_, dictionary_dq_, property_vec_, configuration_vec_);
     }
 
     bool operator==(const Build& _bc) const
     {
         return name_ == _bc.name_ && tag_ == _bc.tag_ && configuration_vec_ == _bc.configuration_vec_ && property_vec_ == _bc.property_vec_ && dictionary_dq_ == _bc.dictionary_dq_;
+    }
+
+    uint64_t computeCheck() const
+    {
+        return std::hash<std::string>{}(name_) ^ std::hash<std::string>{}(tag_) ^ dictionary_dq_.size() ^ property_vec_.size() ^ configuration_vec_.size();
     }
 };
 
@@ -300,6 +311,11 @@ struct Media {
     {
         return configuration_vec_ == _bc.configuration_vec_;
     }
+
+    uint64_t computeCheck() const
+    {
+        return configuration_vec_.size();
+    }
 };
 
 struct ListStoreNode {
@@ -326,6 +342,28 @@ struct ListStoreNode {
     {
         _s.add(_rthis.name_, _rctx, "name");
         _s.add(_rthis.size_, _rctx, "size");
+    }
+};
+
+struct ListApplicationItem {
+    static constexpr uint32_t version = 1;
+    std::string               id_;
+    std::string               unique_;
+    std::string               name_;
+
+    ListApplicationItem() {}
+
+    ListApplicationItem(const std::string& _id, const std::string& _unique, const std::string& _name = "")
+        : id_(_id)
+        , unique_(_unique)
+        , name_(_name)
+    {
+    }
+    SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
+    {
+        _s.add(_rthis.id_, _rctx, "id");
+        _s.add(_rthis.unique_, _rctx, "unique");
+        _s.add(_rthis.name_, _rctx, "name");
     }
 };
 
