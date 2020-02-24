@@ -4,8 +4,10 @@
 #include "solid/frame/mprpc/mprpcprotocol_serialization_v2.hpp"
 #include "solid/system/cassert.hpp"
 #include "solid/system/cstring.hpp"
+#include "solid/system/exception.hpp"
 #include <bitset>
 #include <deque>
+#include <functional>
 #include <string>
 #include <vector>
 
@@ -34,6 +36,11 @@ struct Application {
     {
         return name_ == _ac.name_;
     }
+
+    uint64_t computeCheck() const
+    {
+        return std::hash<std::string>{}(name_);
+    }
 };
 
 //NOTE: class versioning at the end of the file
@@ -55,10 +62,9 @@ struct Build {
 
     static constexpr size_t OptionsCount = static_cast<size_t>(FetchOptionsE::FetchCount);
     using FetchOptionBitsetT             = std::bitset<OptionsCount>;
-
-    using StringPairVectorT = std::vector<std::pair<std::string, std::string>>;
-    using StringPairDequeT  = std::deque<std::pair<std::string, std::string>>;
-    using StringVectorT     = std::vector<std::string>;
+    using StringPairVectorT              = std::vector<std::pair<std::string, std::string>>;
+    using StringPairDequeT               = std::deque<std::pair<std::string, std::string>>;
+    using StringVectorT                  = std::vector<std::string>;
 
     static void set_option(FetchOptionBitsetT& _opt_bs, const FetchOptionsE _opt)
     {
@@ -209,12 +215,17 @@ struct Build {
     void serialize(Archive& _a, std::uint32_t const _version)
     {
         solid_assert(version == _version);
-        _a(name_, tag_, dictionary_dq_, configuration_vec_);
+        _a(name_, tag_, dictionary_dq_, property_vec_, configuration_vec_);
     }
 
     bool operator==(const Build& _bc) const
     {
         return name_ == _bc.name_ && tag_ == _bc.tag_ && configuration_vec_ == _bc.configuration_vec_ && property_vec_ == _bc.property_vec_ && dictionary_dq_ == _bc.dictionary_dq_;
+    }
+
+    uint64_t computeCheck() const
+    {
+        return std::hash<std::string>{}(name_) ^ std::hash<std::string>{}(tag_) ^ dictionary_dq_.size() ^ property_vec_.size() ^ configuration_vec_.size();
     }
 };
 
@@ -299,6 +310,11 @@ struct Media {
     bool operator==(const Media& _bc) const
     {
         return configuration_vec_ == _bc.configuration_vec_;
+    }
+
+    uint64_t computeCheck() const
+    {
+        return configuration_vec_.size();
     }
 };
 
