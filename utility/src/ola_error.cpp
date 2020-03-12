@@ -83,10 +83,10 @@ std::string ErrorCategory::message(int _ev) const
         oss << "Request Invalid";
         break;
     case cast(ErrorE::AuthenticationInvalid):
-        oss<< "Authentication Invalid";
+        oss << "Authentication Invalid";
         break;
     case cast(ErrorE::AuthenticationValidate):
-        oss<< "Authentication Validate Required";
+        oss << "Authentication Validate Required";
         break;
     case cast(ErrorE::AccountInvalid):
         oss << "Account: Invalid";
