@@ -15,6 +15,8 @@ enum struct ErrorE : uint32_t {
     Version,
     State,
     RequestInvalid,
+    AuthenticationInvalid,
+    AuthenticationValidate,
     AccountInvalid,
     AccountApplicationQuota,
     AccountStorageQuota,
@@ -29,6 +31,7 @@ enum struct ErrorE : uint32_t {
     ApplicationReservation,
     ApplicationSystem,
     Retry,
+    ArgumentInvalid,
 };
 
 constexpr uint32_t cast(const ErrorE _e)
@@ -79,6 +82,12 @@ std::string ErrorCategory::message(int _ev) const
     case cast(ErrorE::RequestInvalid):
         oss << "Request Invalid";
         break;
+    case cast(ErrorE::AuthenticationInvalid):
+        oss<< "Authentication Invalid";
+        break;
+    case cast(ErrorE::AuthenticationValidate):
+        oss<< "Authentication Validate Required";
+        break;
     case cast(ErrorE::AccountInvalid):
         oss << "Account: Invalid";
         break;
@@ -121,6 +130,9 @@ std::string ErrorCategory::message(int _ev) const
     case cast(ErrorE::Retry):
         oss << "Retry";
         break;
+    case cast(ErrorE::ArgumentInvalid):
+        oss << "Argument Invalid";
+        break;
     default:
         oss << "Unknown";
         break;
@@ -143,6 +155,9 @@ solid::ErrorConditionT make_error(const uint32_t _err)
 /*extern*/ const solid::ErrorConditionT error_version(cast(ErrorE::Version), category);
 /*extern*/ const solid::ErrorConditionT error_state(cast(ErrorE::State), category);
 /*extern*/ const solid::ErrorConditionT error_request_invalid(cast(ErrorE::RequestInvalid), category);
+/*extern*/ const solid::ErrorConditionT error_authentication_invalid(cast(ErrorE::AuthenticationInvalid), category);
+/*extern*/ const solid::ErrorConditionT error_authentication_validate(cast(ErrorE::AuthenticationValidate), category);
+/*extern*/ const solid::ErrorConditionT error_argument_invalid(cast(ErrorE::ArgumentInvalid), category);
 /*extern*/ const solid::ErrorConditionT error_account_invalid(cast(ErrorE::AccountInvalid), category);
 /*extern*/ const solid::ErrorConditionT error_account_application_quota(cast(ErrorE::AccountApplicationQuota), category);
 /*extern*/ const solid::ErrorConditionT error_account_storage_quota(cast(ErrorE::AccountStorageQuota), category);
