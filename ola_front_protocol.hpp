@@ -148,6 +148,7 @@ struct AuthAmendRequest : solid::frame::mprpc::Message {
 
     uint32_t version_ = version;
 
+    std::string ticket_;
     std::string new_pass_;
     std::string new_user_;
     std::string new_email_;
@@ -160,6 +161,7 @@ struct AuthAmendRequest : solid::frame::mprpc::Message {
         solid::serialization::addVersion<AuthCreateRequest>(_s, _rthis.version_, "version");
 
         _s.add([&_rthis](S& _s, solid::frame::mprpc::ConnectionContext& _rctx, const char* /*_name*/) {
+            _s.add(_rthis.ticket_, _rctx, "ticket");
             _s.add(_rthis.new_pass_, _rctx, "new_pass").add(_rthis.new_user_, _rctx, "new_user");
             _s.add(_rthis.new_email_, _rctx, "new_email");
             _s.add(_rthis.pass_, _rctx, "pass");
@@ -174,6 +176,7 @@ struct AuthValidateRequest : solid::frame::mprpc::Message {
 
     uint32_t version_ = version;
 
+    std::string ticket_;
     std::string text_;
     std::string captcha_text_;
     std::string captcha_token_;
@@ -183,6 +186,7 @@ struct AuthValidateRequest : solid::frame::mprpc::Message {
         solid::serialization::addVersion<AuthValidateRequest>(_s, _rthis.version_, "version");
 
         _s.add([&_rthis](S& _s, solid::frame::mprpc::ConnectionContext& _rctx, const char* /*_name*/) {
+            _s.add(_rthis.ticket_, _rctx, "ticket");
             _s.add(_rthis.text_, _rctx, "text");
             _s.add(_rthis.captcha_text_, _rctx, "captcha_text").add(_rthis.captcha_token_, _rctx, "captcha_token");
         },
