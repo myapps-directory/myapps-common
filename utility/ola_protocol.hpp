@@ -19,6 +19,8 @@ enum struct AccountStateE : uint8_t {
     Inactive,
     Validate,
     Active,
+    ActiveLocked,
+    ValidateLocked,
 };
 
 //NOTE: class versioning at the end of the file
