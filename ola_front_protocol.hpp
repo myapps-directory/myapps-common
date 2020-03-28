@@ -90,7 +90,7 @@ struct CaptchaResponse : solid::frame::mprpc::Message {
         solid::serialization::addVersion<CaptchaResponse>(_s, _rthis.version_, "version");
 
         _s.add([&_rthis](S& _s, solid::frame::mprpc::ConnectionContext& _rctx, const char* /*_name*/) {
-            _s.add(_rthis.captcha_token_, _rctx, "captcha_token").add(_rthis.captcha_image_, _rctx, "captcha_image");
+            _s.add(_rthis.captcha_token_, _rctx, "captcha_token").add(_rthis.captcha_image_, solid::serialization::limit(1024 * 1024), _rctx, "captcha_image");
             _s.add(_rthis.captcha_audio_, _rctx, "captcha_audio");
         },
             _rctx, _name);
@@ -566,7 +566,7 @@ struct FetchBuildResponse : solid::frame::mprpc::Message {
 
             _s.add(_rthis.error_, _rctx, "error").add(_rthis.message_, _rctx, "message");
             _s.add(_rthis.storage_id_, _rctx, "storage_id");
-            _s.add(_rthis.image_blob_, _rctx, "image_blob");
+            _s.add(_rthis.image_blob_, solid::serialization::limit(1024 * 1024), _rctx, "image_blob");
             _s.add(_rthis.build_, _rctx, "build");
         },
             _rctx, _name);
