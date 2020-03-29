@@ -161,8 +161,8 @@ struct AuthFetchResponse : solid::frame::mprpc::Message {
 
     std::string user_;
     std::string email_;
-    
-    AuthFetchResponse(){}
+
+    AuthFetchResponse() {}
 
     AuthFetchResponse(const AuthFetchRequest& _req)
         : solid::frame::mprpc::Message(_req)
