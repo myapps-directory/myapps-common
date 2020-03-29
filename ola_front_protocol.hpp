@@ -143,6 +143,44 @@ struct AuthCreateRequest : solid::frame::mprpc::Message {
     }
 };
 
+struct AuthFetchRequest : solid::frame::mprpc::Message {
+    static constexpr uint32_t version = 1;
+
+    uint32_t version_ = version;
+
+    SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
+    {
+        solid::serialization::addVersion<AuthCreateRequest>(_s, _rthis.version_, "version");
+    }
+};
+
+struct AuthFetchResponse : solid::frame::mprpc::Message {
+    static constexpr uint32_t version = 1;
+
+    uint32_t version_ = version;
+
+    std::string user_;
+    std::string email_;
+    
+    AuthFetchResponse(){}
+
+    AuthFetchResponse(const AuthFetchRequest& _req)
+        : solid::frame::mprpc::Message(_req)
+    {
+    }
+
+    SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
+    {
+        solid::serialization::addVersion<AuthCreateRequest>(_s, _rthis.version_, "version");
+
+        _s.add([&_rthis](S& _s, solid::frame::mprpc::ConnectionContext& _rctx, const char* /*_name*/) {
+            _s.add(_rthis.user_, _rctx, "user");
+            _s.add(_rthis.email_, _rctx, "email");
+        },
+            _rctx, _name);
+    }
+};
+
 struct AuthAmendRequest : solid::frame::mprpc::Message {
     static constexpr uint32_t version = 1;
 
@@ -865,7 +903,7 @@ using ProtocolT = solid::frame::mprpc::serialization_v2::Protocol<uint8_t>;
 template <class R>
 inline void protocol_setup(R _r, ProtocolT& _rproto)
 {
-    _rproto.version(1, 0);
+    _rproto.version(2, 0);
 
     _rproto.null(static_cast<ProtocolT::TypeIdT>(0));
 
@@ -878,42 +916,42 @@ inline void protocol_setup(R _r, ProtocolT& _rproto)
     _r(_rproto, solid::TypeToType<AuthCreateRequest>(), 7);
     _r(_rproto, solid::TypeToType<AuthValidateRequest>(), 8);
     _r(_rproto, solid::TypeToType<AuthAmendRequest>(), 9);
+    _r(_rproto, solid::TypeToType<AuthFetchRequest>(), 10);
+    _r(_rproto, solid::TypeToType<AuthFetchResponse>(), 11);
 
-    _r(_rproto, solid::TypeToType<CreateAppRequest>(), 10);
+    _r(_rproto, solid::TypeToType<CreateAppRequest>(), 20);
 
-    _r(_rproto, solid::TypeToType<ListOSesRequest>(), 20);
-    _r(_rproto, solid::TypeToType<ListOSesResponse>(), 21);
+    _r(_rproto, solid::TypeToType<ListOSesRequest>(), 40);
+    _r(_rproto, solid::TypeToType<ListOSesResponse>(), 41);
+    _r(_rproto, solid::TypeToType<ListAppsRequest>(), 42);
+    _r(_rproto, solid::TypeToType<ListAppsResponse>(), 43);
+    _r(_rproto, solid::TypeToType<ListStoreRequest>(), 44);
+    _r(_rproto, solid::TypeToType<ListStoreResponse>(), 45);
 
-    _r(_rproto, solid::TypeToType<ListAppsRequest>(), 22);
-    _r(_rproto, solid::TypeToType<ListAppsResponse>(), 23);
+    _r(_rproto, solid::TypeToType<FetchStoreRequest>(), 60);
+    _r(_rproto, solid::TypeToType<FetchStoreResponse>(), 61);
 
-    _r(_rproto, solid::TypeToType<ListStoreRequest>(), 24);
-    _r(_rproto, solid::TypeToType<ListStoreResponse>(), 25);
+    _r(_rproto, solid::TypeToType<CreateBuildRequest>(), 80);
+    _r(_rproto, solid::TypeToType<CreateMediaRequest>(), 81);
+    _r(_rproto, solid::TypeToType<UploadRequest>(), 84);
 
-    _r(_rproto, solid::TypeToType<FetchStoreRequest>(), 30);
-    _r(_rproto, solid::TypeToType<FetchStoreResponse>(), 31);
+    _r(_rproto, solid::TypeToType<FetchAppRequest>(), 100);
+    _r(_rproto, solid::TypeToType<FetchAppResponse>(), 101);
 
-    _r(_rproto, solid::TypeToType<CreateBuildRequest>(), 40);
-    _r(_rproto, solid::TypeToType<CreateMediaRequest>(), 41);
-    _r(_rproto, solid::TypeToType<UploadRequest>(), 44);
+    _r(_rproto, solid::TypeToType<FetchBuildRequest>(), 120);
+    _r(_rproto, solid::TypeToType<FetchBuildResponse>(), 121);
+    _r(_rproto, solid::TypeToType<FetchBuildConfigurationRequest>(), 122);
+    _r(_rproto, solid::TypeToType<FetchBuildConfigurationResponse>(), 123);
+    _r(_rproto, solid::TypeToType<FetchMediaConfigurationRequest>(), 124);
+    _r(_rproto, solid::TypeToType<FetchMediaConfigurationResponse>(), 125);
 
-    _r(_rproto, solid::TypeToType<FetchAppRequest>(), 50);
-    _r(_rproto, solid::TypeToType<FetchAppResponse>(), 51);
+    _r(_rproto, solid::TypeToType<FetchBuildUpdatesRequest>(), 140);
+    _r(_rproto, solid::TypeToType<FetchBuildUpdatesResponse>(), 141);
 
-    _r(_rproto, solid::TypeToType<FetchBuildRequest>(), 60);
-    _r(_rproto, solid::TypeToType<FetchBuildResponse>(), 61);
-    _r(_rproto, solid::TypeToType<FetchBuildConfigurationRequest>(), 62);
-    _r(_rproto, solid::TypeToType<FetchBuildConfigurationResponse>(), 63);
-    _r(_rproto, solid::TypeToType<FetchMediaConfigurationRequest>(), 64);
-    _r(_rproto, solid::TypeToType<FetchMediaConfigurationResponse>(), 65);
+    _r(_rproto, solid::TypeToType<CaptchaRequest>(), 160);
+    _r(_rproto, solid::TypeToType<CaptchaResponse>(), 161);
 
-    _r(_rproto, solid::TypeToType<FetchBuildUpdatesRequest>(), 70);
-    _r(_rproto, solid::TypeToType<FetchBuildUpdatesResponse>(), 71);
-
-    _r(_rproto, solid::TypeToType<CaptchaRequest>(), 80);
-    _r(_rproto, solid::TypeToType<CaptchaResponse>(), 81);
-
-    _r(_rproto, solid::TypeToType<AcquireAppRequest>(), 100);
+    _r(_rproto, solid::TypeToType<AcquireAppRequest>(), 180);
 }
 
 } //namespace front
