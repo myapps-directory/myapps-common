@@ -20,6 +20,7 @@ extern const solid::ErrorConditionT error_authentication_invalid;
 extern const solid::ErrorConditionT error_authentication_locked;
 extern const solid::ErrorConditionT error_authentication_validate;
 extern const solid::ErrorConditionT error_authentication_wait;
+extern const solid::ErrorConditionT error_authentication_relogin;
 extern const solid::ErrorConditionT error_account_invalid;
 extern const solid::ErrorConditionT error_account_application_quota;
 extern const solid::ErrorConditionT error_account_storage_quota;

@@ -19,6 +19,7 @@ enum struct ErrorE : uint32_t {
     AuthenticationValidate,
     AuthenticationLocked,
     AuthenticationWait,
+    AuthenticationRelogin,
     AccountInvalid,
     AccountApplicationQuota,
     AccountStorageQuota,
@@ -96,6 +97,9 @@ std::string ErrorCategory::message(int _ev) const
     case cast(ErrorE::AuthenticationWait):
         oss << "Authentication: Wait";
         break;
+    case cast(ErrorE::AuthenticationRelogin):
+        oss << "Authentication: Relogin";
+        break;
     case cast(ErrorE::AccountInvalid):
         oss << "Account: Invalid";
         break;
@@ -167,6 +171,7 @@ solid::ErrorConditionT make_error(const uint32_t _err)
 /*extern*/ const solid::ErrorConditionT error_authentication_validate(cast(ErrorE::AuthenticationValidate), category);
 /*extern*/ const solid::ErrorConditionT error_authentication_locked(cast(ErrorE::AuthenticationLocked), category);
 /*extern*/ const solid::ErrorConditionT error_authentication_wait(cast(ErrorE::AuthenticationWait), category);
+/*extern*/ const solid::ErrorConditionT error_authentication_relogin(cast(ErrorE::AuthenticationRelogin), category);
 /*extern*/ const solid::ErrorConditionT error_argument_invalid(cast(ErrorE::ArgumentInvalid), category);
 /*extern*/ const solid::ErrorConditionT error_account_invalid(cast(ErrorE::AccountInvalid), category);
 /*extern*/ const solid::ErrorConditionT error_account_application_quota(cast(ErrorE::AccountApplicationQuota), category);

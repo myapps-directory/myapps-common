@@ -232,6 +232,29 @@ struct AuthValidateRequest : solid::frame::mprpc::Message {
     }
 };
 
+struct AuthResetRequest : solid::frame::mprpc::Message {
+    static constexpr uint32_t version = 1;
+
+    uint32_t version_ = version;
+
+    std::string login_;
+    std::string pass_;
+    std::string captcha_text_;
+    std::string captcha_token_;
+
+    SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
+    {
+        solid::serialization::addVersion<AuthResetRequest>(_s, _rthis.version_, "version");
+
+        _s.add([&_rthis](S& _s, solid::frame::mprpc::ConnectionContext& _rctx, const char* /*_name*/) {
+            _s.add(_rthis.login_, _rctx, "login");
+            _s.add(_rthis.pass_, _rctx, "pass");
+            _s.add(_rthis.captcha_text_, _rctx, "captcha_text").add(_rthis.captcha_token_, _rctx, "captcha_token");
+        },
+            _rctx, _name);
+    }
+};
+
 struct AuthResponse : solid::frame::mprpc::Message {
     static constexpr uint32_t version = 1;
 
@@ -918,6 +941,7 @@ inline void protocol_setup(R _r, ProtocolT& _rproto)
     _r(_rproto, solid::TypeToType<AuthAmendRequest>(), 9);
     _r(_rproto, solid::TypeToType<AuthFetchRequest>(), 10);
     _r(_rproto, solid::TypeToType<AuthFetchResponse>(), 11);
+    _r(_rproto, solid::TypeToType<AuthResetRequest>(), 12);
 
     _r(_rproto, solid::TypeToType<CreateAppRequest>(), 20);
 
