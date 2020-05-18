@@ -14,6 +14,15 @@
 namespace ola {
 namespace utility {
 
+enum struct AccountStateE : uint8_t {
+    Invalid = 0,
+    Inactive,
+    Validate,
+    Active,
+    ActiveLocked,
+    ValidateLocked,
+};
+
 //NOTE: class versioning at the end of the file
 struct Application {
     static constexpr uint32_t version = 1;
