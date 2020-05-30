@@ -65,6 +65,7 @@ struct Build {
         EXEs,
         Shortcuts,
         Image,
+        Media,
 
         FetchCount, //NOTE: add above
     };
