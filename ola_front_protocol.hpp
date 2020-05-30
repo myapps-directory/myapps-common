@@ -670,7 +670,8 @@ struct FetchBuildConfigurationResponse : solid::frame::mprpc::Message {
     std::string                        message_;
     std::string                        app_unique_;
     std::string                        build_unique_;
-    std::string                        storage_id_;
+    std::string                        build_storage_id_;
+    std::string                        media_storage_id_;
     ola::utility::Build::Configuration configuration_;
     std::vector<char>                  image_blob_;
 
@@ -692,14 +693,15 @@ struct FetchBuildConfigurationResponse : solid::frame::mprpc::Message {
             _s.add(_rthis.error_, _rctx, "error").add(_rthis.message_, _rctx, "message");
             _s.add(_rthis.app_unique_, _rctx, "app_unique");
             _s.add(_rthis.build_unique_, _rctx, "build_unique");
-            _s.add(_rthis.storage_id_, _rctx, "storage_id");
+            _s.add(_rthis.build_storage_id_, _rctx, "build_storage_id");
+            _s.add(_rthis.media_storage_id_, _rctx, "media_storage_id");
             _s.add(_rthis.configuration_, _rctx, "configuration");
             _s.add(_rthis.image_blob_, solid::serialization::limit(1024 * 1024), _rctx, "image_blob");
         },
             _rctx, _name);
     }
 };
-
+#if 0
 struct FetchMediaConfigurationRequest : solid::frame::mprpc::Message {
     static constexpr uint32_t version = 1;
 
@@ -756,6 +758,7 @@ struct FetchMediaConfigurationResponse : solid::frame::mprpc::Message {
             _rctx, _name);
     }
 };
+#endif
 
 struct Response : solid::frame::mprpc::Message {
     static constexpr uint32_t version = 1;
@@ -860,12 +863,10 @@ struct CreateMediaRequest : solid::frame::mprpc::Message {
     static constexpr uint32_t version = 1;
 
     uint32_t       version_       = version;
-    uint32_t       media_version_ = utility::Media::version;
     std::string    app_id_;
-    std::string    unique_; //there cannot be two builds with the same tag per application
+    std::string    unique_; //there cannot be two media with the same tag per application
     uint64_t       size_;
     std::string    sha_sum_;
-    utility::Media media_;
 
     CreateMediaRequest()
         : size_(0)
@@ -877,12 +878,10 @@ struct CreateMediaRequest : solid::frame::mprpc::Message {
         solid::serialization::addVersion<CreateMediaRequest>(_s, _rthis.version_, "version");
 
         _s.add([&_rthis](S& _s, solid::frame::mprpc::ConnectionContext& _rctx, const char* /*_name*/) {
-            solid::serialization::addVersion<utility::Media>(_s, _rthis.media_version_, "media_version");
             _s.add(_rthis.app_id_, _rctx, "app_id");
             _s.add(_rthis.unique_, _rctx, "unique");
             _s.add(_rthis.size_, _rctx, "size");
             _s.add(_rthis.sha_sum_, _rctx, "sha_sum");
-            _s.add(_rthis.media_, _rctx, "media");
         },
             _rctx, _name);
     }
@@ -968,9 +967,10 @@ inline void protocol_setup(R _r, ProtocolT& _rproto)
     _r(_rproto, solid::TypeToType<FetchBuildResponse>(), 121);
     _r(_rproto, solid::TypeToType<FetchBuildConfigurationRequest>(), 122);
     _r(_rproto, solid::TypeToType<FetchBuildConfigurationResponse>(), 123);
+#if 0
     _r(_rproto, solid::TypeToType<FetchMediaConfigurationRequest>(), 124);
     _r(_rproto, solid::TypeToType<FetchMediaConfigurationResponse>(), 125);
-
+#endif
     _r(_rproto, solid::TypeToType<FetchBuildUpdatesRequest>(), 140);
     _r(_rproto, solid::TypeToType<FetchBuildUpdatesResponse>(), 141);
 

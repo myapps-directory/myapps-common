@@ -124,6 +124,69 @@ struct Build {
     };
 
     using ShortcutVectorT = std::deque<Shortcut>;
+    
+    struct Media {
+        static constexpr uint32_t version = 1;
+
+        struct Entry {
+            static constexpr uint32_t version = 1;
+            std::string               thumbnail_path_;
+            std::string               path_;
+
+            Entry() {}
+
+            Entry(const std::string& _thumbnail, const std::string& _path)
+                : thumbnail_path_(_thumbnail)
+                , path_(_path)
+            {
+            }
+
+            SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
+            {
+                _s.add(_rthis.thumbnail_path_, _rctx, "thumbnail_path");
+                _s.add(_rthis.path_, _rctx, "path");
+            }
+
+            template <class Archive>
+            void serialize(Archive& _a, std::uint32_t const _version)
+            {
+                solid_assert(version == _version);
+                _a(thumbnail_path_, path_);
+            }
+            bool operator==(const Entry& _bc) const
+            {
+                return thumbnail_path_ == _bc.thumbnail_path_ && path_ == _bc.path_;
+            }
+        };
+
+        using EntryVectorT = std::vector<Entry>;
+        std::string               name_;
+        EntryVectorT              entry_vec_;
+
+        SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
+        {
+            _s.add(_rthis.name_, _rctx, "name");
+            _s.add(_rthis.entry_vec_, _rctx, "entry_vec");
+        }
+
+        template <class Archive>
+        void serialize(Archive& _a, std::uint32_t const _version)
+        {
+            solid_assert(version == _version);
+            _a(name_, entry_vec_);
+        }
+
+        bool operator==(const Media& _bc) const
+        {
+            return name_ == _bc.name_ && entry_vec_ == _bc.entry_vec_;
+        }
+
+        uint64_t computeCheck() const
+        {
+            return name_.size() ^ entry_vec_.size();
+        }
+    };
+
     //NOTE: class versioning at the end of the file
     struct Configuration {
         static constexpr uint32_t version = 1;
@@ -173,6 +236,7 @@ struct Build {
         StringVectorT     exe_vec_;
         ShortcutVectorT   shortcut_vec_;
         StringPairVectorT property_vec_;
+        Media             media_;
 
         SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
         {
@@ -184,18 +248,19 @@ struct Build {
             _s.add(_rthis.exe_vec_, _rctx, "exe_vec");
             _s.add(_rthis.shortcut_vec_, _rctx, "shortcut_vec");
             _s.add(_rthis.property_vec_, _rctx, "property_vec");
+            _s.add(_rthis.media_, _rctx, "media");
         }
 
         template <class Archive>
         void serialize(Archive& _a, std::uint32_t const _version)
         {
             solid_assert(version == _version);
-            _a(name_, directory_, flags_, os_vec_, mount_vec_, exe_vec_, shortcut_vec_, property_vec_);
+            _a(name_, directory_, flags_, os_vec_, mount_vec_, exe_vec_, shortcut_vec_, property_vec_, media_);
         }
 
         bool operator==(const Configuration& _c) const
         {
-            return name_ == _c.name_ && directory_ == _c.directory_ && flags_ == _c.flags_ && os_vec_ == _c.os_vec_ && mount_vec_ == _c.mount_vec_ && exe_vec_ == _c.exe_vec_ && shortcut_vec_ == _c.shortcut_vec_ && property_vec_ == _c.property_vec_;
+            return name_ == _c.name_ && directory_ == _c.directory_ && flags_ == _c.flags_ && os_vec_ == _c.os_vec_ && mount_vec_ == _c.mount_vec_ && exe_vec_ == _c.exe_vec_ && shortcut_vec_ == _c.shortcut_vec_ && property_vec_ == _c.property_vec_ && media_ == _c.media_;
         }
 
         bool hasHiddenDirectoryFlag() const
@@ -239,6 +304,7 @@ struct Build {
     }
 };
 
+#if 0
 struct Media {
     static constexpr uint32_t version = 1;
 
@@ -327,6 +393,7 @@ struct Media {
         return configuration_vec_.size();
     }
 };
+#endif
 
 struct ListStoreNode {
     static constexpr uint32_t version = 1;
@@ -382,8 +449,8 @@ struct ListApplicationItem {
 
 CEREAL_CLASS_VERSION(ola::utility::Application, ola::utility::Application::version);
 CEREAL_CLASS_VERSION(ola::utility::Build, ola::utility::Build::version);
-CEREAL_CLASS_VERSION(ola::utility::Media, ola::utility::Media::version);
+CEREAL_CLASS_VERSION(ola::utility::Build::Media, ola::utility::Build::Media::version);
 CEREAL_CLASS_VERSION(ola::utility::Build::Shortcut, ola::utility::Build::Shortcut::version);
 CEREAL_CLASS_VERSION(ola::utility::Build::Configuration, ola::utility::Build::Configuration::version);
-CEREAL_CLASS_VERSION(ola::utility::Media::Configuration, ola::utility::Media::Configuration::version);
-CEREAL_CLASS_VERSION(ola::utility::Media::Entry, ola::utility::Media::Entry::version);
+//CEREAL_CLASS_VERSION(ola::utility::Media::Configuration, ola::utility::Media::Configuration::version);
+//CEREAL_CLASS_VERSION(ola::utility::Media::Entry, ola::utility::Media::Entry::version);
