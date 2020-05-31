@@ -862,11 +862,11 @@ struct CreateBuildRequest : solid::frame::mprpc::Message {
 struct CreateMediaRequest : solid::frame::mprpc::Message {
     static constexpr uint32_t version = 1;
 
-    uint32_t       version_       = version;
-    std::string    app_id_;
-    std::string    unique_; //there cannot be two media with the same tag per application
-    uint64_t       size_;
-    std::string    sha_sum_;
+    uint32_t    version_ = version;
+    std::string app_id_;
+    std::string unique_; //there cannot be two media with the same tag per application
+    uint64_t    size_;
+    std::string sha_sum_;
 
     CreateMediaRequest()
         : size_(0)

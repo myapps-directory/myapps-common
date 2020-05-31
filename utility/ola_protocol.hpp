@@ -124,7 +124,7 @@ struct Build {
     };
 
     using ShortcutVectorT = std::deque<Shortcut>;
-    
+
     struct Media {
         static constexpr uint32_t version = 1;
 
@@ -160,8 +160,8 @@ struct Build {
         };
 
         using EntryVectorT = std::vector<Entry>;
-        std::string               name_;
-        EntryVectorT              entry_vec_;
+        std::string  name_;
+        EntryVectorT entry_vec_;
 
         SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
         {
