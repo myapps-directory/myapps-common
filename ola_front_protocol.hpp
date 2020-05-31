@@ -639,6 +639,7 @@ struct FetchBuildConfigurationRequest : solid::frame::mprpc::Message {
 
     uint32_t                                version_ = version;
     std::string                             app_id_;
+    std::string                             build_id_;
     std::string                             lang_;
     std::string                             os_id_;
     ola::utility::Build::FetchOptionBitsetT fetch_options_;
@@ -650,6 +651,7 @@ struct FetchBuildConfigurationRequest : solid::frame::mprpc::Message {
 
         _s.add([&_rthis](S& _s, solid::frame::mprpc::ConnectionContext& _rctx, const char* /*_name*/) {
             _s.add(_rthis.app_id_, _rctx, "app_id");
+            _s.add(_rthis.build_id_, _rctx, "build_id");
             _s.add(_rthis.lang_, _rctx, "lang");
             _s.add(_rthis.os_id_, _rctx, "os_id");
             _s.add(_rthis.fetch_options_, _rctx, "fetch_options");
