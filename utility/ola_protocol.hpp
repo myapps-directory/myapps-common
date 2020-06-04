@@ -506,4 +506,4 @@ CEREAL_CLASS_VERSION(ola::utility::Build::Media, ola::utility::Build::Media::ver
 CEREAL_CLASS_VERSION(ola::utility::Build::Shortcut, ola::utility::Build::Shortcut::version);
 CEREAL_CLASS_VERSION(ola::utility::Build::Configuration, ola::utility::Build::Configuration::version);
 //CEREAL_CLASS_VERSION(ola::utility::Media::Configuration, ola::utility::Media::Configuration::version);
-//CEREAL_CLASS_VERSION(ola::utility::Media::Entry, ola::utility::Media::Entry::version);
+CEREAL_CLASS_VERSION(ola::utility::Build::Media::Entry, ola::utility::Build::Media::Entry::version);
