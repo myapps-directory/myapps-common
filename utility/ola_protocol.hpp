@@ -304,7 +304,7 @@ struct Build {
     }
 };
 
-enum struct BuildStatusE: uint8_t{
+enum struct BuildStatusE : uint8_t {
     PrivateAlpha = 0,
     ReviewRequest,
     ReviewStarted,
@@ -314,33 +314,45 @@ enum struct BuildStatusE: uint8_t{
     PublicBeta,
     PublicRelease,
 
-    StatusCount//Add above
+    StatusCount //Add above
 };
 
-struct BuildEntry{
+struct BuildEntry {
     std::string name_;
-    
-    union{
-        struct{
-            uint64_t status_: 8;
-            uint64_t flags_:  56;
-        }s_;
-        uint64_t value_ = 0;   
+
+    union {
+        struct {
+            uint64_t status_ : 8;
+            uint64_t flags_ : 56;
+        } s_;
+        uint64_t value_ = 0;
     } u_;
-    
-    uint64_t flags()const{
+
+    BuildEntry() {}
+
+    BuildEntry(const std::string&& _name, const BuildStatusE _status)
+        : name_(std::move(_name))
+    {
+        status(_status);
+    }
+
+    uint64_t flags() const
+    {
         return u_.s_.flags_;
     }
 
-    void flags(const uint64_t _flags){
+    void flags(const uint64_t _flags)
+    {
         u_.s_.flags_ = _flags;
     }
 
-    BuildStatusE status()const{
+    BuildStatusE status() const
+    {
         return static_cast<BuildStatusE>(u_.s_.status_);
     }
 
-    void status(BuildStatusE _status){
+    void status(BuildStatusE _status)
+    {
         u_.s_.status_ = static_cast<uint8_t>(_status);
     }
 
