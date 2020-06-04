@@ -304,6 +304,59 @@ struct Build {
     }
 };
 
+enum struct BuildStatusE: uint8_t{
+    PrivateAlpha = 0,
+    ReviewRequest,
+    ReviewStarted,
+    ReviewAccepted,
+    ReviewRejected,
+    PublicAlpha,
+    PublicBeta,
+    PublicRelease,
+
+    StatusCount//Add above
+};
+
+struct BuildEntry{
+    std::string name_;
+    
+    union{
+        struct{
+            uint64_t status_: 8;
+            uint64_t flags_:  56;
+        }s_;
+        uint64_t value_ = 0;   
+    } u_;
+    
+    uint64_t flags()const{
+        return u_.s_.flags_;
+    }
+
+    void flags(const uint64_t _flags){
+        u_.s_.flags_ = _flags;
+    }
+
+    BuildStatusE status()const{
+        return static_cast<BuildStatusE>(u_.s_.status_);
+    }
+
+    void status(BuildStatusE _status){
+        u_.s_.status_ = static_cast<uint8_t>(_status);
+    }
+
+    template <class Archive>
+    void serialize(Archive& _a)
+    {
+        _a(name_, u_.value_);
+    }
+
+    SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
+    {
+        _s.add(_rthis.name_, _rctx, "name");
+        _s.add(_rthis.u_.value_, _rctx, "value");
+    }
+};
+
 #if 0
 struct Media {
     static constexpr uint32_t version = 1;

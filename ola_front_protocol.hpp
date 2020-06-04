@@ -534,7 +534,7 @@ struct FetchAppRequest : solid::frame::mprpc::Message {
 
     uint32_t    version_ = version;
     std::string app_id_;
-    std::string lang_;
+    std::string os_id_;
 
     SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
     {
@@ -542,7 +542,7 @@ struct FetchAppRequest : solid::frame::mprpc::Message {
 
         _s.add([&_rthis](S& _s, solid::frame::mprpc::ConnectionContext& _rctx, const char* /*_name*/) {
             _s.add(_rthis.app_id_, _rctx, "app_id");
-            _s.add(_rthis.lang_, _rctx, "lang");
+            _s.add(_rthis.os_id_, _rctx, "os_id");
         },
             _rctx, _name);
     }
@@ -550,13 +550,14 @@ struct FetchAppRequest : solid::frame::mprpc::Message {
 
 struct FetchAppResponse : solid::frame::mprpc::Message {
     static constexpr uint32_t version = 1;
+    using BuildEntryVectorT = std::vector<ola::utility::BuildEntry>;
 
     uint32_t                 version_             = version;
     uint32_t                 application_version_ = utility::Application::version;
     uint32_t                 error_               = -1;
     std::string              message_;
     utility::Application     application_;
-    std::vector<std::string> build_id_vec_;
+    BuildEntryVectorT        build_vec_;
 
     FetchAppResponse() {}
 
@@ -575,7 +576,7 @@ struct FetchAppResponse : solid::frame::mprpc::Message {
 
             _s.add(_rthis.error_, _rctx, "error").add(_rthis.message_, _rctx, "message");
             _s.add(_rthis.application_, _rctx, "application");
-            _s.add(_rthis.build_id_vec_, _rctx, "build_id_vec");
+            _s.add(_rthis.build_vec_, _rctx, "build_vec");
         },
             _rctx, _name);
     }
