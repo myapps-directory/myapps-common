@@ -9,6 +9,7 @@
 #include <deque>
 #include <functional>
 #include <string>
+#include <unordered_set>
 #include <vector>
 
 namespace ola {
@@ -304,8 +305,9 @@ struct Build {
     }
 };
 
-enum struct BuildStatusE : uint8_t {
-    PrivateAlpha = 0,
+enum struct BuildStateE : uint8_t {
+    Invalid = 0,
+    PrivateAlpha,
     ReviewRequest,
     ReviewStarted,
     ReviewAccepted,
@@ -314,15 +316,32 @@ enum struct BuildStatusE : uint8_t {
     PublicBeta,
     PublicRelease,
 
-    StatusCount //Add above
+    StateCount //Add above
 };
+
+constexpr const char* build_private_alpha  = "private_alpha";
+constexpr const char* build_public_alpha   = "public_alpha";
+constexpr const char* build_public_beta    = "public_beta";
+constexpr const char* build_public_release = "public_release";
+
+inline bool build_is_default_public_name(const std::string& _name)
+{
+    static const std::unordered_set<std::string> build_default_names{build_public_alpha, build_public_beta, build_public_release};
+    return build_default_names.find(_name) != build_default_names.end();
+}
+
+inline bool build_is_default_name(const std::string& _name)
+{
+    static const std::unordered_set<std::string> build_default_names{build_private_alpha};
+    return build_is_default_public_name(_name) || build_default_names.find(_name) != build_default_names.end();
+}
 
 struct BuildEntry {
     std::string name_;
 
     union {
         struct {
-            uint64_t status_ : 8;
+            uint64_t state_ : 8;
             uint64_t flags_ : 56;
         } s_;
         uint64_t value_ = 0;
@@ -330,10 +349,10 @@ struct BuildEntry {
 
     BuildEntry() {}
 
-    BuildEntry(const std::string&& _name, const BuildStatusE _status)
+    BuildEntry(const std::string&& _name, const BuildStateE _state)
         : name_(std::move(_name))
     {
-        status(_status);
+        state(_state);
     }
 
     uint64_t flags() const
@@ -346,14 +365,14 @@ struct BuildEntry {
         u_.s_.flags_ = _flags;
     }
 
-    BuildStatusE status() const
+    BuildStateE state() const
     {
-        return static_cast<BuildStatusE>(u_.s_.status_);
+        return static_cast<BuildStateE>(u_.s_.state_);
     }
 
-    void status(BuildStatusE _status)
+    void state(BuildStateE _state)
     {
-        u_.s_.status_ = static_cast<uint8_t>(_status);
+        u_.s_.state_ = static_cast<uint8_t>(_state);
     }
 
     template <class Archive>
