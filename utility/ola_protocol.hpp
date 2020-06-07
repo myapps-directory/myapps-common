@@ -323,6 +323,7 @@ constexpr const char* build_private_alpha  = "private_alpha";
 constexpr const char* build_public_alpha   = "public_alpha";
 constexpr const char* build_public_beta    = "public_beta";
 constexpr const char* build_public_release = "public_release";
+constexpr const char* build_invalid        = "none";
 
 inline bool build_is_default_public_name(const std::string& _name)
 {
@@ -332,7 +333,7 @@ inline bool build_is_default_public_name(const std::string& _name)
 
 inline bool build_is_default_name(const std::string& _name)
 {
-    static const std::unordered_set<std::string> build_default_names{build_private_alpha};
+    static const std::unordered_set<std::string> build_default_names{build_private_alpha, build_invalid};
     return build_is_default_public_name(_name) || build_default_names.find(_name) != build_default_names.end();
 }
 
