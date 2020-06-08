@@ -369,11 +369,12 @@ struct ListAppsResponse : solid::frame::mprpc::Message {
 
 struct FetchBuildUpdatesRequest : solid::frame::mprpc::Message {
     static constexpr uint32_t version = 1;
+    using StringPairT = std::pair<std::string, std::string>;
 
     uint32_t                 version_ = version;
     std::string              lang_;
     std::string              os_id_;
-    std::vector<std::string> app_id_vec_;
+    std::vector<StringPairT> app_id_vec_;
 
     SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
     {
