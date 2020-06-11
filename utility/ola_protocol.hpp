@@ -319,6 +319,11 @@ enum struct BuildStateE : uint8_t {
     StateCount //Add above
 };
 
+enum struct BuildFlagE : uint8_t {
+    ReviewAccepted = 0,
+    ReviewRejected,
+};
+
 constexpr const char* build_private_alpha  = "private_alpha";
 constexpr const char* build_public_alpha   = "public_alpha";
 constexpr const char* build_public_beta    = "public_beta";
@@ -348,12 +353,14 @@ struct BuildEntry {
         uint64_t value_ = 0;
     } u_;
 
-    BuildEntry() {}
-
-    BuildEntry(const std::string&& _name, const BuildStateE _state)
+    BuildEntry(std::string&& _name, const BuildStateE _state)
         : name_(std::move(_name))
     {
         state(_state);
+    }
+
+    BuildEntry(const uint64_t _value = 0) {
+        u_.value_ = _value;
     }
 
     uint64_t flags() const
@@ -366,6 +373,18 @@ struct BuildEntry {
         u_.s_.flags_ = _flags;
     }
 
+    void setFlag(const BuildFlagE _flag) {
+        flags(flags() | (1ULL << static_cast<uint8_t>(_flag)));
+    }
+
+    void resetFlag(const BuildFlagE _flag) {
+        flags(flags() &  (~(1ULL << static_cast<uint8_t>(_flag))));
+    }
+
+    bool isFlagSet(const BuildFlagE _flag)const {
+        return flags() & (1ULL << static_cast<uint8_t>(_flag));
+    }
+
     BuildStateE state() const
     {
         return static_cast<BuildStateE>(u_.s_.state_);
@@ -374,6 +393,14 @@ struct BuildEntry {
     void state(BuildStateE _state)
     {
         u_.s_.state_ = static_cast<uint8_t>(_state);
+    }
+
+    uint64_t value()const {
+        return u_.value_;
+    }
+
+    void value(const uint64_t _value) {
+        u_.value_ = _value;
     }
 
     template <class Archive>
