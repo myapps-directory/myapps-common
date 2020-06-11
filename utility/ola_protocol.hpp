@@ -359,7 +359,8 @@ struct BuildEntry {
         state(_state);
     }
 
-    BuildEntry(const uint64_t _value = 0) {
+    BuildEntry(const uint64_t _value = 0)
+    {
         u_.value_ = _value;
     }
 
@@ -373,15 +374,18 @@ struct BuildEntry {
         u_.s_.flags_ = _flags;
     }
 
-    void setFlag(const BuildFlagE _flag) {
+    void setFlag(const BuildFlagE _flag)
+    {
         flags(flags() | (1ULL << static_cast<uint8_t>(_flag)));
     }
 
-    void resetFlag(const BuildFlagE _flag) {
-        flags(flags() &  (~(1ULL << static_cast<uint8_t>(_flag))));
+    void resetFlag(const BuildFlagE _flag)
+    {
+        flags(flags() & (~(1ULL << static_cast<uint8_t>(_flag))));
     }
 
-    bool isFlagSet(const BuildFlagE _flag)const {
+    bool isFlagSet(const BuildFlagE _flag) const
+    {
         return flags() & (1ULL << static_cast<uint8_t>(_flag));
     }
 
@@ -395,11 +399,13 @@ struct BuildEntry {
         u_.s_.state_ = static_cast<uint8_t>(_state);
     }
 
-    uint64_t value()const {
+    uint64_t value() const
+    {
         return u_.value_;
     }
 
-    void value(const uint64_t _value) {
+    void value(const uint64_t _value)
+    {
         u_.value_ = _value;
     }
 
