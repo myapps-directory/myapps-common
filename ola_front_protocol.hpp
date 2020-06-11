@@ -552,7 +552,7 @@ struct FetchAppRequest : solid::frame::mprpc::Message {
 struct FetchAppResponse : solid::frame::mprpc::Message {
     static constexpr uint32_t version = 1;
     using BuildEntryVectorT           = std::vector<ola::utility::BuildEntry>;
-    using MediaVectorT = std::vector<std::string>;
+    using MediaVectorT                = std::vector<std::string>;
 
     uint32_t             version_             = version;
     uint32_t             application_version_ = utility::Application::version;
