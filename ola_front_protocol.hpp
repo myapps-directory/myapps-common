@@ -551,7 +551,7 @@ struct FetchAppRequest : solid::frame::mprpc::Message {
 
 struct FetchAppResponse : solid::frame::mprpc::Message {
     static constexpr uint32_t version = 1;
-    using ItemEntryVectorT           = std::vector<ola::utility::ItemEntry>;
+    using ItemEntryVectorT            = std::vector<ola::utility::ItemEntry>;
 
     uint32_t             version_             = version;
     uint32_t             application_version_ = utility::Application::version;

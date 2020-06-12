@@ -330,7 +330,7 @@ constexpr const char* item_public_alpha   = "public_alpha";
 constexpr const char* item_public_beta    = "public_beta";
 constexpr const char* item_public_release = "public_release";
 constexpr const char* item_invalid        = "none";
-constexpr const char* item_trash = "trash";
+constexpr const char* item_trash          = "trash";
 
 inline bool item_is_default_public_name(const std::string& _name)
 {
