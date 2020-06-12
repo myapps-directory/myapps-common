@@ -305,8 +305,9 @@ struct Build {
     }
 };
 
-enum struct BuildStateE : uint8_t {
+enum struct ItemStateE : uint8_t {
     Invalid = 0,
+    Trash,
     PrivateAlpha,
     ReviewRequest,
     ReviewStarted,
@@ -319,30 +320,31 @@ enum struct BuildStateE : uint8_t {
     StateCount //Add above
 };
 
-enum struct BuildFlagE : uint8_t {
+enum struct ItemFlagE : uint8_t {
     ReviewAccepted = 0,
     ReviewRejected,
 };
 
-constexpr const char* build_private_alpha  = "private_alpha";
-constexpr const char* build_public_alpha   = "public_alpha";
-constexpr const char* build_public_beta    = "public_beta";
-constexpr const char* build_public_release = "public_release";
-constexpr const char* build_invalid        = "none";
+constexpr const char* item_private_alpha  = "private_alpha";
+constexpr const char* item_public_alpha   = "public_alpha";
+constexpr const char* item_public_beta    = "public_beta";
+constexpr const char* item_public_release = "public_release";
+constexpr const char* item_invalid        = "none";
+constexpr const char* item_trash = "trash";
 
-inline bool build_is_default_public_name(const std::string& _name)
+inline bool item_is_default_public_name(const std::string& _name)
 {
-    static const std::unordered_set<std::string> build_default_names{build_public_alpha, build_public_beta, build_public_release};
-    return build_default_names.find(_name) != build_default_names.end();
+    static const std::unordered_set<std::string> item_default_names{item_public_alpha, item_public_beta, item_public_release};
+    return item_default_names.find(_name) != item_default_names.end();
 }
 
-inline bool build_is_default_name(const std::string& _name)
+inline bool item_is_default_name(const std::string& _name)
 {
-    static const std::unordered_set<std::string> build_default_names{build_private_alpha, build_invalid};
-    return build_is_default_public_name(_name) || build_default_names.find(_name) != build_default_names.end();
+    static const std::unordered_set<std::string> item_default_names{item_private_alpha, item_invalid, item_trash};
+    return item_is_default_public_name(_name) || item_default_names.find(_name) != item_default_names.end();
 }
 
-struct BuildEntry {
+struct ItemEntry {
     std::string name_;
 
     union {
@@ -353,13 +355,13 @@ struct BuildEntry {
         uint64_t value_ = 0;
     } u_;
 
-    BuildEntry(std::string&& _name, const BuildStateE _state)
+    ItemEntry(std::string&& _name, const ItemStateE _state)
         : name_(std::move(_name))
     {
         state(_state);
     }
 
-    BuildEntry(const uint64_t _value = 0)
+    ItemEntry(const uint64_t _value = 0)
     {
         u_.value_ = _value;
     }
@@ -374,27 +376,27 @@ struct BuildEntry {
         u_.s_.flags_ = _flags;
     }
 
-    void setFlag(const BuildFlagE _flag)
+    void setFlag(const ItemFlagE _flag)
     {
         flags(flags() | (1ULL << static_cast<uint8_t>(_flag)));
     }
 
-    void resetFlag(const BuildFlagE _flag)
+    void resetFlag(const ItemFlagE _flag)
     {
         flags(flags() & (~(1ULL << static_cast<uint8_t>(_flag))));
     }
 
-    bool isFlagSet(const BuildFlagE _flag) const
+    bool isFlagSet(const ItemFlagE _flag) const
     {
         return flags() & (1ULL << static_cast<uint8_t>(_flag));
     }
 
-    BuildStateE state() const
+    ItemStateE state() const
     {
-        return static_cast<BuildStateE>(u_.s_.state_);
+        return static_cast<ItemStateE>(u_.s_.state_);
     }
 
-    void state(BuildStateE _state)
+    void state(ItemStateE _state)
     {
         u_.s_.state_ = static_cast<uint8_t>(_state);
     }
@@ -421,97 +423,6 @@ struct BuildEntry {
         _s.add(_rthis.u_.value_, _rctx, "value");
     }
 };
-
-#if 0
-struct Media {
-    static constexpr uint32_t version = 1;
-
-    using StringVectorT = std::vector<std::string>;
-
-    struct Entry {
-        static constexpr uint32_t version = 1;
-        std::string               thumbnail_path_;
-        std::string               path_;
-
-        Entry() {}
-
-        Entry(const std::string& _thumbnail, const std::string& _path)
-            : thumbnail_path_(_thumbnail)
-            , path_(_path)
-        {
-        }
-
-        SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
-        {
-            _s.add(_rthis.thumbnail_path_, _rctx, "thumbnail_path");
-            _s.add(_rthis.path_, _rctx, "path");
-        }
-
-        template <class Archive>
-        void serialize(Archive& _a, std::uint32_t const _version)
-        {
-            solid_assert(version == _version);
-            _a(thumbnail_path_, path_);
-        }
-        bool operator==(const Entry& _bc) const
-        {
-            return thumbnail_path_ == _bc.thumbnail_path_ && path_ == _bc.path_;
-        }
-    };
-
-    using EntryVectorT = std::vector<Entry>;
-
-    struct Configuration {
-        static constexpr uint32_t version = 1;
-        StringVectorT             os_vec_;
-        EntryVectorT              entry_vec_;
-
-        SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
-        {
-            _s.add(_rthis.os_vec_, _rctx, "os_vec");
-            _s.add(_rthis.entry_vec_, _rctx, "entry_vec");
-        }
-
-        template <class Archive>
-        void serialize(Archive& _a, std::uint32_t const _version)
-        {
-            solid_assert(version == _version);
-            _a(os_vec_, entry_vec_);
-        }
-
-        bool operator==(const Configuration& _c) const
-        {
-            return os_vec_ == _c.os_vec_ && entry_vec_ == _c.entry_vec_;
-        }
-    };
-
-    using ConfigurationVectorT = std::deque<Configuration>;
-
-    ConfigurationVectorT configuration_vec_;
-
-    SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
-    {
-        _s.add(_rthis.configuration_vec_, _rctx, "configuration_vec");
-    }
-
-    template <class Archive>
-    void serialize(Archive& _a, std::uint32_t const _version)
-    {
-        solid_assert(version == _version);
-        _a(configuration_vec_);
-    }
-
-    bool operator==(const Media& _bc) const
-    {
-        return configuration_vec_ == _bc.configuration_vec_;
-    }
-
-    uint64_t computeCheck() const
-    {
-        return configuration_vec_.size();
-    }
-};
-#endif
 
 struct ListStoreNode {
     static constexpr uint32_t version = 1;
