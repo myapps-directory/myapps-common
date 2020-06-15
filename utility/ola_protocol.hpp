@@ -305,7 +305,7 @@ struct Build {
     }
 };
 
-enum struct ItemStateE : uint8_t {
+enum struct AppItemStateE : uint8_t {
     Invalid = 0,
     Trash,
     PrivateAlpha,
@@ -320,48 +320,54 @@ enum struct ItemStateE : uint8_t {
     StateCount //Add above
 };
 
-enum struct ItemFlagE : uint8_t {
+enum struct AppItemFlagE : uint8_t {
     ReviewAccepted = 0,
     ReviewRejected,
 };
 
-constexpr const char* item_private_alpha  = "private_alpha";
-constexpr const char* item_public_alpha   = "public_alpha";
-constexpr const char* item_public_beta    = "public_beta";
-constexpr const char* item_public_release = "public_release";
-constexpr const char* item_invalid        = "none";
-constexpr const char* item_trash          = "trash";
+enum struct AppItemTypeE : uint8_t {
+    Build = 0,
+    Media
+};
 
-inline bool item_is_default_public_name(const std::string& _name)
+constexpr const char* app_item_private_alpha  = "private_alpha";
+constexpr const char* app_item_public_alpha   = "public_alpha";
+constexpr const char* app_item_public_beta    = "public_beta";
+constexpr const char* app_item_public_release = "public_release";
+constexpr const char* app_item_invalid        = "none";
+constexpr const char* app_item_trash          = "trash";
+
+inline bool app_item_is_default_public_name(const std::string& _name)
 {
-    static const std::unordered_set<std::string> item_default_names{item_public_alpha, item_public_beta, item_public_release};
+    static const std::unordered_set<std::string> item_default_names{app_item_public_alpha, app_item_public_beta, app_item_public_release};
     return item_default_names.find(_name) != item_default_names.end();
 }
 
-inline bool item_is_default_name(const std::string& _name)
+inline bool app_item_is_default_name(const std::string& _name)
 {
-    static const std::unordered_set<std::string> item_default_names{item_private_alpha, item_invalid, item_trash};
-    return item_is_default_public_name(_name) || item_default_names.find(_name) != item_default_names.end();
+    static const std::unordered_set<std::string> item_default_names{app_item_private_alpha, app_item_invalid, app_item_trash};
+    return app_item_is_default_public_name(_name) || item_default_names.find(_name) != item_default_names.end();
 }
 
-struct ItemEntry {
+struct AppItemEntry {
     std::string name_;
 
     union {
         struct {
             uint64_t state_ : 8;
-            uint64_t flags_ : 56;
+            uint64_t type_  : 4;
+            uint64_t flags_ : 52;
         } s_;
         uint64_t value_ = 0;
     } u_;
 
-    ItemEntry(std::string&& _name, const ItemStateE _state)
+    AppItemEntry(std::string&& _name, const AppItemStateE _state)
         : name_(std::move(_name))
     {
         state(_state);
     }
 
-    ItemEntry(const uint64_t _value = 0)
+    AppItemEntry(const uint64_t _value = 0)
     {
         u_.value_ = _value;
     }
@@ -376,29 +382,39 @@ struct ItemEntry {
         u_.s_.flags_ = _flags;
     }
 
-    void setFlag(const ItemFlagE _flag)
+    void setFlag(const AppItemFlagE _flag)
     {
         flags(flags() | (1ULL << static_cast<uint8_t>(_flag)));
     }
 
-    void resetFlag(const ItemFlagE _flag)
+    void resetFlag(const AppItemFlagE _flag)
     {
         flags(flags() & (~(1ULL << static_cast<uint8_t>(_flag))));
     }
 
-    bool isFlagSet(const ItemFlagE _flag) const
+    bool isFlagSet(const AppItemFlagE _flag) const
     {
         return flags() & (1ULL << static_cast<uint8_t>(_flag));
     }
 
-    ItemStateE state() const
+    AppItemStateE state() const
     {
-        return static_cast<ItemStateE>(u_.s_.state_);
+        return static_cast<AppItemStateE>(u_.s_.state_);
     }
 
-    void state(ItemStateE _state)
+    void state(AppItemStateE _state)
     {
         u_.s_.state_ = static_cast<uint8_t>(_state);
+    }
+
+    AppItemTypeE type() const
+    {
+        return static_cast<AppItemTypeE>(u_.s_.type_);
+    }
+
+    void type(AppItemTypeE _type)
+    {
+        u_.s_.type_ = static_cast<uint8_t>(_type);
     }
 
     uint64_t value() const

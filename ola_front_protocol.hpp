@@ -549,17 +549,37 @@ struct FetchAppRequest : solid::frame::mprpc::Message {
     }
 };
 
+struct ChangeAppItemStateRequest : solid::frame::mprpc::Message {
+    static constexpr uint32_t version = 1;
+
+    uint32_t    version_ = version;
+    std::string app_id_;
+    ola::utility::AppItemEntry item_;
+    uint8_t                    new_state_ = 0;
+
+    SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
+    {
+        solid::serialization::addVersion<ChangeAppItemStateRequest>(_s, _rthis.version_, "version");
+
+        _s.add([&_rthis](S& _s, solid::frame::mprpc::ConnectionContext& _rctx, const char* /*_name*/) {
+            _s.add(_rthis.app_id_, _rctx, "app_id");
+            _s.add(_rthis.item_, _rctx, "item");
+            _s.add(_rthis.new_state_, _rctx, "new_state");
+            },
+            _rctx, _name);
+    }
+};
+
 struct FetchAppResponse : solid::frame::mprpc::Message {
     static constexpr uint32_t version = 1;
-    using ItemEntryVectorT            = std::vector<ola::utility::ItemEntry>;
+    using ItemEntryVectorT            = std::vector<ola::utility::AppItemEntry>;
 
     uint32_t             version_             = version;
     uint32_t             application_version_ = utility::Application::version;
     uint32_t             error_               = -1;
     std::string          message_;
     utility::Application application_;
-    ItemEntryVectorT     build_vec_;
-    ItemEntryVectorT     media_vec_;
+    ItemEntryVectorT     item_vec_;
 
     FetchAppResponse() {}
 
@@ -578,8 +598,7 @@ struct FetchAppResponse : solid::frame::mprpc::Message {
 
             _s.add(_rthis.error_, _rctx, "error").add(_rthis.message_, _rctx, "message");
             _s.add(_rthis.application_, _rctx, "application");
-            _s.add(_rthis.build_vec_, _rctx, "build_vec");
-            _s.add(_rthis.media_vec_, _rctx, "media_vec");
+            _s.add(_rthis.item_vec_, _rctx, "item_vec");
         },
             _rctx, _name);
     }
@@ -868,6 +887,8 @@ struct UploadRequest : solid::frame::mprpc::Message {
     }
 };
 
+
+
 using ProtocolT = solid::frame::mprpc::serialization_v2::Protocol<uint8_t>;
 
 template <class R>
@@ -908,6 +929,7 @@ inline void protocol_setup(R _r, ProtocolT& _rproto)
 
     _r(_rproto, solid::TypeToType<FetchAppRequest>(), 100);
     _r(_rproto, solid::TypeToType<FetchAppResponse>(), 101);
+    _r(_rproto, solid::TypeToType<ChangeAppItemStateRequest>(), 102);
 
     _r(_rproto, solid::TypeToType<FetchBuildRequest>(), 120);
     _r(_rproto, solid::TypeToType<FetchBuildResponse>(), 121);
