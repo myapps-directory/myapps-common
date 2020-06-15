@@ -349,13 +349,41 @@ inline bool app_item_is_default_name(const std::string& _name)
     return app_item_is_default_public_name(_name) || item_default_names.find(_name) != item_default_names.end();
 }
 
+inline const char* app_item_state_name(const AppItemStateE _state)
+{
+    switch (_state) {
+    case AppItemStateE::Invalid:
+        return app_item_invalid;
+    case AppItemStateE::Trash:
+        return app_item_trash;
+    case AppItemStateE::PrivateAlpha:
+        return app_item_private_alpha;
+    case AppItemStateE::ReviewRequest:
+        return "review_request";
+    case AppItemStateE::ReviewStarted:
+        return "review_started";
+    case AppItemStateE::ReviewAccepted:
+        return "review_accepted";
+    case AppItemStateE::ReviewRejected:
+        return "review_rejected";
+    case AppItemStateE::PublicAlpha:
+        return app_item_public_alpha;
+    case AppItemStateE::PublicBeta:
+        return app_item_public_beta;
+    case AppItemStateE::PublicRelease:
+        return app_item_public_release;
+    default:
+        return "";
+    }
+}
+
 struct AppItemEntry {
     std::string name_;
 
     union {
         struct {
             uint64_t state_ : 8;
-            uint64_t type_  : 4;
+            uint64_t type_ : 4;
             uint64_t flags_ : 52;
         } s_;
         uint64_t value_ = 0;

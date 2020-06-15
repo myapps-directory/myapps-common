@@ -552,8 +552,9 @@ struct FetchAppRequest : solid::frame::mprpc::Message {
 struct ChangeAppItemStateRequest : solid::frame::mprpc::Message {
     static constexpr uint32_t version = 1;
 
-    uint32_t    version_ = version;
-    std::string app_id_;
+    uint32_t                   version_ = version;
+    std::string                app_id_;
+    std::string                os_id_;
     ola::utility::AppItemEntry item_;
     uint8_t                    new_state_ = 0;
 
@@ -563,9 +564,10 @@ struct ChangeAppItemStateRequest : solid::frame::mprpc::Message {
 
         _s.add([&_rthis](S& _s, solid::frame::mprpc::ConnectionContext& _rctx, const char* /*_name*/) {
             _s.add(_rthis.app_id_, _rctx, "app_id");
+            _s.add(_rthis.os_id_, _rctx, "os_id");
             _s.add(_rthis.item_, _rctx, "item");
             _s.add(_rthis.new_state_, _rctx, "new_state");
-            },
+        },
             _rctx, _name);
     }
 };
@@ -585,6 +587,12 @@ struct FetchAppResponse : solid::frame::mprpc::Message {
 
     FetchAppResponse(
         const FetchAppRequest& _rreq)
+        : solid::frame::mprpc::Message(_rreq)
+    {
+    }
+
+    FetchAppResponse(
+        const ChangeAppItemStateRequest& _rreq)
         : solid::frame::mprpc::Message(_rreq)
     {
     }
@@ -886,8 +894,6 @@ struct UploadRequest : solid::frame::mprpc::Message {
             _rctx, _name);
     }
 };
-
-
 
 using ProtocolT = solid::frame::mprpc::serialization_v2::Protocol<uint8_t>;
 
