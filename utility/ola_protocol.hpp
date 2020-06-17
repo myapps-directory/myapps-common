@@ -320,7 +320,8 @@ enum struct AppItemStateE : uint8_t {
     StateCount //Add above
 };
 
-enum struct AppItemFlagE : uint8_t {
+enum struct AppItemFlagE : int8_t {
+    Invalid        = -1,
     ReviewAccepted = 0,
     ReviewRejected,
 };
@@ -375,6 +376,29 @@ inline const char* app_item_state_name(const AppItemStateE _state)
     default:
         return "";
     }
+}
+
+inline const char* app_item_flag_name(const AppItemFlagE _flag)
+{
+    switch (_flag) {
+    case AppItemFlagE::ReviewAccepted:
+        return "ReviewAccepted";
+    case AppItemFlagE::ReviewRejected:
+        return "ReviewRejected";
+    default:
+        return "";
+    }
+}
+
+inline AppItemFlagE app_item_flag(const char* _name)
+{
+    if (solid::cstring::casecmp(_name, app_item_flag_name(AppItemFlagE::ReviewAccepted)) == 0) {
+        return AppItemFlagE::ReviewAccepted;
+    }
+    if (solid::cstring::casecmp(_name, app_item_flag_name(AppItemFlagE::ReviewRejected)) == 0) {
+        return AppItemFlagE::ReviewRejected;
+    }
+    return AppItemFlagE::Invalid;
 }
 
 struct AppItemEntry {
