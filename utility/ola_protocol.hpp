@@ -307,6 +307,7 @@ struct Build {
 
 enum struct AppItemStateE : uint8_t {
     Invalid = 0,
+    Deleting,
     Trash,
     PrivateAlpha,
     ReviewRequest,
@@ -337,6 +338,7 @@ constexpr const char* app_item_public_beta    = "public_beta";
 constexpr const char* app_item_public_release = "public_release";
 constexpr const char* app_item_invalid        = "none";
 constexpr const char* app_item_trash          = "trash";
+constexpr const char* app_item_deleting       = "deleting";
 
 inline bool app_item_is_default_public_name(const std::string& _name)
 {
@@ -355,6 +357,8 @@ inline const char* app_item_state_name(const AppItemStateE _state)
     switch (_state) {
     case AppItemStateE::Invalid:
         return app_item_invalid;
+    case AppItemStateE::Deleting:
+        return app_item_deleting;
     case AppItemStateE::Trash:
         return app_item_trash;
     case AppItemStateE::PrivateAlpha:
