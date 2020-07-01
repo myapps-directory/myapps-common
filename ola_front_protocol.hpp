@@ -340,7 +340,7 @@ struct ListAppsRequest : solid::frame::mprpc::Message {
 struct ListAppsResponse : solid::frame::mprpc::Message {
     static constexpr uint32_t version = 1;
 
-    using AppVectorT = std::vector<utility::ListApplicationItem>;
+    using AppVectorT = std::vector<utility::ApplicationListItem>;
 
     uint32_t    version_ = version;
     uint32_t    error_   = -1;

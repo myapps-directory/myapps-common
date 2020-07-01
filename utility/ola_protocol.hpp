@@ -523,25 +523,57 @@ struct ListStoreNode {
     }
 };
 
-struct ListApplicationItem {
+enum struct AppFlagE {
+    ReviewRequest = 0,
+};
+
+struct ApplicationListItem {
     static constexpr uint32_t version = 1;
     std::string               id_;
     std::string               unique_;
     std::string               name_;
+    uint32_t                  flags_;
 
-    ListApplicationItem() {}
+    ApplicationListItem() {}
 
-    ListApplicationItem(const std::string& _id, const std::string& _unique, const std::string& _name = "")
+    ApplicationListItem(const std::string& _id, const std::string& _unique, const std::string& _name = "")
         : id_(_id)
         , unique_(_unique)
         , name_(_name)
     {
     }
+
+    uint32_t flags() const
+    {
+        return flags_;
+    }
+
+    void flags(const uint32_t _flags)
+    {
+        flags_ = _flags;
+    }
+
+    void setFlag(const AppFlagE _flag)
+    {
+        flags(flags() | (1UL << static_cast<uint8_t>(_flag)));
+    }
+
+    void resetFlag(const AppFlagE _flag)
+    {
+        flags(flags() & (~(1UL << static_cast<uint8_t>(_flag))));
+    }
+
+    bool isFlagSet(const AppFlagE _flag) const
+    {
+        return flags() & (1UL << static_cast<uint8_t>(_flag));
+    }
+
     SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
     {
         _s.add(_rthis.id_, _rctx, "id");
         _s.add(_rthis.unique_, _rctx, "unique");
         _s.add(_rthis.name_, _rctx, "name");
+        _s.add(_rthis.flags_, _rctx, "flags");
     }
 };
 
