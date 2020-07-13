@@ -533,7 +533,7 @@ struct ApplicationListItem {
     std::string               id_;
     std::string               unique_;
     std::string               name_;
-    uint32_t                  flags_;
+    uint32_t                  flags_ = 0;
 
     ApplicationListItem() {}
 
