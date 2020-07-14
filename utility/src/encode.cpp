@@ -92,10 +92,10 @@ namespace {
 const string salt = "fda66rt4";
 } //namespace
 
-struct Enigma::Data {
+struct CryptoCoder::Data {
     static constexpr size_t key_capacity = 256;
 
-    std::mutex      enc_mtx_; //TODO: move the mutexes out of Enigma
+    std::mutex      enc_mtx_; //TODO: move the mutexes out of CryptoCoder
     std::mutex      dec_mtx_;
     EVP_CIPHER_CTX* enc_ctx_ = nullptr;
     EVP_CIPHER_CTX* dec_ctx_ = nullptr;
@@ -121,14 +121,14 @@ struct Enigma::Data {
     }
 };
 
-Enigma::Enigma()
+CryptoCoder::CryptoCoder()
     : pimpl_(solid::make_pimpl<Data>())
 {
 }
 
-Enigma::~Enigma() {}
+CryptoCoder::~CryptoCoder() {}
 
-void Enigma::configure(const std::string& _pass)
+void CryptoCoder::configure(const std::string& _pass)
 {
     lock_guard<mutex> lock1(pimpl_->enc_mtx_);
     lock_guard<mutex> lock2(pimpl_->dec_mtx_);
@@ -142,7 +142,7 @@ void Enigma::configure(const std::string& _pass)
 
 //https://eclipsesource.com/blogs/2017/01/17/tutorial-aes-encryption-and-decryption-with-openssl/
 
-std::string Enigma::encode(const std::string& _plain_text)
+std::string CryptoCoder::encode(const std::string& _plain_text)
 {
 
     lock_guard<mutex> lock(pimpl_->enc_mtx_);
@@ -187,7 +187,7 @@ std::string Enigma::encode(const std::string& _plain_text)
     return res;
 }
 
-std::string Enigma::decode(const std::string& _cipher_text)
+std::string CryptoCoder::decode(const std::string& _cipher_text)
 {
 
     lock_guard<mutex> lock(pimpl_->dec_mtx_);

@@ -9,6 +9,7 @@
 #include <deque>
 #include <functional>
 #include <string>
+#include <unordered_set>
 #include <vector>
 
 namespace ola {
@@ -65,6 +66,7 @@ struct Build {
         EXEs,
         Shortcuts,
         Image,
+        Media,
 
         FetchCount, //NOTE: add above
     };
@@ -123,6 +125,69 @@ struct Build {
     };
 
     using ShortcutVectorT = std::deque<Shortcut>;
+
+    struct Media {
+        static constexpr uint32_t version = 1;
+
+        struct Entry {
+            static constexpr uint32_t version = 1;
+            std::string               thumbnail_path_;
+            std::string               path_;
+
+            Entry() {}
+
+            Entry(const std::string& _thumbnail, const std::string& _path)
+                : thumbnail_path_(_thumbnail)
+                , path_(_path)
+            {
+            }
+
+            SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
+            {
+                _s.add(_rthis.thumbnail_path_, _rctx, "thumbnail_path");
+                _s.add(_rthis.path_, _rctx, "path");
+            }
+
+            template <class Archive>
+            void serialize(Archive& _a, std::uint32_t const _version)
+            {
+                solid_assert(version == _version);
+                _a(thumbnail_path_, path_);
+            }
+            bool operator==(const Entry& _bc) const
+            {
+                return thumbnail_path_ == _bc.thumbnail_path_ && path_ == _bc.path_;
+            }
+        };
+
+        using EntryVectorT = std::vector<Entry>;
+        std::string  name_;
+        EntryVectorT entry_vec_;
+
+        SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
+        {
+            _s.add(_rthis.name_, _rctx, "name");
+            _s.add(_rthis.entry_vec_, _rctx, "entry_vec");
+        }
+
+        template <class Archive>
+        void serialize(Archive& _a, std::uint32_t const _version)
+        {
+            solid_assert(version == _version);
+            _a(name_, entry_vec_);
+        }
+
+        bool operator==(const Media& _bc) const
+        {
+            return name_ == _bc.name_ && entry_vec_ == _bc.entry_vec_;
+        }
+
+        uint64_t computeCheck() const
+        {
+            return name_.size() ^ entry_vec_.size();
+        }
+    };
+
     //NOTE: class versioning at the end of the file
     struct Configuration {
         static constexpr uint32_t version = 1;
@@ -172,6 +237,7 @@ struct Build {
         StringVectorT     exe_vec_;
         ShortcutVectorT   shortcut_vec_;
         StringPairVectorT property_vec_;
+        Media             media_;
 
         SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
         {
@@ -183,18 +249,19 @@ struct Build {
             _s.add(_rthis.exe_vec_, _rctx, "exe_vec");
             _s.add(_rthis.shortcut_vec_, _rctx, "shortcut_vec");
             _s.add(_rthis.property_vec_, _rctx, "property_vec");
+            _s.add(_rthis.media_, _rctx, "media");
         }
 
         template <class Archive>
         void serialize(Archive& _a, std::uint32_t const _version)
         {
             solid_assert(version == _version);
-            _a(name_, directory_, flags_, os_vec_, mount_vec_, exe_vec_, shortcut_vec_, property_vec_);
+            _a(name_, directory_, flags_, os_vec_, mount_vec_, exe_vec_, shortcut_vec_, property_vec_, media_);
         }
 
         bool operator==(const Configuration& _c) const
         {
-            return name_ == _c.name_ && directory_ == _c.directory_ && flags_ == _c.flags_ && os_vec_ == _c.os_vec_ && mount_vec_ == _c.mount_vec_ && exe_vec_ == _c.exe_vec_ && shortcut_vec_ == _c.shortcut_vec_ && property_vec_ == _c.property_vec_;
+            return name_ == _c.name_ && directory_ == _c.directory_ && flags_ == _c.flags_ && os_vec_ == _c.os_vec_ && mount_vec_ == _c.mount_vec_ && exe_vec_ == _c.exe_vec_ && shortcut_vec_ == _c.shortcut_vec_ && property_vec_ == _c.property_vec_ && media_ == _c.media_;
         }
 
         bool hasHiddenDirectoryFlag() const
@@ -238,92 +305,194 @@ struct Build {
     }
 };
 
-struct Media {
-    static constexpr uint32_t version = 1;
+enum struct AppItemStateE : uint8_t {
+    Invalid = 0,
+    Deleting,
+    Trash,
+    PrivateAlpha,
+    ReviewRequest,
+    ReviewStarted,
+    ReviewAccepted,
+    ReviewRejected,
+    PublicAlpha,
+    PublicBeta,
+    PublicRelease,
 
-    using StringVectorT = std::vector<std::string>;
+    StateCount //Add above
+};
 
-    struct Entry {
-        static constexpr uint32_t version = 1;
-        std::string               thumbnail_path_;
-        std::string               path_;
+enum struct AppItemFlagE : int8_t {
+    Invalid        = -1,
+    ReviewAccepted = 0,
+    ReviewRejected,
+};
 
-        Entry() {}
+enum struct AppItemTypeE : uint8_t {
+    Build = 0,
+    Media
+};
 
-        Entry(const std::string& _thumbnail, const std::string& _path)
-            : thumbnail_path_(_thumbnail)
-            , path_(_path)
-        {
-        }
+constexpr const char* app_item_private_alpha  = "private_alpha";
+constexpr const char* app_item_public_alpha   = "public_alpha";
+constexpr const char* app_item_public_beta    = "public_beta";
+constexpr const char* app_item_public_release = "public_release";
+constexpr const char* app_item_invalid        = "none";
+constexpr const char* app_item_trash          = "trash";
+constexpr const char* app_item_deleting       = "deleting";
 
-        SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
-        {
-            _s.add(_rthis.thumbnail_path_, _rctx, "thumbnail_path");
-            _s.add(_rthis.path_, _rctx, "path");
-        }
+inline bool app_item_is_default_public_name(const std::string& _name)
+{
+    static const std::unordered_set<std::string> item_default_names{app_item_public_alpha, app_item_public_beta, app_item_public_release};
+    return item_default_names.find(_name) != item_default_names.end();
+}
 
-        template <class Archive>
-        void serialize(Archive& _a, std::uint32_t const _version)
-        {
-            solid_assert(version == _version);
-            _a(thumbnail_path_, path_);
-        }
-        bool operator==(const Entry& _bc) const
-        {
-            return thumbnail_path_ == _bc.thumbnail_path_ && path_ == _bc.path_;
-        }
-    };
+inline bool app_item_is_default_name(const std::string& _name)
+{
+    static const std::unordered_set<std::string> item_default_names{app_item_private_alpha, app_item_invalid, app_item_trash};
+    return app_item_is_default_public_name(_name) || item_default_names.find(_name) != item_default_names.end();
+}
 
-    using EntryVectorT = std::vector<Entry>;
+inline const char* app_item_state_name(const AppItemStateE _state)
+{
+    switch (_state) {
+    case AppItemStateE::Invalid:
+        return app_item_invalid;
+    case AppItemStateE::Deleting:
+        return app_item_deleting;
+    case AppItemStateE::Trash:
+        return app_item_trash;
+    case AppItemStateE::PrivateAlpha:
+        return app_item_private_alpha;
+    case AppItemStateE::ReviewRequest:
+        return "review_request";
+    case AppItemStateE::ReviewStarted:
+        return "review_started";
+    case AppItemStateE::ReviewAccepted:
+        return "review_accepted";
+    case AppItemStateE::ReviewRejected:
+        return "review_rejected";
+    case AppItemStateE::PublicAlpha:
+        return app_item_public_alpha;
+    case AppItemStateE::PublicBeta:
+        return app_item_public_beta;
+    case AppItemStateE::PublicRelease:
+        return app_item_public_release;
+    default:
+        return "";
+    }
+}
 
-    struct Configuration {
-        static constexpr uint32_t version = 1;
-        StringVectorT             os_vec_;
-        EntryVectorT              entry_vec_;
+inline const char* app_item_flag_name(const AppItemFlagE _flag)
+{
+    switch (_flag) {
+    case AppItemFlagE::ReviewAccepted:
+        return "ReviewAccepted";
+    case AppItemFlagE::ReviewRejected:
+        return "ReviewRejected";
+    default:
+        return "";
+    }
+}
 
-        SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
-        {
-            _s.add(_rthis.os_vec_, _rctx, "os_vec");
-            _s.add(_rthis.entry_vec_, _rctx, "entry_vec");
-        }
+inline AppItemFlagE app_item_flag(const char* _name)
+{
+    if (solid::cstring::casecmp(_name, app_item_flag_name(AppItemFlagE::ReviewAccepted)) == 0) {
+        return AppItemFlagE::ReviewAccepted;
+    }
+    if (solid::cstring::casecmp(_name, app_item_flag_name(AppItemFlagE::ReviewRejected)) == 0) {
+        return AppItemFlagE::ReviewRejected;
+    }
+    return AppItemFlagE::Invalid;
+}
 
-        template <class Archive>
-        void serialize(Archive& _a, std::uint32_t const _version)
-        {
-            solid_assert(version == _version);
-            _a(os_vec_, entry_vec_);
-        }
+struct AppItemEntry {
+    std::string name_;
 
-        bool operator==(const Configuration& _c) const
-        {
-            return os_vec_ == _c.os_vec_ && entry_vec_ == _c.entry_vec_;
-        }
-    };
+    union {
+        struct {
+            uint64_t state_ : 8;
+            uint64_t type_ : 4;
+            uint64_t flags_ : 52;
+        } s_;
+        uint64_t value_ = 0;
+    } u_;
 
-    using ConfigurationVectorT = std::deque<Configuration>;
-
-    ConfigurationVectorT configuration_vec_;
-
-    SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
+    AppItemEntry(std::string&& _name, const AppItemStateE _state)
+        : name_(std::move(_name))
     {
-        _s.add(_rthis.configuration_vec_, _rctx, "configuration_vec");
+        state(_state);
+    }
+
+    AppItemEntry(const uint64_t _value = 0)
+    {
+        u_.value_ = _value;
+    }
+
+    uint64_t flags() const
+    {
+        return u_.s_.flags_;
+    }
+
+    void flags(const uint64_t _flags)
+    {
+        u_.s_.flags_ = _flags;
+    }
+
+    void setFlag(const AppItemFlagE _flag)
+    {
+        flags(flags() | (1ULL << static_cast<uint8_t>(_flag)));
+    }
+
+    void resetFlag(const AppItemFlagE _flag)
+    {
+        flags(flags() & (~(1ULL << static_cast<uint8_t>(_flag))));
+    }
+
+    bool isFlagSet(const AppItemFlagE _flag) const
+    {
+        return flags() & (1ULL << static_cast<uint8_t>(_flag));
+    }
+
+    AppItemStateE state() const
+    {
+        return static_cast<AppItemStateE>(u_.s_.state_);
+    }
+
+    void state(AppItemStateE _state)
+    {
+        u_.s_.state_ = static_cast<uint8_t>(_state);
+    }
+
+    AppItemTypeE type() const
+    {
+        return static_cast<AppItemTypeE>(u_.s_.type_);
+    }
+
+    void type(AppItemTypeE _type)
+    {
+        u_.s_.type_ = static_cast<uint8_t>(_type);
+    }
+
+    uint64_t value() const
+    {
+        return u_.value_;
+    }
+
+    void value(const uint64_t _value)
+    {
+        u_.value_ = _value;
     }
 
     template <class Archive>
-    void serialize(Archive& _a, std::uint32_t const _version)
+    void serialize(Archive& _a)
     {
-        solid_assert(version == _version);
-        _a(configuration_vec_);
+        _a(name_, u_.value_);
     }
 
-    bool operator==(const Media& _bc) const
+    SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
     {
-        return configuration_vec_ == _bc.configuration_vec_;
-    }
-
-    uint64_t computeCheck() const
-    {
-        return configuration_vec_.size();
+        _s.add(_rthis.name_, _rctx, "name");
+        _s.add(_rthis.u_.value_, _rctx, "value");
     }
 };
 
@@ -354,25 +523,58 @@ struct ListStoreNode {
     }
 };
 
-struct ListApplicationItem {
+enum struct AppFlagE {
+    ReviewRequest = 0,
+    Owned,
+};
+
+struct ApplicationListItem {
     static constexpr uint32_t version = 1;
     std::string               id_;
     std::string               unique_;
     std::string               name_;
+    uint32_t                  flags_ = 0;
 
-    ListApplicationItem() {}
+    ApplicationListItem() {}
 
-    ListApplicationItem(const std::string& _id, const std::string& _unique, const std::string& _name = "")
+    ApplicationListItem(const std::string& _id, const std::string& _unique, const std::string& _name = "")
         : id_(_id)
         , unique_(_unique)
         , name_(_name)
     {
     }
+
+    uint32_t flags() const
+    {
+        return flags_;
+    }
+
+    void flags(const uint32_t _flags)
+    {
+        flags_ = _flags;
+    }
+
+    void setFlag(const AppFlagE _flag)
+    {
+        flags(flags() | (1UL << static_cast<uint8_t>(_flag)));
+    }
+
+    void resetFlag(const AppFlagE _flag)
+    {
+        flags(flags() & (~(1UL << static_cast<uint8_t>(_flag))));
+    }
+
+    bool isFlagSet(const AppFlagE _flag) const
+    {
+        return flags() & (1UL << static_cast<uint8_t>(_flag));
+    }
+
     SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
     {
         _s.add(_rthis.id_, _rctx, "id");
         _s.add(_rthis.unique_, _rctx, "unique");
         _s.add(_rthis.name_, _rctx, "name");
+        _s.add(_rthis.flags_, _rctx, "flags");
     }
 };
 
@@ -381,8 +583,8 @@ struct ListApplicationItem {
 
 CEREAL_CLASS_VERSION(ola::utility::Application, ola::utility::Application::version);
 CEREAL_CLASS_VERSION(ola::utility::Build, ola::utility::Build::version);
-CEREAL_CLASS_VERSION(ola::utility::Media, ola::utility::Media::version);
+CEREAL_CLASS_VERSION(ola::utility::Build::Media, ola::utility::Build::Media::version);
 CEREAL_CLASS_VERSION(ola::utility::Build::Shortcut, ola::utility::Build::Shortcut::version);
 CEREAL_CLASS_VERSION(ola::utility::Build::Configuration, ola::utility::Build::Configuration::version);
-CEREAL_CLASS_VERSION(ola::utility::Media::Configuration, ola::utility::Media::Configuration::version);
-CEREAL_CLASS_VERSION(ola::utility::Media::Entry, ola::utility::Media::Entry::version);
+//CEREAL_CLASS_VERSION(ola::utility::Media::Configuration, ola::utility::Media::Configuration::version);
+CEREAL_CLASS_VERSION(ola::utility::Build::Media::Entry, ola::utility::Build::Media::Entry::version);

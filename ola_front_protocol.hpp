@@ -340,7 +340,7 @@ struct ListAppsRequest : solid::frame::mprpc::Message {
 struct ListAppsResponse : solid::frame::mprpc::Message {
     static constexpr uint32_t version = 1;
 
-    using AppVectorT = std::vector<utility::ListApplicationItem>;
+    using AppVectorT = std::vector<utility::ApplicationListItem>;
 
     uint32_t    version_ = version;
     uint32_t    error_   = -1;
@@ -369,11 +369,12 @@ struct ListAppsResponse : solid::frame::mprpc::Message {
 
 struct FetchBuildUpdatesRequest : solid::frame::mprpc::Message {
     static constexpr uint32_t version = 1;
+    using StringPairT                 = std::pair<std::string, std::string>;
 
     uint32_t                 version_ = version;
     std::string              lang_;
     std::string              os_id_;
-    std::vector<std::string> app_id_vec_;
+    std::vector<StringPairT> app_id_vec_;
 
     SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
     {
@@ -534,7 +535,7 @@ struct FetchAppRequest : solid::frame::mprpc::Message {
 
     uint32_t    version_ = version;
     std::string app_id_;
-    std::string lang_;
+    std::string os_id_;
 
     SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
     {
@@ -542,7 +543,30 @@ struct FetchAppRequest : solid::frame::mprpc::Message {
 
         _s.add([&_rthis](S& _s, solid::frame::mprpc::ConnectionContext& _rctx, const char* /*_name*/) {
             _s.add(_rthis.app_id_, _rctx, "app_id");
-            _s.add(_rthis.lang_, _rctx, "lang");
+            _s.add(_rthis.os_id_, _rctx, "os_id");
+        },
+            _rctx, _name);
+    }
+};
+
+struct ChangeAppItemStateRequest : solid::frame::mprpc::Message {
+    static constexpr uint32_t version = 1;
+
+    uint32_t                   version_ = version;
+    std::string                app_id_;
+    std::string                os_id_;
+    ola::utility::AppItemEntry item_;
+    uint8_t                    new_state_ = 0;
+
+    SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
+    {
+        solid::serialization::addVersion<ChangeAppItemStateRequest>(_s, _rthis.version_, "version");
+
+        _s.add([&_rthis](S& _s, solid::frame::mprpc::ConnectionContext& _rctx, const char* /*_name*/) {
+            _s.add(_rthis.app_id_, _rctx, "app_id");
+            _s.add(_rthis.os_id_, _rctx, "os_id");
+            _s.add(_rthis.item_, _rctx, "item");
+            _s.add(_rthis.new_state_, _rctx, "new_state");
         },
             _rctx, _name);
     }
@@ -550,18 +574,25 @@ struct FetchAppRequest : solid::frame::mprpc::Message {
 
 struct FetchAppResponse : solid::frame::mprpc::Message {
     static constexpr uint32_t version = 1;
+    using ItemEntryVectorT            = std::vector<ola::utility::AppItemEntry>;
 
-    uint32_t                 version_             = version;
-    uint32_t                 application_version_ = utility::Application::version;
-    uint32_t                 error_               = -1;
-    std::string              message_;
-    utility::Application     application_;
-    std::vector<std::string> build_id_vec_;
+    uint32_t             version_             = version;
+    uint32_t             application_version_ = utility::Application::version;
+    uint32_t             error_               = -1;
+    std::string          message_;
+    utility::Application application_;
+    ItemEntryVectorT     item_vec_;
 
     FetchAppResponse() {}
 
     FetchAppResponse(
         const FetchAppRequest& _rreq)
+        : solid::frame::mprpc::Message(_rreq)
+    {
+    }
+
+    FetchAppResponse(
+        const ChangeAppItemStateRequest& _rreq)
         : solid::frame::mprpc::Message(_rreq)
     {
     }
@@ -575,7 +606,7 @@ struct FetchAppResponse : solid::frame::mprpc::Message {
 
             _s.add(_rthis.error_, _rctx, "error").add(_rthis.message_, _rctx, "message");
             _s.add(_rthis.application_, _rctx, "application");
-            _s.add(_rthis.build_id_vec_, _rctx, "build_id_vec");
+            _s.add(_rthis.item_vec_, _rctx, "item_vec");
         },
             _rctx, _name);
     }
@@ -639,6 +670,7 @@ struct FetchBuildConfigurationRequest : solid::frame::mprpc::Message {
 
     uint32_t                                version_ = version;
     std::string                             app_id_;
+    std::string                             build_id_;
     std::string                             lang_;
     std::string                             os_id_;
     ola::utility::Build::FetchOptionBitsetT fetch_options_;
@@ -650,6 +682,7 @@ struct FetchBuildConfigurationRequest : solid::frame::mprpc::Message {
 
         _s.add([&_rthis](S& _s, solid::frame::mprpc::ConnectionContext& _rctx, const char* /*_name*/) {
             _s.add(_rthis.app_id_, _rctx, "app_id");
+            _s.add(_rthis.build_id_, _rctx, "build_id");
             _s.add(_rthis.lang_, _rctx, "lang");
             _s.add(_rthis.os_id_, _rctx, "os_id");
             _s.add(_rthis.fetch_options_, _rctx, "fetch_options");
@@ -668,7 +701,8 @@ struct FetchBuildConfigurationResponse : solid::frame::mprpc::Message {
     std::string                        message_;
     std::string                        app_unique_;
     std::string                        build_unique_;
-    std::string                        storage_id_;
+    std::string                        build_storage_id_;
+    std::string                        media_storage_id_;
     ola::utility::Build::Configuration configuration_;
     std::vector<char>                  image_blob_;
 
@@ -690,66 +724,10 @@ struct FetchBuildConfigurationResponse : solid::frame::mprpc::Message {
             _s.add(_rthis.error_, _rctx, "error").add(_rthis.message_, _rctx, "message");
             _s.add(_rthis.app_unique_, _rctx, "app_unique");
             _s.add(_rthis.build_unique_, _rctx, "build_unique");
-            _s.add(_rthis.storage_id_, _rctx, "storage_id");
+            _s.add(_rthis.build_storage_id_, _rctx, "build_storage_id");
+            _s.add(_rthis.media_storage_id_, _rctx, "media_storage_id");
             _s.add(_rthis.configuration_, _rctx, "configuration");
             _s.add(_rthis.image_blob_, solid::serialization::limit(1024 * 1024), _rctx, "image_blob");
-        },
-            _rctx, _name);
-    }
-};
-
-struct FetchMediaConfigurationRequest : solid::frame::mprpc::Message {
-    static constexpr uint32_t version = 1;
-
-    uint32_t    version_ = version;
-    std::string app_id_;
-    std::string lang_;
-    std::string os_id_;
-
-    SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
-    {
-        solid::serialization::addVersion<FetchMediaConfigurationRequest>(_s, _rthis.version_, "version");
-
-        _s.add([&_rthis](S& _s, solid::frame::mprpc::ConnectionContext& _rctx, const char* /*_name*/) {
-            _s.add(_rthis.app_id_, _rctx, "app_id");
-            _s.add(_rthis.lang_, _rctx, "lang");
-            _s.add(_rthis.os_id_, _rctx, "os_id");
-        },
-            _rctx, _name);
-    }
-};
-
-struct FetchMediaConfigurationResponse : solid::frame::mprpc::Message {
-    static constexpr uint32_t version = 1;
-
-    uint32_t                           version_               = version;
-    uint32_t                           configuration_version_ = ola::utility::Build::Configuration::version;
-    uint32_t                           error_                 = -1;
-    std::string                        message_;
-    std::string                        unique_;
-    std::string                        storage_id_;
-    ola::utility::Media::Configuration configuration_;
-
-    FetchMediaConfigurationResponse() {}
-
-    FetchMediaConfigurationResponse(
-        const FetchMediaConfigurationRequest& _rreq)
-        : solid::frame::mprpc::Message(_rreq)
-    {
-    }
-
-    SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
-    {
-        solid::serialization::addVersion<FetchMediaConfigurationResponse>(_s, _rthis.version_, "version");
-
-        _s.add([&_rthis](S& _s, solid::frame::mprpc::ConnectionContext& _rctx, const char* /*_name*/) {
-            solid::serialization::addVersion<ola::utility::Media::Configuration>(_s, _rthis.configuration_version_, "configuration_version");
-
-            _s.add(_rthis.error_, _rctx, "error");
-            _s.add(_rthis.message_, _rctx, "message");
-            _s.add(_rthis.unique_, _rctx, "unique_");
-            _s.add(_rthis.storage_id_, _rctx, "storage_id");
-            _s.add(_rthis.configuration_, _rctx, "configuration");
         },
             _rctx, _name);
     }
@@ -857,13 +835,11 @@ struct CreateBuildRequest : solid::frame::mprpc::Message {
 struct CreateMediaRequest : solid::frame::mprpc::Message {
     static constexpr uint32_t version = 1;
 
-    uint32_t       version_       = version;
-    uint32_t       media_version_ = utility::Media::version;
-    std::string    app_id_;
-    std::string    unique_; //there cannot be two builds with the same tag per application
-    uint64_t       size_;
-    std::string    sha_sum_;
-    utility::Media media_;
+    uint32_t    version_ = version;
+    std::string app_id_;
+    std::string unique_; //there cannot be two media with the same tag per application
+    uint64_t    size_;
+    std::string sha_sum_;
 
     CreateMediaRequest()
         : size_(0)
@@ -875,12 +851,10 @@ struct CreateMediaRequest : solid::frame::mprpc::Message {
         solid::serialization::addVersion<CreateMediaRequest>(_s, _rthis.version_, "version");
 
         _s.add([&_rthis](S& _s, solid::frame::mprpc::ConnectionContext& _rctx, const char* /*_name*/) {
-            solid::serialization::addVersion<utility::Media>(_s, _rthis.media_version_, "media_version");
             _s.add(_rthis.app_id_, _rctx, "app_id");
             _s.add(_rthis.unique_, _rctx, "unique");
             _s.add(_rthis.size_, _rctx, "size");
             _s.add(_rthis.sha_sum_, _rctx, "sha_sum");
-            _s.add(_rthis.media_, _rctx, "media");
         },
             _rctx, _name);
     }
@@ -961,14 +935,16 @@ inline void protocol_setup(R _r, ProtocolT& _rproto)
 
     _r(_rproto, solid::TypeToType<FetchAppRequest>(), 100);
     _r(_rproto, solid::TypeToType<FetchAppResponse>(), 101);
+    _r(_rproto, solid::TypeToType<ChangeAppItemStateRequest>(), 102);
 
     _r(_rproto, solid::TypeToType<FetchBuildRequest>(), 120);
     _r(_rproto, solid::TypeToType<FetchBuildResponse>(), 121);
     _r(_rproto, solid::TypeToType<FetchBuildConfigurationRequest>(), 122);
     _r(_rproto, solid::TypeToType<FetchBuildConfigurationResponse>(), 123);
+#if 0
     _r(_rproto, solid::TypeToType<FetchMediaConfigurationRequest>(), 124);
     _r(_rproto, solid::TypeToType<FetchMediaConfigurationResponse>(), 125);
-
+#endif
     _r(_rproto, solid::TypeToType<FetchBuildUpdatesRequest>(), 140);
     _r(_rproto, solid::TypeToType<FetchBuildUpdatesResponse>(), 141);
 
