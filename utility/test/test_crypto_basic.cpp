@@ -16,7 +16,7 @@ int test_crypto_basic(int argc, char* argv[])
 
     cout << "key = " << key << endl;
 
-    ola::utility::Enigma e;
+    ola::utility::CryptoCoder e;
     e.configure(key);
 
     string plain_text = "The quick brown fox jumps over the lazy dog";
