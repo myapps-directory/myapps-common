@@ -1,285 +1,15 @@
 #pragma once
 
-#include "ola/common/utility/ola_error.hpp"
-#include "ola/common/utility/ola_protocol.hpp"
+#include "ola/common/ola_front_protocol_common.hpp"
 
 #include <deque>
 #include <fstream>
 #include <sstream>
-#include <string>
 
 namespace ola {
 namespace front {
 
-inline const char* default_port()
-{
-    return "4443";
-}
 
-struct InitRequest : solid::frame::mprpc::Message {
-    static constexpr uint32_t version = 1;
-
-    uint32_t version_ = version;
-
-    SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
-    {
-        solid::serialization::addVersion<InitRequest>(_s, _rthis.version_, "version");
-        _rctx.addVersion(_s);
-    }
-};
-
-struct InitResponse : solid::frame::mprpc::Message {
-    static constexpr uint32_t version = 1;
-
-    uint32_t    version_ = version;
-    uint32_t    error_   = -1;
-    std::string message_;
-
-    InitResponse() {}
-
-    InitResponse(
-        const InitRequest& _rreq, const uint32_t _version = version)
-        : solid::frame::mprpc::Message(_rreq)
-        , version_(_version)
-        , error_(-1)
-    {
-    }
-
-    SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
-    {
-        solid::serialization::addVersion<InitResponse>(_s, _rthis.version_, "version");
-        _rctx.addVersion(_s);
-
-        _s.add([&_rthis](S& _s, solid::frame::mprpc::ConnectionContext& _rctx, const char* /*_name*/) {
-            _s.add(_rthis.error_, _rctx, "error").add(_rthis.message_, _rctx, "message");
-        },
-            _rctx, _name);
-    }
-};
-
-struct CaptchaRequest : solid::frame::mprpc::Message {
-    static constexpr uint32_t version = 1;
-
-    uint32_t version_ = version;
-
-    SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
-    {
-        solid::serialization::addVersion<CaptchaRequest>(_s, _rthis.version_, "version");
-    }
-};
-
-struct CaptchaResponse : solid::frame::mprpc::Message {
-    static constexpr uint32_t version = 1;
-
-    uint32_t version_ = version;
-
-    std::string          captcha_token_;
-    std::vector<uint8_t> captcha_image_;
-    std::vector<uint8_t> captcha_audio_;
-
-    CaptchaResponse() {}
-
-    CaptchaResponse(
-        const CaptchaRequest& _rreq, const uint32_t _version = version)
-        : solid::frame::mprpc::Message(_rreq)
-    {
-    }
-
-    SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
-    {
-        solid::serialization::addVersion<CaptchaResponse>(_s, _rthis.version_, "version");
-
-        _s.add([&_rthis](S& _s, solid::frame::mprpc::ConnectionContext& _rctx, const char* /*_name*/) {
-            _s.add(_rthis.captcha_token_, _rctx, "captcha_token").add(_rthis.captcha_image_, solid::serialization::limit(1024 * 1024), _rctx, "captcha_image");
-            _s.add(_rthis.captcha_audio_, _rctx, "captcha_audio");
-        },
-            _rctx, _name);
-    }
-};
-
-struct AuthRequest : solid::frame::mprpc::Message {
-    static constexpr uint32_t version = 1;
-
-    uint32_t version_ = version;
-
-    std::string pass_;
-    std::string user_;
-    std::string captcha_text_;
-    std::string captcha_token_;
-
-    SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
-    {
-        solid::serialization::addVersion<AuthRequest>(_s, _rthis.version_, "version");
-
-        _s.add([&_rthis](S& _s, solid::frame::mprpc::ConnectionContext& _rctx, const char* /*_name*/) {
-            _s.add(_rthis.pass_, _rctx, "pass").add(_rthis.user_, _rctx, "user");
-            _s.add(_rthis.captcha_text_, _rctx, "captcha_text").add(_rthis.captcha_token_, _rctx, "captcha_token");
-        },
-            _rctx, _name);
-    }
-};
-
-struct AuthCreateRequest : solid::frame::mprpc::Message {
-    static constexpr uint32_t version = 1;
-
-    uint32_t version_ = version;
-
-    std::string pass_;
-    std::string user_;
-    std::string email_;
-    std::string captcha_text_;
-    std::string captcha_token_;
-
-    SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
-    {
-        solid::serialization::addVersion<AuthCreateRequest>(_s, _rthis.version_, "version");
-
-        _s.add([&_rthis](S& _s, solid::frame::mprpc::ConnectionContext& _rctx, const char* /*_name*/) {
-            _s.add(_rthis.pass_, _rctx, "pass").add(_rthis.user_, _rctx, "user");
-            _s.add(_rthis.email_, _rctx, "email");
-            _s.add(_rthis.captcha_text_, _rctx, "captcha_text").add(_rthis.captcha_token_, _rctx, "captcha_token");
-        },
-            _rctx, _name);
-    }
-};
-
-struct AuthFetchRequest : solid::frame::mprpc::Message {
-    static constexpr uint32_t version = 1;
-
-    uint32_t version_ = version;
-
-    SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
-    {
-        solid::serialization::addVersion<AuthCreateRequest>(_s, _rthis.version_, "version");
-    }
-};
-
-struct AuthFetchResponse : solid::frame::mprpc::Message {
-    static constexpr uint32_t version = 1;
-
-    uint32_t version_ = version;
-
-    std::string user_;
-    std::string email_;
-
-    AuthFetchResponse() {}
-
-    AuthFetchResponse(const AuthFetchRequest& _req)
-        : solid::frame::mprpc::Message(_req)
-    {
-    }
-
-    SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
-    {
-        solid::serialization::addVersion<AuthCreateRequest>(_s, _rthis.version_, "version");
-
-        _s.add([&_rthis](S& _s, solid::frame::mprpc::ConnectionContext& _rctx, const char* /*_name*/) {
-            _s.add(_rthis.user_, _rctx, "user");
-            _s.add(_rthis.email_, _rctx, "email");
-        },
-            _rctx, _name);
-    }
-};
-
-struct AuthAmendRequest : solid::frame::mprpc::Message {
-    static constexpr uint32_t version = 1;
-
-    uint32_t version_ = version;
-
-    std::string ticket_;
-    std::string new_pass_;
-    std::string new_user_;
-    std::string new_email_;
-    std::string pass_;
-    std::string captcha_text_;
-    std::string captcha_token_;
-
-    SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
-    {
-        solid::serialization::addVersion<AuthCreateRequest>(_s, _rthis.version_, "version");
-
-        _s.add([&_rthis](S& _s, solid::frame::mprpc::ConnectionContext& _rctx, const char* /*_name*/) {
-            _s.add(_rthis.ticket_, _rctx, "ticket");
-            _s.add(_rthis.new_pass_, _rctx, "new_pass").add(_rthis.new_user_, _rctx, "new_user");
-            _s.add(_rthis.new_email_, _rctx, "new_email");
-            _s.add(_rthis.pass_, _rctx, "pass");
-            _s.add(_rthis.captcha_text_, _rctx, "captcha_text").add(_rthis.captcha_token_, _rctx, "captcha_token");
-        },
-            _rctx, _name);
-    }
-};
-
-struct AuthValidateRequest : solid::frame::mprpc::Message {
-    static constexpr uint32_t version = 1;
-
-    uint32_t version_ = version;
-
-    std::string ticket_;
-    std::string text_;
-    std::string captcha_text_;
-    std::string captcha_token_;
-
-    SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
-    {
-        solid::serialization::addVersion<AuthValidateRequest>(_s, _rthis.version_, "version");
-
-        _s.add([&_rthis](S& _s, solid::frame::mprpc::ConnectionContext& _rctx, const char* /*_name*/) {
-            _s.add(_rthis.ticket_, _rctx, "ticket");
-            _s.add(_rthis.text_, _rctx, "text");
-            _s.add(_rthis.captcha_text_, _rctx, "captcha_text").add(_rthis.captcha_token_, _rctx, "captcha_token");
-        },
-            _rctx, _name);
-    }
-};
-
-struct AuthResetRequest : solid::frame::mprpc::Message {
-    static constexpr uint32_t version = 1;
-
-    uint32_t version_ = version;
-
-    std::string login_;
-    std::string pass_;
-    std::string captcha_text_;
-    std::string captcha_token_;
-
-    SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
-    {
-        solid::serialization::addVersion<AuthResetRequest>(_s, _rthis.version_, "version");
-
-        _s.add([&_rthis](S& _s, solid::frame::mprpc::ConnectionContext& _rctx, const char* /*_name*/) {
-            _s.add(_rthis.login_, _rctx, "login");
-            _s.add(_rthis.pass_, _rctx, "pass");
-            _s.add(_rthis.captcha_text_, _rctx, "captcha_text").add(_rthis.captcha_token_, _rctx, "captcha_token");
-        },
-            _rctx, _name);
-    }
-};
-
-struct AuthResponse : solid::frame::mprpc::Message {
-    static constexpr uint32_t version = 1;
-
-    uint32_t    version_ = version;
-    uint32_t    error_   = -1;
-    std::string message_;
-
-    AuthResponse() {}
-
-    AuthResponse(
-        const solid::frame::mprpc::Message& _rreq, const uint32_t _version = version)
-        : solid::frame::mprpc::Message(_rreq)
-    {
-    }
-
-    SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
-    {
-        solid::serialization::addVersion<AuthResponse>(_s, _rthis.version_, "version");
-
-        _s.add([&_rthis](S& _s, solid::frame::mprpc::ConnectionContext& _rctx, const char* /*_name*/) {
-            _s.add(_rthis.error_, _rctx, "error").add(_rthis.message_, _rctx, "message");
-        },
-            _rctx, _name);
-    }
-};
 
 struct ListOSesRequest : solid::frame::mprpc::Message {
     static constexpr uint32_t version = 1;
@@ -733,32 +463,6 @@ struct FetchBuildConfigurationResponse : solid::frame::mprpc::Message {
     }
 };
 
-struct Response : solid::frame::mprpc::Message {
-    static constexpr uint32_t version = 1;
-
-    uint32_t    version_ = version;
-    uint32_t    error_   = -1;
-    std::string message_;
-
-    Response() {}
-
-    Response(
-        const solid::frame::mprpc::Message& _rreq)
-        : solid::frame::mprpc::Message(_rreq)
-    {
-    }
-
-    SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
-    {
-        solid::serialization::addVersion<Response>(_s, _rthis.version_, "version");
-
-        _s.add([&_rthis](S& _s, solid::frame::mprpc::ConnectionContext& _rctx, const char* /*_name*/) {
-            _s.add(_rthis.error_, _rctx, "error").add(_rthis.message_, _rctx, "message");
-        },
-            _rctx, _name);
-    }
-};
-
 struct CreateAppRequest : solid::frame::mprpc::Message {
     static constexpr uint32_t version              = 1;
     uint32_t                  version_             = version;
@@ -773,25 +477,6 @@ struct CreateAppRequest : solid::frame::mprpc::Message {
             solid::serialization::addVersion<utility::Application>(_s, _rthis.application_version_, "application_version");
 
             _s.add(_rthis.application_, _rctx, "application");
-        },
-            _rctx, _name);
-    }
-};
-
-struct AcquireAppRequest : solid::frame::mprpc::Message {
-    static constexpr uint32_t version = 1;
-
-    uint32_t    version_ = version;
-    std::string app_id_;
-    bool        acquire_ = true;
-
-    SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
-    {
-        solid::serialization::addVersion<AcquireAppRequest>(_s, _rthis.version_, "version");
-
-        _s.add([&_rthis](S& _s, solid::frame::mprpc::ConnectionContext& _rctx, const char* /*_name*/) {
-            _s.add(_rthis.app_id_, _rctx, "app_id");
-            _s.add(_rthis.acquire_, _rctx, "acquire");
         },
             _rctx, _name);
     }
@@ -895,63 +580,37 @@ struct UploadRequest : solid::frame::mprpc::Message {
     }
 };
 
-using ProtocolT = solid::frame::mprpc::serialization_v2::Protocol<uint8_t>;
-
 template <class R>
 inline void protocol_setup(R _r, ProtocolT& _rproto)
 {
-    _rproto.version(2, 0);
 
-    _rproto.null(static_cast<ProtocolT::TypeIdT>(0));
+    _r(_rproto, solid::TypeToType<CreateAppRequest>(), {2, 1});
 
-    _r(_rproto, solid::TypeToType<InitRequest>(), 1);
-    _r(_rproto, solid::TypeToType<InitResponse>(), 2);
+    _r(_rproto, solid::TypeToType<ListOSesRequest>(), {2, 2});
+    _r(_rproto, solid::TypeToType<ListOSesResponse>(), {2, 3});
+    _r(_rproto, solid::TypeToType<ListAppsRequest>(), {2, 4});
+    _r(_rproto, solid::TypeToType<ListAppsResponse>(), {2, 5});
+    _r(_rproto, solid::TypeToType<ListStoreRequest>(), {2, 6});
+    _r(_rproto, solid::TypeToType<ListStoreResponse>(), {2, 7});
 
-    _r(_rproto, solid::TypeToType<AuthRequest>(), 4);
-    _r(_rproto, solid::TypeToType<AuthResponse>(), 5);
-    _r(_rproto, solid::TypeToType<Response>(), 6);
-    _r(_rproto, solid::TypeToType<AuthCreateRequest>(), 7);
-    _r(_rproto, solid::TypeToType<AuthValidateRequest>(), 8);
-    _r(_rproto, solid::TypeToType<AuthAmendRequest>(), 9);
-    _r(_rproto, solid::TypeToType<AuthFetchRequest>(), 10);
-    _r(_rproto, solid::TypeToType<AuthFetchResponse>(), 11);
-    _r(_rproto, solid::TypeToType<AuthResetRequest>(), 12);
+    _r(_rproto, solid::TypeToType<FetchStoreRequest>(), {2, 8});
+    _r(_rproto, solid::TypeToType<FetchStoreResponse>(), {2, 9});
 
-    _r(_rproto, solid::TypeToType<CreateAppRequest>(), 20);
+    _r(_rproto, solid::TypeToType<CreateBuildRequest>(), {2, 10});
+    _r(_rproto, solid::TypeToType<CreateMediaRequest>(), {2, 11});
+    _r(_rproto, solid::TypeToType<UploadRequest>(), {2, 12});
 
-    _r(_rproto, solid::TypeToType<ListOSesRequest>(), 40);
-    _r(_rproto, solid::TypeToType<ListOSesResponse>(), 41);
-    _r(_rproto, solid::TypeToType<ListAppsRequest>(), 42);
-    _r(_rproto, solid::TypeToType<ListAppsResponse>(), 43);
-    _r(_rproto, solid::TypeToType<ListStoreRequest>(), 44);
-    _r(_rproto, solid::TypeToType<ListStoreResponse>(), 45);
+    _r(_rproto, solid::TypeToType<FetchAppRequest>(), {2, 13});
+    _r(_rproto, solid::TypeToType<FetchAppResponse>(), {2, 14});
+    _r(_rproto, solid::TypeToType<ChangeAppItemStateRequest>(), {2, 15});
 
-    _r(_rproto, solid::TypeToType<FetchStoreRequest>(), 60);
-    _r(_rproto, solid::TypeToType<FetchStoreResponse>(), 61);
+    _r(_rproto, solid::TypeToType<FetchBuildRequest>(), {2, 16});
+    _r(_rproto, solid::TypeToType<FetchBuildResponse>(), {2, 17});
+    _r(_rproto, solid::TypeToType<FetchBuildConfigurationRequest>(), {2, 18});
+    _r(_rproto, solid::TypeToType<FetchBuildConfigurationResponse>(), {2, 19});
 
-    _r(_rproto, solid::TypeToType<CreateBuildRequest>(), 80);
-    _r(_rproto, solid::TypeToType<CreateMediaRequest>(), 81);
-    _r(_rproto, solid::TypeToType<UploadRequest>(), 84);
-
-    _r(_rproto, solid::TypeToType<FetchAppRequest>(), 100);
-    _r(_rproto, solid::TypeToType<FetchAppResponse>(), 101);
-    _r(_rproto, solid::TypeToType<ChangeAppItemStateRequest>(), 102);
-
-    _r(_rproto, solid::TypeToType<FetchBuildRequest>(), 120);
-    _r(_rproto, solid::TypeToType<FetchBuildResponse>(), 121);
-    _r(_rproto, solid::TypeToType<FetchBuildConfigurationRequest>(), 122);
-    _r(_rproto, solid::TypeToType<FetchBuildConfigurationResponse>(), 123);
-#if 0
-    _r(_rproto, solid::TypeToType<FetchMediaConfigurationRequest>(), 124);
-    _r(_rproto, solid::TypeToType<FetchMediaConfigurationResponse>(), 125);
-#endif
-    _r(_rproto, solid::TypeToType<FetchBuildUpdatesRequest>(), 140);
-    _r(_rproto, solid::TypeToType<FetchBuildUpdatesResponse>(), 141);
-
-    _r(_rproto, solid::TypeToType<CaptchaRequest>(), 160);
-    _r(_rproto, solid::TypeToType<CaptchaResponse>(), 161);
-
-    _r(_rproto, solid::TypeToType<AcquireAppRequest>(), 180);
+    _r(_rproto, solid::TypeToType<FetchBuildUpdatesRequest>(), {2, 20});
+    _r(_rproto, solid::TypeToType<FetchBuildUpdatesResponse>(), {2, 21});
 }
 
 } //namespace front
