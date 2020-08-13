@@ -188,6 +188,8 @@ inline void protocol_setup_auth(R _r, ProtocolT& _rproto)
     _r(_rproto, solid::TypeToType<AuthFetchRequest>(), {1, 4});
     _r(_rproto, solid::TypeToType<AuthFetchResponse>(), {1, 5});
     _r(_rproto, solid::TypeToType<AuthResetRequest>(), {1, 6});
+    _r(_rproto, solid::TypeToType<CaptchaRequest>(), {1, 7});
+    _r(_rproto, solid::TypeToType<CaptchaResponse>(), {1, 8});
 }
 
 
