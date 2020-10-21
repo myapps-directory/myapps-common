@@ -192,6 +192,5 @@ inline void protocol_setup_auth(R _r, ProtocolT& _rproto)
     _r(_rproto, solid::TypeToType<CaptchaResponse>(), {1, 8});
 }
 
-
-}//namespace front
-}//namespace ola
+} //namespace front
+} //namespace ola

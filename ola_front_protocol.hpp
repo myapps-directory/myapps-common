@@ -9,8 +9,6 @@
 namespace ola {
 namespace front {
 
-
-
 struct ListOSesRequest : solid::frame::mprpc::Message {
     static constexpr uint32_t version = 1;
 

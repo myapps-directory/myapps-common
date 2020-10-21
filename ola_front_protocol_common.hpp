@@ -36,5 +36,5 @@ inline void protocol_setup(ProtocolT& _rproto)
     _rproto.null(TypeIdT(0, 0));
 }
 
-}//namespace front
-}//namespace ola
+} //namespace front
+} //namespace ola

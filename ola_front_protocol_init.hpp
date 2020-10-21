@@ -124,14 +124,13 @@ inline void protocol_setup_init(R _r, ProtocolT& _rproto)
 {
     protocol_setup(_rproto);
 
-    _r(_rproto, solid::TypeToType<InitRequest>(), {0,1});
-    _r(_rproto, solid::TypeToType<InitResponse>(), {0,2});
+    _r(_rproto, solid::TypeToType<InitRequest>(), {0, 1});
+    _r(_rproto, solid::TypeToType<InitResponse>(), {0, 2});
 
-    _r(_rproto, solid::TypeToType<AuthRequest>(), {0,4});
-    _r(_rproto, solid::TypeToType<AuthResponse>(), {0,5});
-    _r(_rproto, solid::TypeToType<Response>(), {0,6});
+    _r(_rproto, solid::TypeToType<AuthRequest>(), {0, 4});
+    _r(_rproto, solid::TypeToType<AuthResponse>(), {0, 5});
+    _r(_rproto, solid::TypeToType<Response>(), {0, 6});
 }
 
-
-}//namespace front
-}//namespace ola
+} //namespace front
+} //namespace ola
