@@ -18,6 +18,6 @@ add_dependencies(ola_utility versioning)
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/version_impl.hpp.in ${CMAKE_CURRENT_BINARY_DIR}/version_impl.hpp)
 
-target_link_libraries(ola_utility ${OPENSSL_CRYPTO_LIBRARY} SolidFrame::solid_system)
+target_link_libraries(ola_utility OpenSSL::Crypto SolidFrame::solid_system)
 
 add_subdirectory(test)
