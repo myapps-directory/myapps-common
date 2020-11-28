@@ -526,6 +526,7 @@ struct ListStoreNode {
 enum struct AppFlagE {
     ReviewRequest = 0,
     Owned,
+    Default,
 };
 
 struct ApplicationListItem {
