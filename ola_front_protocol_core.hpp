@@ -1,0 +1,145 @@
+#pragma once
+
+#include "ola/common/utility/ola_error.hpp"
+#include "ola/common/utility/ola_protocol.hpp"
+
+#include <string>
+
+namespace ola {
+namespace front {
+
+inline const char* default_port()
+{
+    return "4443";
+}
+
+namespace core{
+
+constexpr size_t protocol_id = 0;
+    
+struct Version{
+    static constexpr uint32_t version = 1;
+    static constexpr uint32_t auth_request = 1;
+    static constexpr uint32_t auth_response = 1;
+    static constexpr uint32_t init_response = 1;
+    static constexpr uint32_t response = 1;
+    
+    uint32_t version_ = version;
+    uint32_t auth_request_ = auth_request;
+    uint32_t auth_response_ = auth_response;
+    uint32_t init_response_ = init_response;
+    uint32_t response_ = response;
+    
+    void clear(){
+        auth_request_ = auth_response_ = response_ = -1;
+    }
+    
+    bool operator<=(const Version &_rthat)const{
+        return  version_ <= _rthat.version_ && auth_request <= _rthat.auth_request_ &&
+                auth_response_ <= _rthat.auth_response_ && init_response_ <= _rthat.init_response_ &&
+                response_ <= _rthat.response_;
+    }
+    
+    SOLID_REFLECT_V1(_s, _rthis, _rctx){
+        _s.add(_rthis.version_, _rctx, 0, "version");
+        _s.add([&_rthis](S& _s, solid::frame::mprpc::ConnectionContext& _rctx) {
+            if constexpr (!S::is_const_reflector){
+                if(_rthis.version > Version::version){
+                    _rthis.clear();
+                    return;
+                }
+            }
+            if(_rthis.version_ == version){
+                _s.add(_rthis.auth_request_, _rctx, 2, "auth_request");
+                _s.add(_rthis.auth_response_, _rctx, 3, "auth_response");
+                _s.add(_rthis.init_response_, _rctx, 4, "init_response");
+                _s.add(_rthis.response_, _rctx, 5, "response");
+            }
+        },
+            _rctx, 1, "lambda");
+    }
+};
+
+constexpr Version version;
+
+struct AuthRequest : solid::frame::mprpc::Message {
+    std::string pass_;
+    std::string user_;
+    std::string captcha_text_;
+    std::string captcha_token_;
+
+    SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
+    {
+        _s.add(_rthis.pass_, _rctx, "pass").add(_rthis.user_, _rctx, "user");
+        _s.add(_rthis.captcha_text_, _rctx, "captcha_text").add(_rthis.captcha_token_, _rctx, "captcha_token");
+    }
+};
+
+struct AuthResponse : solid::frame::mprpc::Message {
+    uint32_t    error_   = -1;
+    std::string message_;
+
+    AuthResponse() {}
+
+    AuthResponse(
+        const solid::frame::mprpc::Message& _rreq)
+        : solid::frame::mprpc::Message(_rreq)
+    {
+    }
+
+    SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
+    {
+        _s.add(_rthis.error_, _rctx, "error").add(_rthis.message_, _rctx, "message");
+    }
+};
+
+struct InitResponse : solid::frame::mprpc::Message {
+    uint32_t    error_   = -1;
+    std::string message_;
+    
+    InitResponse() {}
+
+    InitResponse(
+        const solid::frame::mprpc::Message& _rreq)
+        : solid::frame::mprpc::Message(_rreq)
+    {
+    }
+
+    SOLID_REFLECT_V1(_s, _rthis, _rctx)
+    {
+        if(_rctx.anyTuple().template getIf<Version>()->init_response_ == Version::init_response){
+            _s.add(_rthis.error_, _rctx, 1, "error").add(_rthis.message_, _rctx, 2, "message");
+        }
+    }
+};
+
+struct Response : solid::frame::mprpc::Message {
+    uint32_t    error_   = -1;
+    std::string message_;
+
+    Response() {}
+
+    Response(
+        const solid::frame::mprpc::Message& _rreq)
+        : solid::frame::mprpc::Message(_rreq)
+    {
+    }
+
+    SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
+    {
+        _s.add(_rthis.error_, _rctx, "error").add(_rthis.message_, _rctx, "message");
+    }
+};
+
+template <class Reg>
+inline void configure_protocol(Reg _rreg)
+{
+    _rreg(protocol_id, 1, "InitResponse", solid::TypeToType<InitResponse>());
+    _rreg(protocol_id, 2, "AuthRequest", solid::TypeToType<AuthRequest>());
+    _rreg(protocol_id, 3, "AuthResponse", solid::TypeToType<AuthResponse>());
+    _rreg(protocol_id, 4, "Response", solid::TypeToType<Response>());
+}
+
+} //namespace core
+} //namespace front
+} //namespace ola
