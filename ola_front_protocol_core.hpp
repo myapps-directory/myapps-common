@@ -68,10 +68,11 @@ struct AuthRequest : solid::frame::mprpc::Message {
     std::string captcha_text_;
     std::string captcha_token_;
 
-    SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
+    SOLID_REFLECT_V1(_s, _rthis, _rctx)
     {
-        _s.add(_rthis.pass_, _rctx, "pass").add(_rthis.user_, _rctx, "user");
-        _s.add(_rthis.captcha_text_, _rctx, "captcha_text").add(_rthis.captcha_token_, _rctx, "captcha_token");
+        _s.add(_rthis.pass_, _rctx, 1, "pass")
+        _s.add(_rthis.user_, _rctx, 2, "user");
+        _s.add(_rthis.captcha_text_, _rctx, 3, "captcha_text").add(_rthis.captcha_token_, _rctx, 4, "captcha_token");
     }
 };
 
@@ -87,9 +88,9 @@ struct AuthResponse : solid::frame::mprpc::Message {
     {
     }
 
-    SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
+    SOLID_REFLECT_V1(_s, _rthis, _rctx)
     {
-        _s.add(_rthis.error_, _rctx, "error").add(_rthis.message_, _rctx, "message");
+        _s.add(_rthis.error_, _rctx, 1, "error").add(_rthis.message_, _rctx, 2, "message");
     }
 };
 
@@ -125,9 +126,9 @@ struct Response : solid::frame::mprpc::Message {
     {
     }
 
-    SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
+    SOLID_REFLECT_V1(_s, _rthis, _rctx)
     {
-        _s.add(_rthis.error_, _rctx, "error").add(_rthis.message_, _rctx, "message");
+        _s.add(_rthis.error_, _rctx, 1, "error").add(_rthis.message_, _rctx, 2, "message");
     }
 };
 

@@ -122,9 +122,9 @@ constexpr Version version;
 struct Application {
     std::string name_;
 
-    SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
+    SOLID_REFLECT_V1(_s, _rthis, _rctx)
     {
-        _s.add(_rthis.name_, _rctx, "name");
+        _s.add(_rthis.name_, _rctx, 1, "name");
     }
 
     template <class Archive>
@@ -190,13 +190,13 @@ struct Build {
         std::string run_folder_;
         std::string icon_;
 
-        SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
+        SOLID_REFLECT_V1(_s, _rthis, _rctx)
         {
-            _s.add(_rthis.name_, _rctx, "name");
-            _s.add(_rthis.command_, _rctx, "command");
-            _s.add(_rthis.arguments_, _rctx, "arguments");
-            _s.add(_rthis.run_folder_, _rctx, "run_folder");
-            _s.add(_rthis.icon_, _rctx, "icon");
+            _s.add(_rthis.name_, _rctx, 1, "name");
+            _s.add(_rthis.command_, _rctx, 2, "command");
+            _s.add(_rthis.arguments_, _rctx, 3, "arguments");
+            _s.add(_rthis.run_folder_, _rctx, 4, "run_folder");
+            _s.add(_rthis.icon_, _rctx, 5, "icon");
         }
 
         template <class Archive>
@@ -227,10 +227,10 @@ struct Build {
             {
             }
 
-            SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
+            SOLID_REFLECT_V1(_s, _rthis, _rctx)
             {
-                _s.add(_rthis.thumbnail_path_, _rctx, "thumbnail_path");
-                _s.add(_rthis.path_, _rctx, "path");
+                _s.add(_rthis.thumbnail_path_, _rctx, 1, "thumbnail_path");
+                _s.add(_rthis.path_, _rctx, 2, "path");
             }
 
             template <class Archive>
@@ -249,10 +249,10 @@ struct Build {
         std::string  name_;
         EntryVectorT entry_vec_;
 
-        SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
+        SOLID_REFLECT_V1(_s, _rthis, _rctx)
         {
-            _s.add(_rthis.name_, _rctx, "name");
-            _s.add(_rthis.entry_vec_, _rctx, "entry_vec");
+            _s.add(_rthis.name_, _rctx, 1, "name");
+            _s.add(_rthis.entry_vec_, _rctx, 2, "entry_vec");
         }
 
         template <class Archive>
@@ -323,17 +323,17 @@ struct Build {
         StringPairVectorT property_vec_;
         Media             media_;
 
-        SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
+        SOLID_REFLECT_V1(_s, _rthis, _rctx)
         {
-            _s.add(_rthis.name_, _rctx, "name");
-            _s.add(_rthis.directory_, _rctx, "directory");
-            _s.add(_rthis.flags_, _rctx, "flags");
-            _s.add(_rthis.os_vec_, _rctx, "os_vec");
-            _s.add(_rthis.mount_vec_, _rctx, "mount_vec");
-            _s.add(_rthis.exe_vec_, _rctx, "exe_vec");
-            _s.add(_rthis.shortcut_vec_, _rctx, "shortcut_vec");
-            _s.add(_rthis.property_vec_, _rctx, "property_vec");
-            _s.add(_rthis.media_, _rctx, "media");
+            _s.add(_rthis.name_, _rctx, 1, "name");
+            _s.add(_rthis.directory_, _rctx, 2, "directory");
+            _s.add(_rthis.flags_, _rctx, 3, "flags");
+            _s.add(_rthis.os_vec_, _rctx, 4, "os_vec");
+            _s.add(_rthis.mount_vec_, _rctx, 5, "mount_vec");
+            _s.add(_rthis.exe_vec_, _rctx, 6, "exe_vec");
+            _s.add(_rthis.shortcut_vec_, _rctx, 7, "shortcut_vec");
+            _s.add(_rthis.property_vec_, _rctx, 8, "property_vec");
+            _s.add(_rthis.media_, _rctx, 9, "media");
         }
 
         template <class Archive>
@@ -362,13 +362,13 @@ struct Build {
     StringPairVectorT    property_vec_;
     ConfigurationVectorT configuration_vec_;
 
-    SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
+    SOLID_REFLECT_V1(_s, _rthis, _rctx)
     {
-        _s.add(_rthis.name_, _rctx, "name");
-        _s.add(_rthis.tag_, _rctx, "tag");
-        _s.add(_rthis.dictionary_dq_, _rctx, "dictionary_dq");
-        _s.add(_rthis.property_vec_, _rctx, "property_vec");
-        _s.add(_rthis.configuration_vec_, _rctx, "configuration_vec");
+        _s.add(_rthis.name_, _rctx, 1, "name");
+        _s.add(_rthis.tag_, _rctx, 2, "tag");
+        _s.add(_rthis.dictionary_dq_, _rctx, 3, "dictionary_dq");
+        _s.add(_rthis.property_vec_, _rctx, 4, "property_vec");
+        _s.add(_rthis.configuration_vec_, _rctx, 5, "configuration_vec");
     }
 
     template <class Archive>
@@ -490,8 +490,6 @@ inline AppItemFlagE app_item_flag(const char* _name)
 }
 
 struct AppItemEntry {
-    static constexpr uint32_t version = Version::app_item_entry;
-    
     std::string name_;
 
     union {
@@ -575,16 +573,14 @@ struct AppItemEntry {
         _a(name_, u_.value_);
     }
 
-    SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
+    SOLID_REFLECT_V1(_s, _rthis, _rctx)
     {
-        _s.add(_rthis.name_, _rctx, "name");
-        _s.add(_rthis.u_.value_, _rctx, "value");
+        _s.add(_rthis.name_, _rctx, 1, "name");
+        _s.add(_rthis.u_.value_, _rctx, 2, "value");
     }
 };
 
 struct ListStoreNode {
-    static constexpr uint32_t version = Version::list_store_node;
-
     std::string name_;
     uint64_t    size_ = 0;
 
@@ -602,10 +598,10 @@ struct ListStoreNode {
     {
     }
 
-    SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
+    SOLID_REFLECT_V1(_s, _rthis, _rctx)
     {
-        _s.add(_rthis.name_, _rctx, "name");
-        _s.add(_rthis.size_, _rctx, "size");
+        _s.add(_rthis.name_, _rctx, 1, "name");
+        _s.add(_rthis.size_, _rctx, 2, "size");
     }
 };
 
@@ -655,12 +651,12 @@ struct ApplicationListItem {
         return flags() & (1UL << static_cast<uint8_t>(_flag));
     }
 
-    SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
+    SOLID_REFLECT_V1(_s, _rthis, _rctx)
     {
-        _s.add(_rthis.id_, _rctx, "id");
-        _s.add(_rthis.unique_, _rctx, "unique");
-        _s.add(_rthis.name_, _rctx, "name");
-        _s.add(_rthis.flags_, _rctx, "flags");
+        _s.add(_rthis.id_, _rctx, 1, "id");
+        _s.add(_rthis.unique_, _rctx, 2, "unique");
+        _s.add(_rthis.name_, _rctx, 3, "name");
+        _s.add(_rthis.flags_, _rctx, 4, "flags");
     }
 };
 
