@@ -1,5 +1,6 @@
 #pragma once
 
+#include <limits>
 #include "ola/common/ola_front_protocol_core.hpp"
 
 #include <deque>
@@ -30,7 +31,7 @@ struct Version{
     }
     
     SOLID_REFLECT_V1(_s, _rthis, _rctx){
-        _s.add(_rthis.version_, _rctx, 0, "version");
+        _s.add(_rthis.version_, _rctx, 1, "version");
         _s.add([&_rthis](S& _s, solid::frame::mprpc::ConnectionContext& _rctx) {
             if constexpr (!S::is_const_reflector){
                 if(_rthis.version > Version::version){
@@ -39,10 +40,10 @@ struct Version{
                 }
             }
             if(_rthis.version_ == version){
-                _s.add(_rthis.init_request_, _rctx, 2, "init_request");
+                _s.add(_rthis.init_request_, _rctx, 3, "init_request");
             }
         },
-            _rctx, 1, "lambda");
+            _rctx);
     }
     
 };
@@ -56,7 +57,7 @@ struct InitRequest : solid::frame::mprpc::Message {
 
     SOLID_REFLECT_V1(_s, _rthis, _rctx)
     {
-        _s.add(_rthis.auth_version_, _rctx, 0, "main_version");
+        _s.add(_rthis.auth_version_, _rctx, 1, "main_version");
         _s.add([&_rthis](S& _s, solid::frame::mprpc::ConnectionContext& _rctx) {
             
             if(_rthis.version_.init_request_ == Version::init_request){
@@ -64,7 +65,7 @@ struct InitRequest : solid::frame::mprpc::Message {
                 _s.add(_rthis.utility_version_, _rctx, 4, "utility_version");
             }
         },
-            _rctx, 1, "lambda");
+            _rctx);
     }
 };
 

@@ -1,7 +1,6 @@
 #pragma once
 
 #include "cereal/cereal.hpp"
-#include "solid/frame/mprpc/mprpcprotocol_serialization_v2.hpp"
 #include "solid/frame/mprpc/mprpcprotocol_serialization_v3.hpp"
 #include "solid/system/cassert.hpp"
 #include "solid/system/cstring.hpp"
@@ -16,7 +15,7 @@
 namespace ola {
 namespace utility {
 
-auto    metadata_factory = [](const auto &_rt, const solid::reflection::v1::TypeMapBase *_ptype_map) -> auto{
+inline constexpr auto    metadata_factory = [](const auto &_rt, const solid::reflection::v1::TypeMapBase *_ptype_map) -> auto{
     using value_t = std::decay_t<decltype(_rt)>;
     if constexpr (std::is_enum_v<value_t>){
         return solid::reflection::v1::metadata::Enum{};
@@ -30,6 +29,10 @@ auto    metadata_factory = [](const auto &_rt, const solid::reflection::v1::Type
         return solid::reflection::v1::metadata::String{1024*4};
     }else if constexpr (solid::is_container<value_t>::value){
         return solid::reflection::v1::metadata::Container{1024*4};
+    }else if constexpr (std::is_base_of_v<std::istream, value_t>){
+        return solid::reflection::v1::metadata::IStream{};
+    }else if constexpr (std::is_base_of_v<std::ostream, value_t>){
+        return solid::reflection::v1::metadata::OStream{};
     }else{
         return solid::reflection::v1::metadata::Generic{};
     }
@@ -93,7 +96,7 @@ struct Version{
     }
     
     SOLID_REFLECT_V1(_s, _rthis, _rctx){
-        _s.add(_rthis.version_, _rctx, 0, "version");
+        _s.add(_rthis.version_, _rctx, 1, "version");
         _s.add([&_rthis](S& _s, solid::frame::mprpc::ConnectionContext& _rctx) {
             if constexpr (!S::is_const_reflector){
                 if(_rthis.version > Version::version){
@@ -101,17 +104,17 @@ struct Version{
                     return;
                 }
             }
-            _s.add(_rthis.application_version_, _rctx, 2, "application_version");
-            _s.add(_rthis.build_version_, _rctx, 3, "build_version");
-            _s.add(_rthis.build_shortcut_version_, _rctx, 4, "build_shortcut_version");
-            _s.add(_rthis.build_media_version_, _rctx, 5, "build_media_version");
-            _s.add(_rthis.build_media_entry_version_, _rctx, 6, "build_media_entry_version");
-            _s.add(_rthis.build_configuration_, _rctx, 7, "build_configuration");
-            _s.add(_rthis.list_store_node_, _rctx, 8, "list_store_node");
-            _s.add(_rthis.application_list_item_, _rctx, 9, "application_list_item");
-            _s.add(_rthis.app_item_entry_, _rctx, 10, "app_item_entry");
+            _s.add(_rthis.application_version_, _rctx, 3, "application_version");
+            _s.add(_rthis.build_version_, _rctx, 4, "build_version");
+            _s.add(_rthis.build_shortcut_version_, _rctx, 5, "build_shortcut_version");
+            _s.add(_rthis.build_media_version_, _rctx, 6, "build_media_version");
+            _s.add(_rthis.build_media_entry_version_, _rctx, 7, "build_media_entry_version");
+            _s.add(_rthis.build_configuration_, _rctx, 8, "build_configuration");
+            _s.add(_rthis.list_store_node_, _rctx, 9, "list_store_node");
+            _s.add(_rthis.application_list_item_, _rctx, 10, "application_list_item");
+            _s.add(_rthis.app_item_entry_, _rctx, 11, "app_item_entry");
         },
-            _rctx, 1, "lambda");
+            _rctx);
     }
     
 };

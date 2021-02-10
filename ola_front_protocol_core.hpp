@@ -8,10 +8,11 @@
 namespace ola {
 namespace front {
 
-inline const char* default_port()
+inline constexpr const char* default_port()
 {
     return "4443";
 }
+using ProtocolTypeIndexT = std::pair<uint8_t, uint16_t>;
 
 namespace core{
 
@@ -41,7 +42,7 @@ struct Version{
     }
     
     SOLID_REFLECT_V1(_s, _rthis, _rctx){
-        _s.add(_rthis.version_, _rctx, 0, "version");
+        _s.add(_rthis.version_, _rctx, 1, "version");
         _s.add([&_rthis](S& _s, solid::frame::mprpc::ConnectionContext& _rctx) {
             if constexpr (!S::is_const_reflector){
                 if(_rthis.version > Version::version){
@@ -50,13 +51,13 @@ struct Version{
                 }
             }
             if(_rthis.version_ == version){
-                _s.add(_rthis.auth_request_, _rctx, 2, "auth_request");
-                _s.add(_rthis.auth_response_, _rctx, 3, "auth_response");
-                _s.add(_rthis.init_response_, _rctx, 4, "init_response");
-                _s.add(_rthis.response_, _rctx, 5, "response");
+                _s.add(_rthis.auth_request_, _rctx, 3, "auth_request");
+                _s.add(_rthis.auth_response_, _rctx, 4, "auth_response");
+                _s.add(_rthis.init_response_, _rctx, 5, "init_response");
+                _s.add(_rthis.response_, _rctx, 6, "response");
             }
         },
-            _rctx, 1, "lambda");
+            _rctx);
     }
 };
 
@@ -70,7 +71,7 @@ struct AuthRequest : solid::frame::mprpc::Message {
 
     SOLID_REFLECT_V1(_s, _rthis, _rctx)
     {
-        _s.add(_rthis.pass_, _rctx, 1, "pass")
+        _s.add(_rthis.pass_, _rctx, 1, "pass");
         _s.add(_rthis.user_, _rctx, 2, "user");
         _s.add(_rthis.captcha_text_, _rctx, 3, "captcha_text").add(_rthis.captcha_token_, _rctx, 4, "captcha_token");
     }
