@@ -104,11 +104,11 @@ struct Version{
                     return;
                 }
             }
-            _s.add(_rthis.application_version_, _rctx, 3, "application_version");
-            _s.add(_rthis.build_version_, _rctx, 4, "build_version");
-            _s.add(_rthis.build_shortcut_version_, _rctx, 5, "build_shortcut_version");
-            _s.add(_rthis.build_media_version_, _rctx, 6, "build_media_version");
-            _s.add(_rthis.build_media_entry_version_, _rctx, 7, "build_media_entry_version");
+            _s.add(_rthis.application_, _rctx, 3, "application");
+            _s.add(_rthis.build_, _rctx, 4, "build");
+            _s.add(_rthis.build_shortcut_, _rctx, 5, "build_shortcut");
+            _s.add(_rthis.build_media_, _rctx, 6, "build_media");
+            _s.add(_rthis.build_media_entry_, _rctx, 7, "build_media_entry");
             _s.add(_rthis.build_configuration_, _rctx, 8, "build_configuration");
             _s.add(_rthis.list_store_node_, _rctx, 9, "list_store_node");
             _s.add(_rthis.application_list_item_, _rctx, 10, "application_list_item");

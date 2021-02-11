@@ -136,10 +136,10 @@ struct Response : solid::frame::mprpc::Message {
 template <class Reg>
 inline void configure_protocol(Reg _rreg)
 {
-    _rreg(protocol_id, 1, "InitResponse", solid::TypeToType<InitResponse>());
-    _rreg(protocol_id, 2, "AuthRequest", solid::TypeToType<AuthRequest>());
-    _rreg(protocol_id, 3, "AuthResponse", solid::TypeToType<AuthResponse>());
-    _rreg(protocol_id, 4, "Response", solid::TypeToType<Response>());
+    _rreg({protocol_id, 1}, "InitResponse", solid::TypeToType<InitResponse>());
+    _rreg({protocol_id, 2}, "AuthRequest", solid::TypeToType<AuthRequest>());
+    _rreg({protocol_id, 3}, "AuthResponse", solid::TypeToType<AuthResponse>());
+    _rreg({protocol_id, 4}, "Response", solid::TypeToType<Response>());
 }
 
 } //namespace core

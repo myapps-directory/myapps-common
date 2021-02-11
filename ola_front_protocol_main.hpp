@@ -57,10 +57,10 @@ struct InitRequest : solid::frame::mprpc::Message {
 
     SOLID_REFLECT_V1(_s, _rthis, _rctx)
     {
-        _s.add(_rthis.auth_version_, _rctx, 1, "main_version");
+        _s.add(_rthis.main_version_, _rctx, 1, "main_version");
         _s.add([&_rthis](S& _s, solid::frame::mprpc::ConnectionContext& _rctx) {
             
-            if(_rthis.version_.init_request_ == Version::init_request){
+            if(_rthis.main_version_.init_request_ == Version::init_request){
                 _s.add(_rthis.core_version_, _rctx, 3, "core_version");
                 _s.add(_rthis.utility_version_, _rctx, 4, "utility_version");
             }
@@ -230,7 +230,7 @@ struct FetchStoreResponse : solid::frame::mprpc::Message {
         _s.add(_rthis.error_, _rctx, 1, "error").add(_rthis.message_, _rctx, 2, "message");
         _s.add(_rthis.size_, _rctx, 3, "size");
 
-        if constexpr (!S::is_const_reflector) {
+        if constexpr (S::is_const_reflector) {
             auto progress_lambda = [&_rctx](std::istream& _ris, uint64_t _len, const bool _done, const size_t _index, const char* _name) {
                 //NOTE: here you can use context.anyTuple for actual implementation
             };
@@ -239,7 +239,9 @@ struct FetchStoreResponse : solid::frame::mprpc::Message {
             auto progress_lambda = [&_rctx](std::ostream& _ros, uint64_t _len, const bool _done, const size_t _index, const char* _name) {
                 //NOTE: here you can use context.anyTuple for actual implementation
             };
-            _s.add(_rthis.ioss_, _rctx, 4, "stream", [&progress_lambda](auto _rmeta){_rmeta.progressFunction(progress_lambda);});//TODO:
+            //NOTE: we need the static cast below, because ioss_ is both an istream and ostream
+            //and the metadata dispatch function cannot know which one to take
+            _s.add(static_cast<std::ostream&>(_rthis.ioss_), _rctx, 4, "stream", [&progress_lambda](auto _rmeta){_rmeta.progressFunction(progress_lambda);});//TODO:
         }
     }
 };
@@ -446,7 +448,7 @@ struct UploadRequest : solid::frame::mprpc::Message {
     
     SOLID_REFLECT_V1(_s, _rthis, _rctx)
     {
-        if constexpr (!S::is_const_reflector) {
+        if constexpr (S::is_const_reflector) {
             auto progress_lambda = [&_rctx](std::istream& _ris, uint64_t _len, const bool _done, const size_t _index, const char* _name) {
                 //NOTE: use _rctx.anyTuple for actual implementation
             };
@@ -491,35 +493,35 @@ struct UploadRequest : solid::frame::mprpc::Message {
 template <class Reg>
 inline void configure_protocol(Reg _rreg)
 {
-    _rreg(protocol_id, 1, "InitRequest", solid::TypeToType<InitRequest>());
+    _rreg({protocol_id, 1}, "InitRequest", solid::TypeToType<InitRequest>());
 
-    _rreg(protocol_id, 2, "ListOSesRequest", solid::TypeToType<ListOSesRequest>());
-    _rreg(protocol_id, 3, "ListOSesResponse", solid::TypeToType<ListOSesResponse>());
-    _rreg(protocol_id, 4, "ListAppsRequest", solid::TypeToType<ListAppsRequest>());
-    _rreg(protocol_id, 5, "ListAppsResponse", solid::TypeToType<ListAppsResponse>());
-    _rreg(protocol_id, 6, "ListStoreRequest", solid::TypeToType<ListStoreRequest>());
-    _rreg(protocol_id, 7, "ListStoreResponse", solid::TypeToType<ListStoreResponse>());
+    _rreg({protocol_id, 2}, "ListOSesRequest", solid::TypeToType<ListOSesRequest>());
+    _rreg({protocol_id, 3}, "ListOSesResponse", solid::TypeToType<ListOSesResponse>());
+    _rreg({protocol_id, 4}, "ListAppsRequest", solid::TypeToType<ListAppsRequest>());
+    _rreg({protocol_id, 5}, "ListAppsResponse", solid::TypeToType<ListAppsResponse>());
+    _rreg({protocol_id, 6}, "ListStoreRequest", solid::TypeToType<ListStoreRequest>());
+    _rreg({protocol_id, 7}, "ListStoreResponse", solid::TypeToType<ListStoreResponse>());
 
-    _rreg(protocol_id, 8, "FetchStoreRequest", solid::TypeToType<FetchStoreRequest>());
-    _rreg(protocol_id, 9, "FetchStoreResponse", solid::TypeToType<FetchStoreResponse>());
+    _rreg({protocol_id, 8}, "FetchStoreRequest", solid::TypeToType<FetchStoreRequest>());
+    _rreg({protocol_id, 9}, "FetchStoreResponse", solid::TypeToType<FetchStoreResponse>());
 
-    _rreg(protocol_id, 10, "CreateBuildRequest", solid::TypeToType<CreateBuildRequest>());
-    _rreg(protocol_id, 11, "CreateMediaRequest", solid::TypeToType<CreateMediaRequest>());
-    _rreg(protocol_id, 12, "UploadRequest", solid::TypeToType<UploadRequest>());
+    _rreg({protocol_id, 10}, "CreateBuildRequest", solid::TypeToType<CreateBuildRequest>());
+    _rreg({protocol_id, 11}, "CreateMediaRequest", solid::TypeToType<CreateMediaRequest>());
+    _rreg({protocol_id, 12}, "UploadRequest", solid::TypeToType<UploadRequest>());
 
-    _rreg(protocol_id, 13, "FetchAppRequest", solid::TypeToType<FetchAppRequest>());
-    _rreg(protocol_id, 14, "FetchAppResponse", solid::TypeToType<FetchAppResponse>());
-    _rreg(protocol_id, 15, "ChangeAppItemStateRequest", solid::TypeToType<ChangeAppItemStateRequest>());
+    _rreg({protocol_id, 13}, "FetchAppRequest", solid::TypeToType<FetchAppRequest>());
+    _rreg({protocol_id, 14}, "FetchAppResponse", solid::TypeToType<FetchAppResponse>());
+    _rreg({protocol_id, 15}, "ChangeAppItemStateRequest", solid::TypeToType<ChangeAppItemStateRequest>());
 
-    _rreg(protocol_id, 16, "FetchBuildRequest", solid::TypeToType<FetchBuildRequest>());
-    _rreg(protocol_id, 17, "FetchBuildResponse", solid::TypeToType<FetchBuildResponse>());
-    _rreg(protocol_id, 18, "FetchBuildConfigurationRequest", solid::TypeToType<FetchBuildConfigurationRequest>());
-    _rreg(protocol_id, 19, "FetchBuildConfigurationResponse", solid::TypeToType<FetchBuildConfigurationResponse>());
+    _rreg({protocol_id, 16}, "FetchBuildRequest", solid::TypeToType<FetchBuildRequest>());
+    _rreg({protocol_id, 17}, "FetchBuildResponse", solid::TypeToType<FetchBuildResponse>());
+    _rreg({protocol_id, 18}, "FetchBuildConfigurationRequest", solid::TypeToType<FetchBuildConfigurationRequest>());
+    _rreg({protocol_id, 19}, "FetchBuildConfigurationResponse", solid::TypeToType<FetchBuildConfigurationResponse>());
 
-    _rreg(protocol_id, 20, "FetchBuildUpdatesRequest", solid::TypeToType<FetchBuildUpdatesRequest>());
-    _rreg(protocol_id, 21, "FetchBuildUpdatesResponse", solid::TypeToType<FetchBuildUpdatesResponse>());
+    _rreg({protocol_id, 20}, "FetchBuildUpdatesRequest", solid::TypeToType<FetchBuildUpdatesRequest>());
+    _rreg({protocol_id, 21}, "FetchBuildUpdatesResponse", solid::TypeToType<FetchBuildUpdatesResponse>());
     
-    _rreg(protocol_id, 22, "CreateAppRequest", solid::TypeToType<CreateAppRequest>());
+    _rreg({protocol_id, 22}, "CreateAppRequest", solid::TypeToType<CreateAppRequest>());
 }
 } //namespace main
 } //namespace front

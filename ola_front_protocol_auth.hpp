@@ -6,7 +6,7 @@
 namespace ola {
 namespace front {
 namespace auth{
-constexpr size_t protocol_id = 1;
+constexpr uint8_t protocol_id = 1;
 
 //the version is only transfered from client to server.
 //the client will NOT know the server version
@@ -55,7 +55,7 @@ struct InitRequest : solid::frame::mprpc::Message {
         _s.add(_rthis.auth_version_, _rctx, 1, "auth_version");
         _s.add([&_rthis](S& _s, solid::frame::mprpc::ConnectionContext& _rctx) {
             
-            if(_rthis.version_.init_request_ == Version::init_request){
+            if(_rthis.auth_version_.init_request_ == Version::init_request){
                 _s.add(_rthis.core_version_, _rctx, 3, "core_version");
             }
         },
@@ -180,16 +180,16 @@ struct ResetRequest : solid::frame::mprpc::Message {
 template <class Reg>
 inline void configure_protocol(Reg _rreg)
 {
-    _rreg(protocol_id, 1, "InitRequest", solid::TypeToType<InitRequest>());
+    _rreg({protocol_id, 1}, "InitRequest", solid::TypeToType<InitRequest>());
     
-    _rreg(protocol_id, 2, "CreateRequest", solid::TypeToType<CreateRequest>());
-    _rreg(protocol_id, 3, "ValidateRequest", solid::TypeToType<ValidateRequest>());
-    _rreg(protocol_id, 4, "AmendRequest", solid::TypeToType<AmendRequest>());
-    _rreg(protocol_id, 5, "FetchRequest", solid::TypeToType<FetchRequest>());
-    _rreg(protocol_id, 6, "FetchResponse", solid::TypeToType<FetchResponse>());
-    _rreg(protocol_id, 7, "ResetRequest", solid::TypeToType<ResetRequest>());
-    _rreg(protocol_id, 8, "CaptchaRequest", solid::TypeToType<CaptchaRequest>());
-    _rreg(protocol_id, 9, "CaptchaResponse", solid::TypeToType<CaptchaResponse>());
+    _rreg({protocol_id, 2}, "CreateRequest", solid::TypeToType<CreateRequest>());
+    _rreg({protocol_id, 3}, "ValidateRequest", solid::TypeToType<ValidateRequest>());
+    _rreg({protocol_id, 4}, "AmendRequest", solid::TypeToType<AmendRequest>());
+    _rreg({protocol_id, 5}, "FetchRequest", solid::TypeToType<FetchRequest>());
+    _rreg({protocol_id, 6}, "FetchResponse", solid::TypeToType<FetchResponse>());
+    _rreg({protocol_id, 7}, "ResetRequest", solid::TypeToType<ResetRequest>());
+    _rreg({protocol_id, 8}, "CaptchaRequest", solid::TypeToType<CaptchaRequest>());
+    _rreg({protocol_id, 9}, "CaptchaResponse", solid::TypeToType<CaptchaResponse>());
 }
 
 } //namespace auth
