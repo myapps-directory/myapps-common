@@ -1,7 +1,8 @@
 #pragma once
 
 #include "cereal/cereal.hpp"
-#include "solid/frame/mprpc/mprpcprotocol_serialization_v3.hpp"
+#include "solid/reflection/v1/reflection.hpp"
+#include "solid/frame/mprpc/mprpcmessage.hpp"
 #include "solid/system/cassert.hpp"
 #include "solid/system/cstring.hpp"
 #include "solid/system/exception.hpp"
@@ -97,7 +98,7 @@ struct Version{
     
     SOLID_REFLECT_V1(_s, _rthis, _rctx){
         _s.add(_rthis.version_, _rctx, 1, "version");
-        _s.add([&_rthis](S& _s, solid::frame::mprpc::ConnectionContext& _rctx) {
+        _s.add([&_rthis](S& _s, C& _rctx) {
             if constexpr (!S::is_const_reflector){
                 if(_rthis.version > Version::version){
                     _rthis.clear();
