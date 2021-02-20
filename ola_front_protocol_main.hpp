@@ -32,8 +32,8 @@ struct Version{
     
     SOLID_REFLECT_V1(_s, _rthis, _rctx){
         _s.add(_rthis.version_, _rctx, 1, "version");
-        _s.add([&_rthis](S& _s, solid::frame::mprpc::ConnectionContext& _rctx) {
-            if constexpr (!S::is_const_reflector){
+        _s.add([&_rthis](Reflector& _s, Context& _rctx) {
+            if constexpr (!Reflector::is_const_reflector){
                 if(_rthis.version > Version::version){
                     _rthis.clear();
                     return;
@@ -58,7 +58,7 @@ struct InitRequest : solid::frame::mprpc::Message {
     SOLID_REFLECT_V1(_s, _rthis, _rctx)
     {
         _s.add(_rthis.main_version_, _rctx, 1, "main_version");
-        _s.add([&_rthis](S& _s, solid::frame::mprpc::ConnectionContext& _rctx) {
+        _s.add([&_rthis](Reflector& _s, Context& _rctx) {
             
             if(_rthis.main_version_.init_request_ == Version::init_request){
                 _s.add(_rthis.core_version_, _rctx, 3, "core_version");
@@ -230,13 +230,13 @@ struct FetchStoreResponse : solid::frame::mprpc::Message {
         _s.add(_rthis.error_, _rctx, 1, "error").add(_rthis.message_, _rctx, 2, "message");
         _s.add(_rthis.size_, _rctx, 3, "size");
 
-        if constexpr (S::is_const_reflector) {
-            auto progress_lambda = [&_rctx](std::istream& _ris, uint64_t _len, const bool _done, const size_t _index, const char* _name) {
+        if constexpr (Reflector::is_const_reflector) {
+            auto progress_lambda = [](Context &_rctx, std::istream& _ris, uint64_t _len, const bool _done, const size_t _index, const char* _name) {
                 //NOTE: here you can use context.anyTuple for actual implementation
             };
             _s.add(_rthis.iss_, _rctx, 4, "stream", [&progress_lambda](auto _rmeta){_rmeta.progressFunction(progress_lambda);});//TODO:
         } else {
-            auto progress_lambda = [&_rctx](std::ostream& _ros, uint64_t _len, const bool _done, const size_t _index, const char* _name) {
+            auto progress_lambda = [](Context &_rctx, std::ostream& _ros, uint64_t _len, const bool _done, const size_t _index, const char* _name) {
                 //NOTE: here you can use context.anyTuple for actual implementation
             };
             //NOTE: we need the static cast below, because ioss_ is both an istream and ostream
@@ -448,46 +448,18 @@ struct UploadRequest : solid::frame::mprpc::Message {
     
     SOLID_REFLECT_V1(_s, _rthis, _rctx)
     {
-        if constexpr (S::is_const_reflector) {
-            auto progress_lambda = [&_rctx](std::istream& _ris, uint64_t _len, const bool _done, const size_t _index, const char* _name) {
+        if constexpr (Reflector::is_const_reflector) {
+            auto progress_lambda = [](Context &_rctx, std::istream& _ris, uint64_t _len, const bool _done, const size_t _index, const char* _name) {
                 //NOTE: use _rctx.anyTuple for actual implementation
             };
             _s.add(_rthis.ifs_, _rctx, 1, "stream", [&progress_lambda](auto &_rmeta){_rmeta.maxSize(100*1024).progressFunction(progress_lambda);});
         }else{
-            auto progress_lambda = [&_rctx](std::ostream& _ros, uint64_t _len, const bool _done, const size_t _index, const char* _name) {
+            auto progress_lambda = [](Context &_rctx, std::ostream& _ros, uint64_t _len, const bool _done, const size_t _index, const char* _name) {
                 //NOTE: use _rctx.anyTuple for actual implementation
             };
             _s.add(_rthis.oss_, _rctx, 1, "stream", [&progress_lambda](auto &_rmeta){_rmeta.maxSize(100*1024).progressFunction(progress_lambda);});
         }
     }
-#if 0
-    template <class S>
-    void solidSerializeV2(S& _s, solid::frame::mprpc::ConnectionContext& _rctx, const char* _name) const
-    {
-        solid::serialization::addVersion<UploadRequest>(_s, version_, "version");
-
-        _s.add([this](S& _s, solid::frame::mprpc::ConnectionContext& _rctx, const char* /*_name*/) {
-            //on serializer side
-            auto progress_lambda = [](std::istream& _ris, uint64_t _len, const bool _done, solid::frame::mprpc::ConnectionContext& _rctx, const char* _name) {
-            };
-            _s.add(ifs_, 100 * 1024, solid::serialization::limit(100 * 1024), progress_lambda, _rctx, "file");
-        },
-            _rctx, _name);
-    }
-
-    template <class S>
-    void solidSerializeV2(S& _s, solid::frame::mprpc::ConnectionContext& _rctx, const char* _name)
-    {
-        solid::serialization::addVersion<UploadRequest>(_s, version_, "version");
-
-        _s.add([this](S& _s, solid::frame::mprpc::ConnectionContext& _rctx, const char* /*_name*/) {
-            auto progress_lambda = [](std::ostream& _ros, uint64_t _len, const bool _done, solid::frame::mprpc::ConnectionContext& _rctx, const char* _name) {
-            };
-            _s.add(oss_, solid::serialization::limit(100 * 1024), progress_lambda, _rctx, "file");
-        },
-            _rctx, _name);
-    }
-#endif
 };
 
 template <class Reg>

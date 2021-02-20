@@ -43,8 +43,8 @@ struct Version{
     
     SOLID_REFLECT_V1(_s, _rthis, _rctx){
         _s.add(_rthis.version_, _rctx, 1, "version");
-        _s.add([&_rthis](S& _s, solid::frame::mprpc::ConnectionContext& _rctx) {
-            if constexpr (!S::is_const_reflector){
+        _s.add([&_rthis](Reflector& _s, Context& _rctx) {
+            if constexpr (!Reflector::is_const_reflector){
                 if(_rthis.version > Version::version){
                     _rthis.clear();
                     return;

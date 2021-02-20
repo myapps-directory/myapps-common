@@ -16,7 +16,7 @@
 namespace ola {
 namespace utility {
 
-inline constexpr auto    metadata_factory = [](const auto &_rt, const solid::reflection::v1::TypeMapBase *_ptype_map) -> auto{
+inline constexpr auto    metadata_factory = [](const auto &_rt, auto &_rctx, const solid::reflection::v1::TypeMapBase *_ptype_map) -> auto{
     using value_t = std::decay_t<decltype(_rt)>;
     if constexpr (std::is_enum_v<value_t>){
         return solid::reflection::v1::metadata::Enum{};
@@ -31,9 +31,9 @@ inline constexpr auto    metadata_factory = [](const auto &_rt, const solid::ref
     }else if constexpr (solid::is_container<value_t>::value){
         return solid::reflection::v1::metadata::Container{1024*4};
     }else if constexpr (std::is_base_of_v<std::istream, value_t>){
-        return solid::reflection::v1::metadata::IStream{};
+        return solid::reflection::v1::metadata::IStream<std::decay_t<decltype(_rctx)>>{};
     }else if constexpr (std::is_base_of_v<std::ostream, value_t>){
-        return solid::reflection::v1::metadata::OStream{};
+        return solid::reflection::v1::metadata::OStream<std::decay_t<decltype(_rctx)>>{};
     }else{
         return solid::reflection::v1::metadata::Generic{};
     }
@@ -98,8 +98,8 @@ struct Version{
     
     SOLID_REFLECT_V1(_s, _rthis, _rctx){
         _s.add(_rthis.version_, _rctx, 1, "version");
-        _s.add([&_rthis](S& _s, C& _rctx) {
-            if constexpr (!S::is_const_reflector){
+        _s.add([&_rthis](Reflector& _s, Context& _rctx) {
+            if constexpr (!Reflector::is_const_reflector){
                 if(_rthis.version > Version::version){
                     _rthis.clear();
                     return;

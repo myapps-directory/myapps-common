@@ -27,8 +27,8 @@ struct Version{
     
     SOLID_REFLECT_V1(_s, _rthis, _rctx){
         _s.add(_rthis.version_, _rctx, 1, "version");
-        _s.add([&_rthis](S& _s, solid::frame::mprpc::ConnectionContext& _rctx) {
-            if constexpr (!S::is_const_reflector){
+        _s.add([&_rthis](Reflector& _s, Context& _rctx) {
+            if constexpr (!Reflector::is_const_reflector){
                 if(_rthis.version > Version::version){
                     _rthis.clear();
                     return;
@@ -53,7 +53,7 @@ struct InitRequest : solid::frame::mprpc::Message {
     SOLID_REFLECT_V1(_s, _rthis, _rctx)
     {
         _s.add(_rthis.auth_version_, _rctx, 1, "auth_version");
-        _s.add([&_rthis](S& _s, solid::frame::mprpc::ConnectionContext& _rctx) {
+        _s.add([&_rthis](Reflector& _s, Context& _rctx) {
             
             if(_rthis.auth_version_.init_request_ == Version::init_request){
                 _s.add(_rthis.core_version_, _rctx, 3, "core_version");
