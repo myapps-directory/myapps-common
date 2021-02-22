@@ -234,14 +234,14 @@ struct FetchStoreResponse : solid::frame::mprpc::Message {
             auto progress_lambda = [](Context &_rctx, std::istream& _ris, uint64_t _len, const bool _done, const size_t _index, const char* _name) {
                 //NOTE: here you can use context.anyTuple for actual implementation
             };
-            _s.add(_rthis.iss_, _rctx, 4, "stream", [&progress_lambda](auto _rmeta){_rmeta.progressFunction(progress_lambda);});//TODO:
+            _s.add(_rthis.iss_, _rctx, 4, "stream", [&progress_lambda](auto& _rmeta){_rmeta.progressFunction(progress_lambda);});//TODO:
         } else {
             auto progress_lambda = [](Context &_rctx, std::ostream& _ros, uint64_t _len, const bool _done, const size_t _index, const char* _name) {
                 //NOTE: here you can use context.anyTuple for actual implementation
             };
             //NOTE: we need the static cast below, because ioss_ is both an istream and ostream
             //and the metadata dispatch function cannot know which one to take
-            _s.add(static_cast<std::ostream&>(_rthis.ioss_), _rctx, 4, "stream", [&progress_lambda](auto _rmeta){_rmeta.progressFunction(progress_lambda);});//TODO:
+            _s.add(static_cast<std::ostream&>(_rthis.ioss_), _rctx, 4, "stream", [&progress_lambda](auto& _rmeta){_rmeta.progressFunction(progress_lambda);});//TODO:
         }
     }
 };
