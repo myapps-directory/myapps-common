@@ -1,7 +1,7 @@
 #pragma once
 
-#include <limits>
 #include "ola/common/ola_front_protocol_core.hpp"
+#include <limits>
 
 #include <deque>
 #include <fstream>
@@ -9,58 +9,59 @@
 
 namespace ola {
 namespace front {
-namespace main{
+namespace main {
 
-constexpr size_t protocol_id = 2;
+constexpr uint8_t protocol_id = 2;
 
 //the version is only transfered from client to server.
 //the client will NOT know the server version
-struct Version{
-    static constexpr uint32_t version = 1;
+struct Version {
+    static constexpr uint32_t version      = 1;
     static constexpr uint32_t init_request = 1;
-        
-    uint32_t version_ = version;
+
+    uint32_t version_      = version;
     uint32_t init_request_ = init_request;
-    
-    void clear(){
+
+    void clear()
+    {
         init_request_ = std::numeric_limits<uint32_t>::max();
     }
-    
-    bool operator<=(const Version& _rthat)const{
+
+    bool operator<=(const Version& _rthat) const
+    {
         return version_ <= _rthat.version_ && init_request_ <= _rthat.init_request_;
     }
-    
-    SOLID_REFLECT_V1(_s, _rthis, _rctx){
+
+    SOLID_REFLECT_V1(_s, _rthis, _rctx)
+    {
         _s.add(_rthis.version_, _rctx, 1, "version");
         _s.add([&_rthis](Reflector& _s, Context& _rctx) {
-            if constexpr (!Reflector::is_const_reflector){
-                if(_rthis.version > Version::version){
+            if constexpr (!Reflector::is_const_reflector) {
+                if (_rthis.version > Version::version) {
                     _rthis.clear();
                     return;
                 }
             }
-            if(_rthis.version_ == version){
+            if (_rthis.version_ == version) {
                 _s.add(_rthis.init_request_, _rctx, 3, "init_request");
             }
         },
             _rctx);
     }
-    
 };
 
 constexpr Version version;
 
 struct InitRequest : solid::frame::mprpc::Message {
-    Version main_version_;
-    core::Version core_version_;
+    Version          main_version_;
+    core::Version    core_version_;
     utility::Version utility_version_;
 
     SOLID_REFLECT_V1(_s, _rthis, _rctx)
     {
         _s.add(_rthis.main_version_, _rctx, 1, "main_version");
         _s.add([&_rthis](Reflector& _s, Context& _rctx) {
-            
-            if(_rthis.main_version_.init_request_ == Version::init_request){
+            if (_rthis.main_version_.init_request_ == Version::init_request) {
                 _s.add(_rthis.core_version_, _rctx, 3, "core_version");
                 _s.add(_rthis.utility_version_, _rctx, 4, "utility_version");
             }
@@ -69,7 +70,6 @@ struct InitRequest : solid::frame::mprpc::Message {
     }
 };
 
-
 struct ListOSesRequest : solid::frame::mprpc::Message {
     SOLID_REFLECT_V1(_s, _rthis, _rctx)
     {
@@ -77,7 +77,7 @@ struct ListOSesRequest : solid::frame::mprpc::Message {
 };
 
 struct ListOSesResponse : solid::frame::mprpc::Message {
-    uint32_t                 error_   = -1;
+    uint32_t                 error_ = -1;
     std::string              message_;
     std::vector<std::string> osvec_;
 
@@ -97,7 +97,7 @@ struct ListOSesResponse : solid::frame::mprpc::Message {
 };
 
 struct ListAppsRequest : solid::frame::mprpc::Message {
-    uint8_t  choice_; //o - owned applications
+    uint8_t choice_; //o - owned applications
         //a - aquired applications
         //A - all applications
 
@@ -110,7 +110,7 @@ struct ListAppsRequest : solid::frame::mprpc::Message {
 struct ListAppsResponse : solid::frame::mprpc::Message {
     using AppVectorT = std::vector<utility::ApplicationListItem>;
 
-    uint32_t    error_   = -1;
+    uint32_t    error_ = -1;
     std::string message_;
     AppVectorT  app_vec_;
 
@@ -130,7 +130,7 @@ struct ListAppsResponse : solid::frame::mprpc::Message {
 };
 
 struct FetchBuildUpdatesRequest : solid::frame::mprpc::Message {
-    using StringPairT                 = std::pair<std::string, std::string>;
+    using StringPairT = std::pair<std::string, std::string>;
 
     std::string              lang_;
     std::string              os_id_;
@@ -145,7 +145,7 @@ struct FetchBuildUpdatesRequest : solid::frame::mprpc::Message {
 };
 
 struct FetchBuildUpdatesResponse : solid::frame::mprpc::Message {
-    uint32_t                                         error_   = -1;
+    uint32_t                                         error_ = -1;
     std::string                                      message_;
     std::vector<std::pair<std::string, std::string>> app_vec_; //first means app_unique, second means build_unique
 
@@ -176,7 +176,7 @@ struct ListStoreRequest : solid::frame::mprpc::Message {
 };
 
 struct ListStoreResponse : solid::frame::mprpc::Message {
-    uint32_t                                error_        = -1;
+    uint32_t                                error_ = -1;
     std::string                             message_;
     std::deque<ola::utility::ListStoreNode> node_dq_;
 
@@ -211,7 +211,7 @@ struct FetchStoreRequest : solid::frame::mprpc::Message {
 };
 
 struct FetchStoreResponse : solid::frame::mprpc::Message {
-    uint32_t                   error_   = -1;
+    uint32_t                   error_ = -1;
     std::string                message_;
     int64_t                    size_ = 0;
     mutable std::istringstream iss_;
@@ -231,17 +231,17 @@ struct FetchStoreResponse : solid::frame::mprpc::Message {
         _s.add(_rthis.size_, _rctx, 3, "size");
 
         if constexpr (Reflector::is_const_reflector) {
-            auto progress_lambda = [](Context &_rctx, std::istream& _ris, uint64_t _len, const bool _done, const size_t _index, const char* _name) {
+            auto progress_lambda = [](Context& _rctx, std::istream& _ris, uint64_t _len, const bool _done, const size_t _index, const char* _name) {
                 //NOTE: here you can use context.anyTuple for actual implementation
             };
-            _s.add(_rthis.iss_, _rctx, 4, "stream", [&progress_lambda](auto& _rmeta){_rmeta.progressFunction(progress_lambda);});//TODO:
+            _s.add(_rthis.iss_, _rctx, 4, "stream", [&progress_lambda](auto& _rmeta) { _rmeta.progressFunction(progress_lambda); }); //TODO:
         } else {
-            auto progress_lambda = [](Context &_rctx, std::ostream& _ros, uint64_t _len, const bool _done, const size_t _index, const char* _name) {
+            auto progress_lambda = [](Context& _rctx, std::ostream& _ros, uint64_t _len, const bool _done, const size_t _index, const char* _name) {
                 //NOTE: here you can use context.anyTuple for actual implementation
             };
             //NOTE: we need the static cast below, because ioss_ is both an istream and ostream
             //and the metadata dispatch function cannot know which one to take
-            _s.add(static_cast<std::ostream&>(_rthis.ioss_), _rctx, 4, "stream", [&progress_lambda](auto& _rmeta){_rmeta.progressFunction(progress_lambda);});//TODO:
+            _s.add(static_cast<std::ostream&>(_rthis.ioss_), _rctx, 4, "stream", [&progress_lambda](auto& _rmeta) { _rmeta.progressFunction(progress_lambda); }); //TODO:
         }
     }
 };
@@ -273,9 +273,9 @@ struct ChangeAppItemStateRequest : solid::frame::mprpc::Message {
 };
 
 struct FetchAppResponse : solid::frame::mprpc::Message {
-    using ItemEntryVectorT            = std::vector<ola::utility::AppItemEntry>;
+    using ItemEntryVectorT = std::vector<ola::utility::AppItemEntry>;
 
-    uint32_t             error_               = -1;
+    uint32_t             error_ = -1;
     std::string          message_;
     utility::Application application_;
     ItemEntryVectorT     item_vec_;
@@ -295,7 +295,7 @@ struct FetchAppResponse : solid::frame::mprpc::Message {
     }
 
     SOLID_REFLECT_V1(_s, _rthis, _rctx)
-    {    
+    {
         _s.add(_rthis.error_, _rctx, 1, "error");
         _s.add(_rthis.message_, _rctx, 2, "message");
         _s.add(_rthis.application_, _rctx, 3, "application");
@@ -315,7 +315,7 @@ struct FetchBuildRequest : solid::frame::mprpc::Message {
 };
 
 struct FetchBuildResponse : solid::frame::mprpc::Message {
-    uint32_t          error_         = -1;
+    uint32_t          error_ = -1;
     std::string       message_;
     std::string       storage_id_;
     std::vector<char> image_blob_;
@@ -334,7 +334,7 @@ struct FetchBuildResponse : solid::frame::mprpc::Message {
         _s.add(_rthis.error_, _rctx, 1, "error");
         _s.add(_rthis.message_, _rctx, 2, "message");
         _s.add(_rthis.storage_id_, _rctx, 3, "storage_id");
-        _s.add(_rthis.image_blob_, _rctx, 4, "image_blob", [](auto &_rmeta){_rmeta.maxSize(1024*1024);});
+        _s.add(_rthis.image_blob_, _rctx, 4, "image_blob", [](auto& _rmeta) { _rmeta.maxSize(1024 * 1024); });
         _s.add(_rthis.build_, _rctx, 5, "build");
     }
 };
@@ -359,7 +359,7 @@ struct FetchBuildConfigurationRequest : solid::frame::mprpc::Message {
 };
 
 struct FetchBuildConfigurationResponse : solid::frame::mprpc::Message {
-    uint32_t                           error_                 = -1;
+    uint32_t                           error_ = -1;
     std::string                        message_;
     std::string                        app_unique_;
     std::string                        build_unique_;
@@ -385,12 +385,12 @@ struct FetchBuildConfigurationResponse : solid::frame::mprpc::Message {
         _s.add(_rthis.build_storage_id_, _rctx, 5, "build_storage_id");
         _s.add(_rthis.media_storage_id_, _rctx, 6, "media_storage_id");
         _s.add(_rthis.configuration_, _rctx, 7, "configuration");
-        _s.add(_rthis.image_blob_, _rctx, 8, "image_blob", [](auto &_rmeta){_rmeta.maxSize(1024*1024);});
+        _s.add(_rthis.image_blob_, _rctx, 8, "image_blob", [](auto& _rmeta) { _rmeta.maxSize(1024 * 1024); });
     }
 };
 
 struct CreateAppRequest : solid::frame::mprpc::Message {
-    utility::Application      application_;
+    utility::Application application_;
 
     SOLID_REFLECT_V1(_s, _rthis, _rctx)
     {
@@ -417,7 +417,7 @@ struct CreateBuildRequest : solid::frame::mprpc::Message {
         _s.add(_rthis.unique_, _rctx, 2, "unique");
         _s.add(_rthis.size_, _rctx, 3, "size");
         _s.add(_rthis.sha_sum_, _rctx, 4, "sha_sum");
-        _s.add(_rthis.image_blob_, _rctx, 5, "image_blob", [](auto &_rmeta){_rmeta.maxSize(1024*1024);});
+        _s.add(_rthis.image_blob_, _rctx, 5, "image_blob", [](auto& _rmeta) { _rmeta.maxSize(1024 * 1024); });
         _s.add(_rthis.build_, _rctx, 6, "build");
     }
 };
@@ -445,19 +445,19 @@ struct CreateMediaRequest : solid::frame::mprpc::Message {
 struct UploadRequest : solid::frame::mprpc::Message {
     mutable std::ifstream ifs_;
     std::ostringstream    oss_;
-    
+
     SOLID_REFLECT_V1(_s, _rthis, _rctx)
     {
         if constexpr (Reflector::is_const_reflector) {
-            auto progress_lambda = [](Context &_rctx, std::istream& _ris, uint64_t _len, const bool _done, const size_t _index, const char* _name) {
+            auto progress_lambda = [](Context& _rctx, std::istream& _ris, uint64_t _len, const bool _done, const size_t _index, const char* _name) {
                 //NOTE: use _rctx.anyTuple for actual implementation
             };
-            _s.add(_rthis.ifs_, _rctx, 1, "stream", [&progress_lambda](auto &_rmeta){_rmeta.maxSize(100*1024).progressFunction(progress_lambda);});
-        }else{
-            auto progress_lambda = [](Context &_rctx, std::ostream& _ros, uint64_t _len, const bool _done, const size_t _index, const char* _name) {
+            _s.add(_rthis.ifs_, _rctx, 1, "stream", [&progress_lambda](auto& _rmeta) { _rmeta.maxSize(100 * 1024).progressFunction(progress_lambda); });
+        } else {
+            auto progress_lambda = [](Context& _rctx, std::ostream& _ros, uint64_t _len, const bool _done, const size_t _index, const char* _name) {
                 //NOTE: use _rctx.anyTuple for actual implementation
             };
-            _s.add(_rthis.oss_, _rctx, 1, "stream", [&progress_lambda](auto &_rmeta){_rmeta.maxSize(100*1024).progressFunction(progress_lambda);});
+            _s.add(_rthis.oss_, _rctx, 1, "stream", [&progress_lambda](auto& _rmeta) { _rmeta.maxSize(100 * 1024).progressFunction(progress_lambda); });
         }
     }
 };
@@ -492,7 +492,7 @@ inline void configure_protocol(Reg _rreg)
 
     _rreg({protocol_id, 20}, "FetchBuildUpdatesRequest", solid::TypeToType<FetchBuildUpdatesRequest>());
     _rreg({protocol_id, 21}, "FetchBuildUpdatesResponse", solid::TypeToType<FetchBuildUpdatesResponse>());
-    
+
     _rreg({protocol_id, 22}, "CreateAppRequest", solid::TypeToType<CreateAppRequest>());
 }
 } //namespace main

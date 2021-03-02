@@ -5,57 +5,57 @@
 
 namespace ola {
 namespace front {
-namespace auth{
+namespace auth {
 constexpr uint8_t protocol_id = 1;
 
 //the version is only transfered from client to server.
 //the client will NOT know the server version
-struct Version{
-    static constexpr uint32_t version = 1;
+struct Version {
+    static constexpr uint32_t version      = 1;
     static constexpr uint32_t init_request = 1;
-    
-    uint32_t version_ = version;
+
+    uint32_t version_      = version;
     uint32_t init_request_ = init_request;
-    
-    void clear(){
+
+    void clear()
+    {
         init_request_ = std::numeric_limits<uint32_t>::max();
     }
-    
-    bool operator<=(const Version &_rthat)const{
-        return  version_ <= _rthat.version_ && init_request_ <= _rthat.init_request_;
+
+    bool operator<=(const Version& _rthat) const
+    {
+        return version_ <= _rthat.version_ && init_request_ <= _rthat.init_request_;
     }
-    
-    SOLID_REFLECT_V1(_s, _rthis, _rctx){
+
+    SOLID_REFLECT_V1(_s, _rthis, _rctx)
+    {
         _s.add(_rthis.version_, _rctx, 1, "version");
         _s.add([&_rthis](Reflector& _s, Context& _rctx) {
-            if constexpr (!Reflector::is_const_reflector){
-                if(_rthis.version > Version::version){
+            if constexpr (!Reflector::is_const_reflector) {
+                if (_rthis.version > Version::version) {
                     _rthis.clear();
                     return;
                 }
             }
-            if(_rthis.version_ == version){
+            if (_rthis.version_ == version) {
                 _s.add(_rthis.init_request_, _rctx, 3, "init_request");
             }
         },
             _rctx);
     }
-    
 };
 
 constexpr Version version;
 
-
 struct InitRequest : solid::frame::mprpc::Message {
-    Version auth_version_;
+    Version       auth_version_;
     core::Version core_version_;
 
     SOLID_REFLECT_V1(_s, _rthis, _rctx)
     {
         _s.add(_rthis.auth_version_, _rctx, 1, "auth_version");
         _s.add([&_rthis](Reflector& _s, Context& _rctx) {
-            
-            if(_rthis.auth_version_.init_request_ == Version::init_request){
+            if (_rthis.auth_version_.init_request_ == Version::init_request) {
                 _s.add(_rthis.core_version_, _rctx, 3, "core_version");
             }
         },
@@ -85,7 +85,7 @@ struct CaptchaResponse : solid::frame::mprpc::Message {
     SOLID_REFLECT_V1(_s, _rthis, _rctx)
     {
         _s.add(_rthis.captcha_token_, _rctx, 1, "captcha_token");
-        _s.add(_rthis.captcha_image_, _rctx, 2, "captcha_image", [](auto &_rmeta){_rmeta.maxSize(1024 * 1024);});
+        _s.add(_rthis.captcha_image_, _rctx, 2, "captcha_image", [](auto& _rmeta) { _rmeta.maxSize(1024 * 1024); });
         _s.add(_rthis.captcha_audio_, _rctx, 3, "captcha_audio");
     }
 };
@@ -181,7 +181,7 @@ template <class Reg>
 inline void configure_protocol(Reg _rreg)
 {
     _rreg({protocol_id, 1}, "InitRequest", solid::TypeToType<InitRequest>());
-    
+
     _rreg({protocol_id, 2}, "CreateRequest", solid::TypeToType<CreateRequest>());
     _rreg({protocol_id, 3}, "ValidateRequest", solid::TypeToType<ValidateRequest>());
     _rreg({protocol_id, 4}, "AmendRequest", solid::TypeToType<AmendRequest>());

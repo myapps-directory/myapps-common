@@ -1,8 +1,8 @@
 #pragma once
 
 #include "cereal/cereal.hpp"
-#include "solid/reflection/v1/reflection.hpp"
 #include "solid/frame/mprpc/mprpcmessage.hpp"
+#include "solid/reflection/v1/reflection.hpp"
 #include "solid/system/cassert.hpp"
 #include "solid/system/cstring.hpp"
 #include "solid/system/exception.hpp"
@@ -16,29 +16,30 @@
 namespace ola {
 namespace utility {
 
-inline constexpr auto    metadata_factory = [](const auto &_rt, auto &_rctx, const solid::reflection::v1::TypeMapBase *_ptype_map) -> auto{
+inline constexpr auto metadata_factory = [](const auto& _rt, auto& _rctx, const solid::reflection::v1::TypeMapBase* _ptype_map) -> auto
+{
     using value_t = std::decay_t<decltype(_rt)>;
-    if constexpr (std::is_enum_v<value_t>){
+    if constexpr (std::is_enum_v<value_t>) {
         return solid::reflection::v1::metadata::Enum{};
-    }else if constexpr (solid::is_shared_ptr_v<value_t> || solid::is_unique_ptr_v<value_t>){
+    } else if constexpr (solid::is_shared_ptr_v<value_t> || solid::is_unique_ptr_v<value_t>) {
         return solid::reflection::v1::metadata::Pointer{_ptype_map};
-    }else if constexpr (std::is_signed_v<value_t>){
+    } else if constexpr (std::is_signed_v<value_t>) {
         return solid::reflection::v1::metadata::SignedInteger{std::numeric_limits<value_t>::min(), std::numeric_limits<value_t>::max()};
-    }else if constexpr (std::is_unsigned_v<value_t>){
+    } else if constexpr (std::is_unsigned_v<value_t>) {
         return solid::reflection::v1::metadata::UnsignedInteger{std::numeric_limits<value_t>::max()};
-    }else if constexpr (std::is_same_v<value_t, std::string>){
-        return solid::reflection::v1::metadata::String{1024*4};
-    }else if constexpr (solid::is_container<value_t>::value){
-        return solid::reflection::v1::metadata::Container{1024*4};
-    }else if constexpr (std::is_base_of_v<std::istream, value_t>){
+    } else if constexpr (std::is_same_v<value_t, std::string>) {
+        return solid::reflection::v1::metadata::String{1024 * 4};
+    } else if constexpr (solid::is_container<value_t>::value) {
+        return solid::reflection::v1::metadata::Container{1024 * 4};
+    } else if constexpr (std::is_base_of_v<std::istream, value_t>) {
         return solid::reflection::v1::metadata::IStream<std::decay_t<decltype(_rctx)>>{};
-    }else if constexpr (std::is_base_of_v<std::ostream, value_t>){
+    } else if constexpr (std::is_base_of_v<std::ostream, value_t>) {
         return solid::reflection::v1::metadata::OStream<std::decay_t<decltype(_rctx)>>{};
-    }else{
+    } else {
         return solid::reflection::v1::metadata::Generic{};
     }
 };
-    
+
 enum struct AccountStateE : uint8_t {
     Invalid = 0,
     Inactive,
@@ -48,59 +49,53 @@ enum struct AccountStateE : uint8_t {
     ValidateLocked,
 };
 
-struct Version{
-    static constexpr uint32_t version = 1;
-    static constexpr uint32_t application = 1;
-    static constexpr uint32_t build = 1;
-    static constexpr uint32_t build_shortcut = 1;
-    static constexpr uint32_t build_media = 1;
-    static constexpr uint32_t build_media_entry = 1;
-    static constexpr uint32_t build_configuration = 1;
-    static constexpr uint32_t list_store_node = 1;
+struct Version {
+    static constexpr uint32_t version               = 1;
+    static constexpr uint32_t application           = 1;
+    static constexpr uint32_t build                 = 1;
+    static constexpr uint32_t build_shortcut        = 1;
+    static constexpr uint32_t build_media           = 1;
+    static constexpr uint32_t build_media_entry     = 1;
+    static constexpr uint32_t build_configuration   = 1;
+    static constexpr uint32_t list_store_node       = 1;
     static constexpr uint32_t application_list_item = 1;
-    static constexpr uint32_t app_item_entry = 1;
-    
-    uint32_t version_ = version;
-    uint32_t application_ = application;
-    uint32_t build_ = build;
-    uint32_t build_shortcut_ = build_shortcut;
-    uint32_t build_media_ = build_media;
-    uint32_t build_media_entry_ = build_media_entry;
-    uint32_t build_configuration_ = build_configuration;
-    uint32_t list_store_node_ = list_store_node;
+    static constexpr uint32_t app_item_entry        = 1;
+
+    uint32_t version_               = version;
+    uint32_t application_           = application;
+    uint32_t build_                 = build;
+    uint32_t build_shortcut_        = build_shortcut;
+    uint32_t build_media_           = build_media;
+    uint32_t build_media_entry_     = build_media_entry;
+    uint32_t build_configuration_   = build_configuration;
+    uint32_t list_store_node_       = list_store_node;
     uint32_t application_list_item_ = application_list_item;
-    uint32_t app_item_entry_ = app_item_entry;
-    
-    void clear(){
-        application_ = -1;
-        build_ = -1;
-        build_shortcut_ = -1;
-        build_media_ = -1;
-        build_media_entry_ = -1;
-        build_configuration_ = -1;
-        list_store_node_ = -1;
+    uint32_t app_item_entry_        = app_item_entry;
+
+    void clear()
+    {
+        application_           = -1;
+        build_                 = -1;
+        build_shortcut_        = -1;
+        build_media_           = -1;
+        build_media_entry_     = -1;
+        build_configuration_   = -1;
+        list_store_node_       = -1;
         application_list_item_ = -1;
-        app_item_entry_ = -1;
+        app_item_entry_        = -1;
     }
-    
-    bool operator<=(const Version& _rthat)const{
-        return version <= _rthat.version_ &&
-        application_ <= _rthat.application_ &&
-        build_ <= _rthat.build_ &&
-        build_shortcut_ <= _rthat.build_shortcut_ &&
-        build_media_ <= _rthat.build_media_ &&
-        build_media_entry_ <= _rthat.build_media_entry_ &&
-        build_configuration_ <= _rthat.build_configuration_ &&
-        list_store_node_ <= _rthat.list_store_node_ &&
-        application_list_item_ <= _rthat.application_list_item_ &&
-        app_item_entry_ <= _rthat.app_item_entry_;
+
+    bool operator<=(const Version& _rthat) const
+    {
+        return version <= _rthat.version_ && application_ <= _rthat.application_ && build_ <= _rthat.build_ && build_shortcut_ <= _rthat.build_shortcut_ && build_media_ <= _rthat.build_media_ && build_media_entry_ <= _rthat.build_media_entry_ && build_configuration_ <= _rthat.build_configuration_ && list_store_node_ <= _rthat.list_store_node_ && application_list_item_ <= _rthat.application_list_item_ && app_item_entry_ <= _rthat.app_item_entry_;
     }
-    
-    SOLID_REFLECT_V1(_s, _rthis, _rctx){
+
+    SOLID_REFLECT_V1(_s, _rthis, _rctx)
+    {
         _s.add(_rthis.version_, _rctx, 1, "version");
         _s.add([&_rthis](Reflector& _s, Context& _rctx) {
-            if constexpr (!Reflector::is_const_reflector){
-                if(_rthis.version > Version::version){
+            if constexpr (!Reflector::is_const_reflector) {
+                if (_rthis.version > Version::version) {
                     _rthis.clear();
                     return;
                 }
@@ -117,7 +112,6 @@ struct Version{
         },
             _rctx);
     }
-    
 };
 
 constexpr Version version;
@@ -220,8 +214,8 @@ struct Build {
 
     struct Media {
         struct Entry {
-            std::string               thumbnail_path_;
-            std::string               path_;
+            std::string thumbnail_path_;
+            std::string path_;
 
             Entry() {}
 
@@ -616,10 +610,10 @@ enum struct AppFlagE {
 };
 
 struct ApplicationListItem {
-    std::string               id_;
-    std::string               unique_;
-    std::string               name_;
-    uint32_t                  flags_ = 0;
+    std::string id_;
+    std::string unique_;
+    std::string name_;
+    uint32_t    flags_ = 0;
 
     ApplicationListItem() {}
 
