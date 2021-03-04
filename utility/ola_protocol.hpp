@@ -1,7 +1,8 @@
 #pragma once
 
 #include "cereal/cereal.hpp"
-#include "solid/frame/mprpc/mprpcprotocol_serialization_v2.hpp"
+#include "solid/frame/mprpc/mprpcmessage.hpp"
+#include "solid/reflection/v1/reflection.hpp"
 #include "solid/system/cassert.hpp"
 #include "solid/system/cstring.hpp"
 #include "solid/system/exception.hpp"
@@ -15,6 +16,30 @@
 namespace ola {
 namespace utility {
 
+inline constexpr auto metadata_factory = [](const auto& _rt, auto& _rctx, const solid::reflection::v1::TypeMapBase* _ptype_map) -> auto
+{
+    using value_t = std::decay_t<decltype(_rt)>;
+    if constexpr (std::is_enum_v<value_t>) {
+        return solid::reflection::v1::metadata::Enum{};
+    } else if constexpr (solid::is_shared_ptr_v<value_t> || solid::is_unique_ptr_v<value_t>) {
+        return solid::reflection::v1::metadata::Pointer{_ptype_map};
+    } else if constexpr (std::is_signed_v<value_t>) {
+        return solid::reflection::v1::metadata::SignedInteger{std::numeric_limits<value_t>::min(), std::numeric_limits<value_t>::max()};
+    } else if constexpr (std::is_unsigned_v<value_t>) {
+        return solid::reflection::v1::metadata::UnsignedInteger{std::numeric_limits<value_t>::max()};
+    } else if constexpr (std::is_same_v<value_t, std::string>) {
+        return solid::reflection::v1::metadata::String{1024 * 4};
+    } else if constexpr (solid::is_container<value_t>::value) {
+        return solid::reflection::v1::metadata::Container{1024 * 4};
+    } else if constexpr (std::is_base_of_v<std::istream, value_t>) {
+        return solid::reflection::v1::metadata::IStream<std::decay_t<decltype(_rctx)>>{};
+    } else if constexpr (std::is_base_of_v<std::ostream, value_t>) {
+        return solid::reflection::v1::metadata::OStream<std::decay_t<decltype(_rctx)>>{};
+    } else {
+        return solid::reflection::v1::metadata::Generic{};
+    }
+};
+
 enum struct AccountStateE : uint8_t {
     Invalid = 0,
     Inactive,
@@ -24,21 +49,86 @@ enum struct AccountStateE : uint8_t {
     ValidateLocked,
 };
 
+struct Version {
+    static constexpr uint32_t version               = 1;
+    static constexpr uint32_t application           = 1;
+    static constexpr uint32_t build                 = 1;
+    static constexpr uint32_t build_shortcut        = 1;
+    static constexpr uint32_t build_media           = 1;
+    static constexpr uint32_t build_media_entry     = 1;
+    static constexpr uint32_t build_configuration   = 1;
+    static constexpr uint32_t list_store_node       = 1;
+    static constexpr uint32_t application_list_item = 1;
+    static constexpr uint32_t app_item_entry        = 1;
+
+    uint32_t version_               = version;
+    uint32_t application_           = application;
+    uint32_t build_                 = build;
+    uint32_t build_shortcut_        = build_shortcut;
+    uint32_t build_media_           = build_media;
+    uint32_t build_media_entry_     = build_media_entry;
+    uint32_t build_configuration_   = build_configuration;
+    uint32_t list_store_node_       = list_store_node;
+    uint32_t application_list_item_ = application_list_item;
+    uint32_t app_item_entry_        = app_item_entry;
+
+    void clear()
+    {
+        application_           = -1;
+        build_                 = -1;
+        build_shortcut_        = -1;
+        build_media_           = -1;
+        build_media_entry_     = -1;
+        build_configuration_   = -1;
+        list_store_node_       = -1;
+        application_list_item_ = -1;
+        app_item_entry_        = -1;
+    }
+
+    bool operator<=(const Version& _rthat) const
+    {
+        return version <= _rthat.version_ && application_ <= _rthat.application_ && build_ <= _rthat.build_ && build_shortcut_ <= _rthat.build_shortcut_ && build_media_ <= _rthat.build_media_ && build_media_entry_ <= _rthat.build_media_entry_ && build_configuration_ <= _rthat.build_configuration_ && list_store_node_ <= _rthat.list_store_node_ && application_list_item_ <= _rthat.application_list_item_ && app_item_entry_ <= _rthat.app_item_entry_;
+    }
+
+    SOLID_REFLECT_V1(_s, _rthis, _rctx)
+    {
+        _s.add(_rthis.version_, _rctx, 1, "version");
+        _s.add([&_rthis](Reflector& _s, Context& _rctx) {
+            if constexpr (!Reflector::is_const_reflector) {
+                if (_rthis.version > Version::version) {
+                    _rthis.clear();
+                    return;
+                }
+            }
+            _s.add(_rthis.application_, _rctx, 3, "application");
+            _s.add(_rthis.build_, _rctx, 4, "build");
+            _s.add(_rthis.build_shortcut_, _rctx, 5, "build_shortcut");
+            _s.add(_rthis.build_media_, _rctx, 6, "build_media");
+            _s.add(_rthis.build_media_entry_, _rctx, 7, "build_media_entry");
+            _s.add(_rthis.build_configuration_, _rctx, 8, "build_configuration");
+            _s.add(_rthis.list_store_node_, _rctx, 9, "list_store_node");
+            _s.add(_rthis.application_list_item_, _rctx, 10, "application_list_item");
+            _s.add(_rthis.app_item_entry_, _rctx, 11, "app_item_entry");
+        },
+            _rctx);
+    }
+};
+
+constexpr Version version;
+
 //NOTE: class versioning at the end of the file
 struct Application {
-    static constexpr uint32_t version = 1;
-
     std::string name_;
 
-    SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
+    SOLID_REFLECT_V1(_s, _rthis, _rctx)
     {
-        _s.add(_rthis.name_, _rctx, "name");
+        _s.add(_rthis.name_, _rctx, 1, "name");
     }
 
     template <class Archive>
     void serialize(Archive& _a, const uint32_t _version)
     {
-        solid_assert(version == _version);
+        solid_assert(Version::application == _version);
         _a(name_);
     }
 
@@ -55,8 +145,6 @@ struct Application {
 
 //NOTE: class versioning at the end of the file
 struct Build {
-    static constexpr uint32_t version = 1;
-
     enum struct FetchOptionsE : size_t {
         Name = 0,
         Directory,
@@ -94,27 +182,25 @@ struct Build {
 
     //NOTE: class versioning at the end of the file
     struct Shortcut {
-        static constexpr uint32_t version = 1;
-
         std::string name_;
         std::string command_;
         std::string arguments_;
         std::string run_folder_;
         std::string icon_;
 
-        SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
+        SOLID_REFLECT_V1(_s, _rthis, _rctx)
         {
-            _s.add(_rthis.name_, _rctx, "name");
-            _s.add(_rthis.command_, _rctx, "command");
-            _s.add(_rthis.arguments_, _rctx, "arguments");
-            _s.add(_rthis.run_folder_, _rctx, "run_folder");
-            _s.add(_rthis.icon_, _rctx, "icon");
+            _s.add(_rthis.name_, _rctx, 1, "name");
+            _s.add(_rthis.command_, _rctx, 2, "command");
+            _s.add(_rthis.arguments_, _rctx, 3, "arguments");
+            _s.add(_rthis.run_folder_, _rctx, 4, "run_folder");
+            _s.add(_rthis.icon_, _rctx, 5, "icon");
         }
 
         template <class Archive>
         void serialize(Archive& _a, std::uint32_t const _version)
         {
-            solid_assert(_version == _version);
+            solid_assert(_version == Version::build_shortcut);
             _a(name_, command_, arguments_, run_folder_, icon_);
         }
 
@@ -127,12 +213,9 @@ struct Build {
     using ShortcutVectorT = std::deque<Shortcut>;
 
     struct Media {
-        static constexpr uint32_t version = 1;
-
         struct Entry {
-            static constexpr uint32_t version = 1;
-            std::string               thumbnail_path_;
-            std::string               path_;
+            std::string thumbnail_path_;
+            std::string path_;
 
             Entry() {}
 
@@ -142,16 +225,16 @@ struct Build {
             {
             }
 
-            SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
+            SOLID_REFLECT_V1(_s, _rthis, _rctx)
             {
-                _s.add(_rthis.thumbnail_path_, _rctx, "thumbnail_path");
-                _s.add(_rthis.path_, _rctx, "path");
+                _s.add(_rthis.thumbnail_path_, _rctx, 1, "thumbnail_path");
+                _s.add(_rthis.path_, _rctx, 2, "path");
             }
 
             template <class Archive>
             void serialize(Archive& _a, std::uint32_t const _version)
             {
-                solid_assert(version == _version);
+                solid_assert(Version::build_media_entry == _version);
                 _a(thumbnail_path_, path_);
             }
             bool operator==(const Entry& _bc) const
@@ -164,16 +247,16 @@ struct Build {
         std::string  name_;
         EntryVectorT entry_vec_;
 
-        SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
+        SOLID_REFLECT_V1(_s, _rthis, _rctx)
         {
-            _s.add(_rthis.name_, _rctx, "name");
-            _s.add(_rthis.entry_vec_, _rctx, "entry_vec");
+            _s.add(_rthis.name_, _rctx, 1, "name");
+            _s.add(_rthis.entry_vec_, _rctx, 2, "entry_vec");
         }
 
         template <class Archive>
         void serialize(Archive& _a, std::uint32_t const _version)
         {
-            solid_assert(version == _version);
+            solid_assert(Version::build_media == _version);
             _a(name_, entry_vec_);
         }
 
@@ -190,7 +273,6 @@ struct Build {
 
     //NOTE: class versioning at the end of the file
     struct Configuration {
-        static constexpr uint32_t version = 1;
         enum {
             HiddenDirectory = 0,
 
@@ -239,23 +321,23 @@ struct Build {
         StringPairVectorT property_vec_;
         Media             media_;
 
-        SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
+        SOLID_REFLECT_V1(_s, _rthis, _rctx)
         {
-            _s.add(_rthis.name_, _rctx, "name");
-            _s.add(_rthis.directory_, _rctx, "directory");
-            _s.add(_rthis.flags_, _rctx, "flags");
-            _s.add(_rthis.os_vec_, _rctx, "os_vec");
-            _s.add(_rthis.mount_vec_, _rctx, "mount_vec");
-            _s.add(_rthis.exe_vec_, _rctx, "exe_vec");
-            _s.add(_rthis.shortcut_vec_, _rctx, "shortcut_vec");
-            _s.add(_rthis.property_vec_, _rctx, "property_vec");
-            _s.add(_rthis.media_, _rctx, "media");
+            _s.add(_rthis.name_, _rctx, 1, "name");
+            _s.add(_rthis.directory_, _rctx, 2, "directory");
+            _s.add(_rthis.flags_, _rctx, 3, "flags");
+            _s.add(_rthis.os_vec_, _rctx, 4, "os_vec");
+            _s.add(_rthis.mount_vec_, _rctx, 5, "mount_vec");
+            _s.add(_rthis.exe_vec_, _rctx, 6, "exe_vec");
+            _s.add(_rthis.shortcut_vec_, _rctx, 7, "shortcut_vec");
+            _s.add(_rthis.property_vec_, _rctx, 8, "property_vec");
+            _s.add(_rthis.media_, _rctx, 9, "media");
         }
 
         template <class Archive>
         void serialize(Archive& _a, std::uint32_t const _version)
         {
-            solid_assert(version == _version);
+            solid_assert(Version::build_configuration == _version);
             _a(name_, directory_, flags_, os_vec_, mount_vec_, exe_vec_, shortcut_vec_, property_vec_, media_);
         }
 
@@ -278,19 +360,19 @@ struct Build {
     StringPairVectorT    property_vec_;
     ConfigurationVectorT configuration_vec_;
 
-    SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
+    SOLID_REFLECT_V1(_s, _rthis, _rctx)
     {
-        _s.add(_rthis.name_, _rctx, "name");
-        _s.add(_rthis.tag_, _rctx, "tag");
-        _s.add(_rthis.dictionary_dq_, _rctx, "dictionary_dq");
-        _s.add(_rthis.property_vec_, _rctx, "property_vec");
-        _s.add(_rthis.configuration_vec_, _rctx, "configuration_vec");
+        _s.add(_rthis.name_, _rctx, 1, "name");
+        _s.add(_rthis.tag_, _rctx, 2, "tag");
+        _s.add(_rthis.dictionary_dq_, _rctx, 3, "dictionary_dq");
+        _s.add(_rthis.property_vec_, _rctx, 4, "property_vec");
+        _s.add(_rthis.configuration_vec_, _rctx, 5, "configuration_vec");
     }
 
     template <class Archive>
     void serialize(Archive& _a, std::uint32_t const _version)
     {
-        solid_assert(version == _version);
+        solid_assert(Version::build == _version);
         _a(name_, tag_, dictionary_dq_, property_vec_, configuration_vec_);
     }
 
@@ -489,16 +571,14 @@ struct AppItemEntry {
         _a(name_, u_.value_);
     }
 
-    SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
+    SOLID_REFLECT_V1(_s, _rthis, _rctx)
     {
-        _s.add(_rthis.name_, _rctx, "name");
-        _s.add(_rthis.u_.value_, _rctx, "value");
+        _s.add(_rthis.name_, _rctx, 1, "name");
+        _s.add(_rthis.u_.value_, _rctx, 2, "value");
     }
 };
 
 struct ListStoreNode {
-    static constexpr uint32_t version = 1;
-
     std::string name_;
     uint64_t    size_ = 0;
 
@@ -516,10 +596,10 @@ struct ListStoreNode {
     {
     }
 
-    SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
+    SOLID_REFLECT_V1(_s, _rthis, _rctx)
     {
-        _s.add(_rthis.name_, _rctx, "name");
-        _s.add(_rthis.size_, _rctx, "size");
+        _s.add(_rthis.name_, _rctx, 1, "name");
+        _s.add(_rthis.size_, _rctx, 2, "size");
     }
 };
 
@@ -530,11 +610,10 @@ enum struct AppFlagE {
 };
 
 struct ApplicationListItem {
-    static constexpr uint32_t version = 1;
-    std::string               id_;
-    std::string               unique_;
-    std::string               name_;
-    uint32_t                  flags_ = 0;
+    std::string id_;
+    std::string unique_;
+    std::string name_;
+    uint32_t    flags_ = 0;
 
     ApplicationListItem() {}
 
@@ -570,22 +649,21 @@ struct ApplicationListItem {
         return flags() & (1UL << static_cast<uint8_t>(_flag));
     }
 
-    SOLID_PROTOCOL_V2(_s, _rthis, _rctx, _name)
+    SOLID_REFLECT_V1(_s, _rthis, _rctx)
     {
-        _s.add(_rthis.id_, _rctx, "id");
-        _s.add(_rthis.unique_, _rctx, "unique");
-        _s.add(_rthis.name_, _rctx, "name");
-        _s.add(_rthis.flags_, _rctx, "flags");
+        _s.add(_rthis.id_, _rctx, 1, "id");
+        _s.add(_rthis.unique_, _rctx, 2, "unique");
+        _s.add(_rthis.name_, _rctx, 3, "name");
+        _s.add(_rthis.flags_, _rctx, 4, "flags");
     }
 };
 
 } //namespace utility
 } //namespace ola
 
-CEREAL_CLASS_VERSION(ola::utility::Application, ola::utility::Application::version);
-CEREAL_CLASS_VERSION(ola::utility::Build, ola::utility::Build::version);
-CEREAL_CLASS_VERSION(ola::utility::Build::Media, ola::utility::Build::Media::version);
-CEREAL_CLASS_VERSION(ola::utility::Build::Shortcut, ola::utility::Build::Shortcut::version);
-CEREAL_CLASS_VERSION(ola::utility::Build::Configuration, ola::utility::Build::Configuration::version);
-//CEREAL_CLASS_VERSION(ola::utility::Media::Configuration, ola::utility::Media::Configuration::version);
-CEREAL_CLASS_VERSION(ola::utility::Build::Media::Entry, ola::utility::Build::Media::Entry::version);
+CEREAL_CLASS_VERSION(ola::utility::Application, ola::utility::Version::application);
+CEREAL_CLASS_VERSION(ola::utility::Build, ola::utility::Version::build);
+CEREAL_CLASS_VERSION(ola::utility::Build::Media, ola::utility::Version::build_media);
+CEREAL_CLASS_VERSION(ola::utility::Build::Shortcut, ola::utility::Version::build_shortcut);
+CEREAL_CLASS_VERSION(ola::utility::Build::Configuration, ola::utility::Version::build_configuration);
+CEREAL_CLASS_VERSION(ola::utility::Build::Media::Entry, ola::utility::Version::build_media_entry);
