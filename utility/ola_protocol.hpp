@@ -116,30 +116,49 @@ struct Version {
 
 constexpr Version version;
 
+enum struct ApplicationFlagE: int8_t{
+    Test = 0,
+};
+
 //NOTE: class versioning at the end of the file
 struct Application {
     std::string name_;
+    uint64_t    flags_ = 0;
+    
+    
+    bool isFlagSet(const ApplicationFlagE _flag)const{
+        return flags_ & (1ULL << static_cast<int8_t>(_flag));
+    }
+    
+    void setFlag(const ApplicationFlagE _flag){
+        flags_ |= (1ULL << static_cast<int8_t>(_flag));
+    }
+    
+    void resetFlag(const ApplicationFlagE _flag){
+        flags_ &= (~(1ULL << static_cast<int8_t>(_flag)));
+    }
 
     SOLID_REFLECT_V1(_s, _rthis, _rctx)
     {
         _s.add(_rthis.name_, _rctx, 1, "name");
+        _s.add(_rthis.flags_, _rctx, 2, "flags");
     }
 
     template <class Archive>
     void serialize(Archive& _a, const uint32_t _version)
     {
         solid_assert(Version::application == _version);
-        _a(name_);
+        _a(name_, flags_);
     }
 
     bool operator==(const Application& _ac) const
     {
-        return name_ == _ac.name_;
+        return name_ == _ac.name_ && flags_ == _ac.flags_;
     }
 
     uint64_t computeCheck() const
     {
-        return std::hash<std::string>{}(name_);
+        return std::hash<std::string>{}(name_) ^ flags_;
     }
 };
 

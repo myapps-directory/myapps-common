@@ -462,6 +462,17 @@ struct UploadRequest : solid::frame::mprpc::Message {
     }
 };
 
+struct AcquireAppRequest : solid::frame::mprpc::Message {
+    std::string app_id_;
+    bool        acquire_ = true;
+
+    SOLID_REFLECT_V1(_s, _rthis, _rctx)
+    {
+        _s.add(_rthis.app_id_, _rctx, 1, "app_id");
+        _s.add(_rthis.acquire_, _rctx, 2, "acquire");
+    }
+};
+
 template <class Reg>
 inline void configure_protocol(Reg _rreg)
 {
@@ -494,6 +505,7 @@ inline void configure_protocol(Reg _rreg)
     _rreg({protocol_id, 21}, "FetchBuildUpdatesResponse", solid::TypeToType<FetchBuildUpdatesResponse>());
 
     _rreg({protocol_id, 22}, "CreateAppRequest", solid::TypeToType<CreateAppRequest>());
+    _rreg({protocol_id, 23}, "AcquireAppRequest", solid::TypeToType<AcquireAppRequest>());
 }
 } //namespace main
 } //namespace front
