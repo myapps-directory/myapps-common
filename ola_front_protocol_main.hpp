@@ -452,7 +452,7 @@ struct UploadRequest : solid::frame::mprpc::Message {
             auto progress_lambda = [](Context& _rctx, std::istream& _ris, uint64_t _len, const bool _done, const size_t _index, const char* _name) {
                 //NOTE: use _rctx.anyTuple for actual implementation
             };
-            _s.add(_rthis.ifs_, _rctx, 1, "stream", [&progress_lambda](auto& _rmeta) { _rmeta.maxSize(100 * 1024).progressFunction(progress_lambda); });
+            _s.add(_rthis.ifs_, _rctx, 1, "stream", [&progress_lambda](auto& _rmeta) { _rmeta.size(100 * 1024).progressFunction(progress_lambda); });
         } else {
             auto progress_lambda = [](Context& _rctx, std::ostream& _ros, uint64_t _len, const bool _done, const size_t _index, const char* _name) {
                 //NOTE: use _rctx.anyTuple for actual implementation
