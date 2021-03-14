@@ -116,7 +116,7 @@ struct Version {
 
 constexpr Version version;
 
-enum struct ApplicationFlagE: int8_t{
+enum struct ApplicationFlagE : int8_t {
     Test = 0,
 };
 
@@ -124,17 +124,19 @@ enum struct ApplicationFlagE: int8_t{
 struct Application {
     std::string name_;
     uint64_t    flags_ = 0;
-    
-    
-    bool isFlagSet(const ApplicationFlagE _flag)const{
+
+    bool isFlagSet(const ApplicationFlagE _flag) const
+    {
         return flags_ & (1ULL << static_cast<int8_t>(_flag));
     }
-    
-    void setFlag(const ApplicationFlagE _flag){
+
+    void setFlag(const ApplicationFlagE _flag)
+    {
         flags_ |= (1ULL << static_cast<int8_t>(_flag));
     }
-    
-    void resetFlag(const ApplicationFlagE _flag){
+
+    void resetFlag(const ApplicationFlagE _flag)
+    {
         flags_ &= (~(1ULL << static_cast<int8_t>(_flag)));
     }
 
