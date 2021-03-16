@@ -433,6 +433,9 @@ enum struct AppItemTypeE : uint8_t {
     Media
 };
 
+constexpr const char* app_item_type_build = "Build";
+constexpr const char* app_item_type_media = "Media";
+
 constexpr const char* app_item_private_alpha  = "private_alpha";
 constexpr const char* app_item_public_alpha   = "public_alpha";
 constexpr const char* app_item_public_beta    = "public_beta";
@@ -451,6 +454,15 @@ inline bool app_item_is_default_name(const std::string& _name)
 {
     static const std::unordered_set<std::string> item_default_names{app_item_private_alpha, app_item_invalid, app_item_trash};
     return app_item_is_default_public_name(_name) || item_default_names.find(_name) != item_default_names.end();
+}
+
+inline const char* app_item_type_name(const AppItemTypeE _item_type) {
+    switch (_item_type) {
+    case AppItemTypeE::Build: return app_item_type_build;
+    case AppItemTypeE::Media: return app_item_type_media;
+    default:
+        return "";
+    }
 }
 
 inline const char* app_item_state_name(const AppItemStateE _state)
@@ -481,6 +493,43 @@ inline const char* app_item_state_name(const AppItemStateE _state)
     default:
         return "";
     }
+}
+
+inline AppItemStateE app_item_state_from_name(const char *_name){
+    if (solid::cstring::casecmp(_name, app_item_state_name(AppItemStateE::Invalid)) == 0) {
+        return AppItemStateE::Invalid;
+    }
+    if (solid::cstring::casecmp(_name, app_item_state_name(AppItemStateE::Deleting)) == 0) {
+        return AppItemStateE::Deleting;
+    }
+    if (solid::cstring::casecmp(_name, app_item_state_name(AppItemStateE::Trash)) == 0) {
+        return AppItemStateE::Trash;
+    }
+    if (solid::cstring::casecmp(_name, app_item_state_name(AppItemStateE::PrivateAlpha)) == 0) {
+        return AppItemStateE::PrivateAlpha;
+    }
+    if (solid::cstring::casecmp(_name, app_item_state_name(AppItemStateE::ReviewRequest)) == 0) {
+        return AppItemStateE::ReviewRequest;
+    }
+    if (solid::cstring::casecmp(_name, app_item_state_name(AppItemStateE::ReviewStarted)) == 0) {
+        return AppItemStateE::ReviewStarted;
+    }
+    if (solid::cstring::casecmp(_name, app_item_state_name(AppItemStateE::ReviewAccepted)) == 0) {
+        return AppItemStateE::ReviewAccepted;
+    }
+    if (solid::cstring::casecmp(_name, app_item_state_name(AppItemStateE::ReviewRejected)) == 0) {
+        return AppItemStateE::ReviewRejected;
+    }
+    if (solid::cstring::casecmp(_name, app_item_state_name(AppItemStateE::PublicAlpha)) == 0) {
+        return AppItemStateE::PublicAlpha;
+    }
+    if (solid::cstring::casecmp(_name, app_item_state_name(AppItemStateE::PublicBeta)) == 0) {
+        return AppItemStateE::PublicBeta;
+    }
+    if (solid::cstring::casecmp(_name, app_item_state_name(AppItemStateE::PublicRelease)) == 0) {
+        return AppItemStateE::PublicRelease;
+    }
+    return AppItemStateE::StateCount;
 }
 
 inline const char* app_item_flag_name(const AppItemFlagE _flag)
