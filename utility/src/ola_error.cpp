@@ -7,7 +7,7 @@ namespace utility {
 namespace {
 
 enum struct ErrorE : uint32_t {
-    //NOTE: Always add at the end
+    // NOTE: Always add at the end
     Generic = 1,
     Exist,
     Backend,
@@ -37,18 +37,12 @@ enum struct ErrorE : uint32_t {
     ArgumentInvalid,
 };
 
-constexpr uint32_t cast(const ErrorE _e)
-{
-    return static_cast<uint32_t>(_e);
-}
+constexpr uint32_t cast(const ErrorE _e) { return static_cast<uint32_t>(_e); }
 
 class ErrorCategory : public solid::ErrorCategoryT {
 public:
     ErrorCategory() {}
-    const char* name() const noexcept override
-    {
-        return "solid::frame::mprpc";
-    }
+    const char* name() const noexcept override { return "solid::frame::mprpc"; }
     std::string message(int _ev) const override;
 };
 
@@ -152,40 +146,70 @@ std::string ErrorCategory::message(int _ev) const
     return oss.str();
 }
 
-} //namespace
+} // namespace
 
 solid::ErrorConditionT make_error(const uint32_t _err)
 {
     return solid::ErrorConditionT(_err, category);
 }
 
-/*extern*/ const solid::ErrorConditionT error_generic(cast(ErrorE::Generic), category);
-/*extern*/ const solid::ErrorConditionT error_exist(cast(ErrorE::Exist), category);
-/*extern*/ const solid::ErrorConditionT error_retry(cast(ErrorE::Retry), category);
-/*extern*/ const solid::ErrorConditionT error_backend(cast(ErrorE::Backend), category);
-/*extern*/ const solid::ErrorConditionT error_pending(cast(ErrorE::Pending), category);
-/*extern*/ const solid::ErrorConditionT error_version(cast(ErrorE::Version), category);
-/*extern*/ const solid::ErrorConditionT error_state(cast(ErrorE::State), category);
-/*extern*/ const solid::ErrorConditionT error_request_invalid(cast(ErrorE::RequestInvalid), category);
-/*extern*/ const solid::ErrorConditionT error_authentication_invalid(cast(ErrorE::AuthenticationInvalid), category);
-/*extern*/ const solid::ErrorConditionT error_authentication_validate(cast(ErrorE::AuthenticationValidate), category);
-/*extern*/ const solid::ErrorConditionT error_authentication_locked(cast(ErrorE::AuthenticationLocked), category);
-/*extern*/ const solid::ErrorConditionT error_authentication_wait(cast(ErrorE::AuthenticationWait), category);
-/*extern*/ const solid::ErrorConditionT error_authentication_relogin(cast(ErrorE::AuthenticationRelogin), category);
-/*extern*/ const solid::ErrorConditionT error_argument_invalid(cast(ErrorE::ArgumentInvalid), category);
-/*extern*/ const solid::ErrorConditionT error_account_invalid(cast(ErrorE::AccountInvalid), category);
-/*extern*/ const solid::ErrorConditionT error_account_application_quota(cast(ErrorE::AccountApplicationQuota), category);
-/*extern*/ const solid::ErrorConditionT error_account_storage_quota(cast(ErrorE::AccountStorageQuota), category);
-/*extern*/ const solid::ErrorConditionT error_account_no_reservation(cast(ErrorE::AccountNoReservation), category);
-/*extern*/ const solid::ErrorConditionT error_storage(cast(ErrorE::Storage), category);
-/*extern*/ const solid::ErrorConditionT error_storage_limit(cast(ErrorE::StorageLimit), category);
-/*extern*/ const solid::ErrorConditionT error_storage_sum(cast(ErrorE::StorageSum), category);
-/*extern*/ const solid::ErrorConditionT error_storage_zip(cast(ErrorE::StorageZip), category);
-/*extern*/ const solid::ErrorConditionT error_storage_size(cast(ErrorE::StorageSize), category);
-/*extern*/ const solid::ErrorConditionT error_storage_invalid(cast(ErrorE::StorageInvalid), category);
-/*extern*/ const solid::ErrorConditionT error_application_invalid(cast(ErrorE::ApplicationInvalid), category);
-/*extern*/ const solid::ErrorConditionT error_application_reservation(cast(ErrorE::ApplicationReservation), category);
-/*extern*/ const solid::ErrorConditionT error_application_system(cast(ErrorE::ApplicationSystem), category);
+/*extern*/ const solid::ErrorConditionT error_generic(cast(ErrorE::Generic),
+    category);
+/*extern*/ const solid::ErrorConditionT error_exist(cast(ErrorE::Exist),
+    category);
+/*extern*/ const solid::ErrorConditionT error_retry(cast(ErrorE::Retry),
+    category);
+/*extern*/ const solid::ErrorConditionT error_backend(cast(ErrorE::Backend),
+    category);
+/*extern*/ const solid::ErrorConditionT error_pending(cast(ErrorE::Pending),
+    category);
+/*extern*/ const solid::ErrorConditionT error_version(cast(ErrorE::Version),
+    category);
+/*extern*/ const solid::ErrorConditionT error_state(cast(ErrorE::State),
+    category);
+/*extern*/ const solid::ErrorConditionT
+    error_request_invalid(cast(ErrorE::RequestInvalid), category);
+/*extern*/ const solid::ErrorConditionT
+    error_authentication_invalid(cast(ErrorE::AuthenticationInvalid), category);
+/*extern*/ const solid::ErrorConditionT
+    error_authentication_validate(cast(ErrorE::AuthenticationValidate),
+        category);
+/*extern*/ const solid::ErrorConditionT
+    error_authentication_locked(cast(ErrorE::AuthenticationLocked), category);
+/*extern*/ const solid::ErrorConditionT
+    error_authentication_wait(cast(ErrorE::AuthenticationWait), category);
+/*extern*/ const solid::ErrorConditionT
+    error_authentication_relogin(cast(ErrorE::AuthenticationRelogin), category);
+/*extern*/ const solid::ErrorConditionT
+    error_argument_invalid(cast(ErrorE::ArgumentInvalid), category);
+/*extern*/ const solid::ErrorConditionT
+    error_account_invalid(cast(ErrorE::AccountInvalid), category);
+/*extern*/ const solid::ErrorConditionT
+    error_account_application_quota(cast(ErrorE::AccountApplicationQuota),
+        category);
+/*extern*/ const solid::ErrorConditionT
+    error_account_storage_quota(cast(ErrorE::AccountStorageQuota), category);
+/*extern*/ const solid::ErrorConditionT
+                                        error_account_no_reservation(cast(ErrorE::AccountNoReservation), category);
+/*extern*/ const solid::ErrorConditionT error_storage(cast(ErrorE::Storage),
+    category);
+/*extern*/ const solid::ErrorConditionT
+    error_storage_limit(cast(ErrorE::StorageLimit), category);
+/*extern*/ const solid::ErrorConditionT
+    error_storage_sum(cast(ErrorE::StorageSum), category);
+/*extern*/ const solid::ErrorConditionT
+    error_storage_zip(cast(ErrorE::StorageZip), category);
+/*extern*/ const solid::ErrorConditionT
+    error_storage_size(cast(ErrorE::StorageSize), category);
+/*extern*/ const solid::ErrorConditionT
+    error_storage_invalid(cast(ErrorE::StorageInvalid), category);
+/*extern*/ const solid::ErrorConditionT
+    error_application_invalid(cast(ErrorE::ApplicationInvalid), category);
+/*extern*/ const solid::ErrorConditionT
+    error_application_reservation(cast(ErrorE::ApplicationReservation),
+        category);
+/*extern*/ const solid::ErrorConditionT
+    error_application_system(cast(ErrorE::ApplicationSystem), category);
 
-} //namespace utility
-} //namespace ola
+} // namespace utility
+} // namespace ola

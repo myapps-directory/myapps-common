@@ -8,10 +8,7 @@
 namespace ola {
 namespace front {
 
-inline constexpr const char* default_port()
-{
-    return "4443";
-}
+inline constexpr const char* default_port() { return "4443"; }
 using ProtocolTypeIndexT = std::pair<uint8_t, uint16_t>;
 
 namespace core {
@@ -31,10 +28,7 @@ struct Version {
     uint32_t init_response_ = init_response;
     uint32_t response_      = response;
 
-    void clear()
-    {
-        auth_request_ = auth_response_ = response_ = -1;
-    }
+    void clear() { auth_request_ = auth_response_ = response_ = -1; }
 
     bool operator<=(const Version& _rthat) const
     {
@@ -44,20 +38,21 @@ struct Version {
     SOLID_REFLECT_V1(_s, _rthis, _rctx)
     {
         _s.add(_rthis.version_, _rctx, 1, "version");
-        _s.add([&_rthis](Reflector& _s, Context& _rctx) {
-            if constexpr (!Reflector::is_const_reflector) {
-                if (_rthis.version > Version::version) {
-                    _rthis.clear();
-                    return;
+        _s.add(
+            [&_rthis](Reflector& _s, Context& _rctx) {
+                if constexpr (!Reflector::is_const_reflector) {
+                    if (_rthis.version > Version::version) {
+                        _rthis.clear();
+                        return;
+                    }
                 }
-            }
-            if (_rthis.version_ == version) {
-                _s.add(_rthis.auth_request_, _rctx, 3, "auth_request");
-                _s.add(_rthis.auth_response_, _rctx, 4, "auth_response");
-                _s.add(_rthis.init_response_, _rctx, 5, "init_response");
-                _s.add(_rthis.response_, _rctx, 6, "response");
-            }
-        },
+                if (_rthis.version_ == version) {
+                    _s.add(_rthis.auth_request_, _rctx, 3, "auth_request");
+                    _s.add(_rthis.auth_response_, _rctx, 4, "auth_response");
+                    _s.add(_rthis.init_response_, _rctx, 5, "init_response");
+                    _s.add(_rthis.response_, _rctx, 6, "response");
+                }
+            },
             _rctx);
     }
 };
@@ -74,7 +69,8 @@ struct AuthRequest : solid::frame::mprpc::Message {
     {
         _s.add(_rthis.pass_, _rctx, 1, "pass");
         _s.add(_rthis.user_, _rctx, 2, "user");
-        _s.add(_rthis.captcha_text_, _rctx, 3, "captcha_text").add(_rthis.captcha_token_, _rctx, 4, "captcha_token");
+        _s.add(_rthis.captcha_text_, _rctx, 3, "captcha_text")
+            .add(_rthis.captcha_token_, _rctx, 4, "captcha_token");
     }
 };
 
@@ -84,15 +80,15 @@ struct AuthResponse : solid::frame::mprpc::Message {
 
     AuthResponse() {}
 
-    AuthResponse(
-        const solid::frame::mprpc::Message& _rreq)
+    AuthResponse(const solid::frame::mprpc::Message& _rreq)
         : solid::frame::mprpc::Message(_rreq)
     {
     }
 
     SOLID_REFLECT_V1(_s, _rthis, _rctx)
     {
-        _s.add(_rthis.error_, _rctx, 1, "error").add(_rthis.message_, _rctx, 2, "message");
+        _s.add(_rthis.error_, _rctx, 1, "error")
+            .add(_rthis.message_, _rctx, 2, "message");
     }
 };
 
@@ -102,8 +98,7 @@ struct InitResponse : solid::frame::mprpc::Message {
 
     InitResponse() {}
 
-    InitResponse(
-        const solid::frame::mprpc::Message& _rreq)
+    InitResponse(const solid::frame::mprpc::Message& _rreq)
         : solid::frame::mprpc::Message(_rreq)
     {
     }
@@ -111,7 +106,8 @@ struct InitResponse : solid::frame::mprpc::Message {
     SOLID_REFLECT_V1(_s, _rthis, _rctx)
     {
         if (_rctx.anyTuple().template getIf<Version>()->init_response_ == Version::init_response) {
-            _s.add(_rthis.error_, _rctx, 1, "error").add(_rthis.message_, _rctx, 2, "message");
+            _s.add(_rthis.error_, _rctx, 1, "error")
+                .add(_rthis.message_, _rctx, 2, "message");
         }
     }
 };
@@ -122,15 +118,15 @@ struct Response : solid::frame::mprpc::Message {
 
     Response() {}
 
-    Response(
-        const solid::frame::mprpc::Message& _rreq)
+    Response(const solid::frame::mprpc::Message& _rreq)
         : solid::frame::mprpc::Message(_rreq)
     {
     }
 
     SOLID_REFLECT_V1(_s, _rthis, _rctx)
     {
-        _s.add(_rthis.error_, _rctx, 1, "error").add(_rthis.message_, _rctx, 2, "message");
+        _s.add(_rthis.error_, _rctx, 1, "error")
+            .add(_rthis.message_, _rctx, 2, "message");
     }
 };
 
@@ -143,6 +139,6 @@ inline void configure_protocol(Reg _rreg)
     _rreg({protocol_id, 4}, "Response", solid::TypeToType<Response>());
 }
 
-} //namespace core
-} //namespace front
-} //namespace ola
+} // namespace core
+} // namespace front
+} // namespace ola

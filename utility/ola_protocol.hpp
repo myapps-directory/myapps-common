@@ -458,10 +458,13 @@ inline bool app_item_is_default_name(const std::string& _name)
     return app_item_is_default_public_name(_name) || item_default_names.find(_name) != item_default_names.end();
 }
 
-inline const char* app_item_type_name(const AppItemTypeE _item_type) {
+inline const char* app_item_type_name(const AppItemTypeE _item_type)
+{
     switch (_item_type) {
-    case AppItemTypeE::Build: return app_item_type_build;
-    case AppItemTypeE::Media: return app_item_type_media;
+    case AppItemTypeE::Build:
+        return app_item_type_build;
+    case AppItemTypeE::Media:
+        return app_item_type_media;
     default:
         return "";
     }
@@ -497,7 +500,8 @@ inline const char* app_item_state_name(const AppItemStateE _state)
     }
 }
 
-inline AppItemStateE app_item_state_from_name(const char *_name){
+inline AppItemStateE app_item_state_from_name(const char* _name)
+{
     if (solid::cstring::casecmp(_name, app_item_state_name(AppItemStateE::Invalid)) == 0) {
         return AppItemStateE::Invalid;
     }
