@@ -11,7 +11,8 @@ add_library(ola_utility encode.hpp ola_error.hpp ola_protocol.hpp src/encode.cpp
 )
 
 target_include_directories(ola_utility PRIVATE
-    "${CMAKE_CURRENT_BINARY_DIR}"
+    ${CMAKE_CURRENT_BINARY_DIR}
+    ${Boost_INCLUDE_DIRS}
 )
 
 add_dependencies(ola_utility versioning)

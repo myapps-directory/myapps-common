@@ -12,3 +12,7 @@ target_link_libraries(test_ola_utility
     ${SYSTEM_BASIC_LIBRARIES}
     ${SYSTEM_DYNAMIC_LOAD_LIBRARY}
 )
+
+target_include_directories(test_ola_utility PRIVATE
+    ${Boost_INCLUDE_DIRS}
+)
