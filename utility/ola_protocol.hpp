@@ -116,30 +116,51 @@ struct Version {
 
 constexpr Version version;
 
+enum struct ApplicationFlagE : int8_t {
+    Test = 0,
+};
+
 //NOTE: class versioning at the end of the file
 struct Application {
     std::string name_;
+    uint64_t    flags_ = 0;
+
+    bool isFlagSet(const ApplicationFlagE _flag) const
+    {
+        return flags_ & (1ULL << static_cast<int8_t>(_flag));
+    }
+
+    void setFlag(const ApplicationFlagE _flag)
+    {
+        flags_ |= (1ULL << static_cast<int8_t>(_flag));
+    }
+
+    void resetFlag(const ApplicationFlagE _flag)
+    {
+        flags_ &= (~(1ULL << static_cast<int8_t>(_flag)));
+    }
 
     SOLID_REFLECT_V1(_s, _rthis, _rctx)
     {
         _s.add(_rthis.name_, _rctx, 1, "name");
+        _s.add(_rthis.flags_, _rctx, 2, "flags");
     }
 
     template <class Archive>
     void serialize(Archive& _a, const uint32_t _version)
     {
         solid_assert(Version::application == _version);
-        _a(name_);
+        _a(name_, flags_);
     }
 
     bool operator==(const Application& _ac) const
     {
-        return name_ == _ac.name_;
+        return name_ == _ac.name_ && flags_ == _ac.flags_;
     }
 
     uint64_t computeCheck() const
     {
-        return std::hash<std::string>{}(name_);
+        return std::hash<std::string>{}(name_) ^ flags_;
     }
 };
 
@@ -414,6 +435,9 @@ enum struct AppItemTypeE : uint8_t {
     Media
 };
 
+constexpr const char* app_item_type_build = "Build";
+constexpr const char* app_item_type_media = "Media";
+
 constexpr const char* app_item_private_alpha  = "private_alpha";
 constexpr const char* app_item_public_alpha   = "public_alpha";
 constexpr const char* app_item_public_beta    = "public_beta";
@@ -432,6 +456,18 @@ inline bool app_item_is_default_name(const std::string& _name)
 {
     static const std::unordered_set<std::string> item_default_names{app_item_private_alpha, app_item_invalid, app_item_trash};
     return app_item_is_default_public_name(_name) || item_default_names.find(_name) != item_default_names.end();
+}
+
+inline const char* app_item_type_name(const AppItemTypeE _item_type)
+{
+    switch (_item_type) {
+    case AppItemTypeE::Build:
+        return app_item_type_build;
+    case AppItemTypeE::Media:
+        return app_item_type_media;
+    default:
+        return "";
+    }
 }
 
 inline const char* app_item_state_name(const AppItemStateE _state)
@@ -462,6 +498,44 @@ inline const char* app_item_state_name(const AppItemStateE _state)
     default:
         return "";
     }
+}
+
+inline AppItemStateE app_item_state_from_name(const char* _name)
+{
+    if (solid::cstring::casecmp(_name, app_item_state_name(AppItemStateE::Invalid)) == 0) {
+        return AppItemStateE::Invalid;
+    }
+    if (solid::cstring::casecmp(_name, app_item_state_name(AppItemStateE::Deleting)) == 0) {
+        return AppItemStateE::Deleting;
+    }
+    if (solid::cstring::casecmp(_name, app_item_state_name(AppItemStateE::Trash)) == 0) {
+        return AppItemStateE::Trash;
+    }
+    if (solid::cstring::casecmp(_name, app_item_state_name(AppItemStateE::PrivateAlpha)) == 0) {
+        return AppItemStateE::PrivateAlpha;
+    }
+    if (solid::cstring::casecmp(_name, app_item_state_name(AppItemStateE::ReviewRequest)) == 0) {
+        return AppItemStateE::ReviewRequest;
+    }
+    if (solid::cstring::casecmp(_name, app_item_state_name(AppItemStateE::ReviewStarted)) == 0) {
+        return AppItemStateE::ReviewStarted;
+    }
+    if (solid::cstring::casecmp(_name, app_item_state_name(AppItemStateE::ReviewAccepted)) == 0) {
+        return AppItemStateE::ReviewAccepted;
+    }
+    if (solid::cstring::casecmp(_name, app_item_state_name(AppItemStateE::ReviewRejected)) == 0) {
+        return AppItemStateE::ReviewRejected;
+    }
+    if (solid::cstring::casecmp(_name, app_item_state_name(AppItemStateE::PublicAlpha)) == 0) {
+        return AppItemStateE::PublicAlpha;
+    }
+    if (solid::cstring::casecmp(_name, app_item_state_name(AppItemStateE::PublicBeta)) == 0) {
+        return AppItemStateE::PublicBeta;
+    }
+    if (solid::cstring::casecmp(_name, app_item_state_name(AppItemStateE::PublicRelease)) == 0) {
+        return AppItemStateE::PublicRelease;
+    }
+    return AppItemStateE::StateCount;
 }
 
 inline const char* app_item_flag_name(const AppItemFlagE _flag)
