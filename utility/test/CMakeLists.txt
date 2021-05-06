@@ -1,5 +1,6 @@
 set( OlaUtilityTestSuite
     test_crypto_basic.cpp
+    test_archive.cpp
 )
 
 create_test_sourcelist( OlaUtilityTests test_utility.cpp ${OlaUtilityTestSuite})
