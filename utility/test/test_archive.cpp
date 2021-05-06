@@ -1,23 +1,23 @@
-#include <iostream>
-#include <fstream>
-#include <sstream>
-#include <iomanip>
-#include <boost/filesystem.hpp>
-#include "solid/system/log.hpp"
-#include "solid/system/exception.hpp"
 #include "ola/common/utility/archive.hpp"
+#include "solid/system/exception.hpp"
+#include "solid/system/log.hpp"
+#include <boost/filesystem.hpp>
+#include <fstream>
+#include <iomanip>
+#include <iostream>
+#include <sstream>
 
 using namespace std;
 
 namespace {
-const string archive_root = "test_archive_root";
-const string archive_path = "test_archive.zip";
+const string archive_root    = "test_archive_root";
+const string archive_path    = "test_archive.zip";
 const string archive_extract = "test_archive_extract";
-string pattern;
+string       pattern;
 
 void create_file(const string& _path, size_t _size)
 {
-    ofstream                ofs(_path, std::ifstream::binary);
+    ofstream ofs(_path, std::ifstream::binary);
 
     while (_size) {
         size_t towrite = _size;
@@ -37,17 +37,18 @@ void create_files(const string& _root, size_t _count, size_t _max_size)
         create_file(oss.str(), i % _max_size);
     }
 }
-}//namespace
+} //namespace
 
-int test_archive(int argc, char *argv[]){
+int test_archive(int argc, char* argv[])
+{
     solid::log_start(std::cerr, {".*:EW"});
-    
+
     system((string("rm -rf ") + archive_root).c_str());
     system((string("rm -rf ") + archive_path).c_str());
     system((string("rm -rf ") + archive_extract).c_str());
-    
-    namespace fs=boost::filesystem;
-    
+
+    namespace fs = boost::filesystem;
+
     for (int j = 0; pattern.size() < 4 * 1024; ++j) {
         for (int i = 0; i < 127; ++i) {
             int c = (i + j) % 127;
@@ -57,21 +58,21 @@ int test_archive(int argc, char *argv[]){
         }
     }
     boost::system::error_code err;
-    
+
     fs::path archive_root_path(archive_root);
-    
+
     solid_check(fs::create_directory(archive_root_path, err));
-    create_files(archive_root, 100, 4*1024);
+    create_files(archive_root, 100, 4 * 1024);
     solid_check(fs::create_directory(archive_root_path / "first", err));
-    create_files((archive_root_path/"first").generic_string(), 100, 4*1024);
+    create_files((archive_root_path / "first").generic_string(), 100, 4 * 1024);
     solid_check(fs::create_directory(archive_root_path / "second", err));
-    create_files((archive_root_path/"second").generic_string(), 100, 4*1024);
+    create_files((archive_root_path / "second").generic_string(), 100, 4 * 1024);
     solid_check(fs::create_directory(archive_root_path / "second" / "third", err));
-    create_files((archive_root_path/"second"/"third").generic_string(), 100, 4*1024);
-    
+    create_files((archive_root_path / "second" / "third").generic_string(), 100, 4 * 1024);
+
     uint64_t create_total_size = 0;
     solid_check(ola::utility::archive_create(archive_path, archive_root, create_total_size));
-    
+
     uint64_t extract_total_size = 0;
     solid_check(fs::create_directory(archive_extract, err));
     solid_check(ola::utility::archive_extract(archive_path, archive_extract, extract_total_size));
