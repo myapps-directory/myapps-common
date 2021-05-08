@@ -1,17 +1,19 @@
 #pragma once
 
-#include "cereal/cereal.hpp"
-#include "solid/frame/mprpc/mprpcmessage.hpp"
-#include "solid/reflection/v1/reflection.hpp"
-#include "solid/system/cassert.hpp"
-#include "solid/system/cstring.hpp"
-#include "solid/system/exception.hpp"
+#include <array>
 #include <bitset>
 #include <deque>
 #include <functional>
 #include <string>
 #include <unordered_set>
 #include <vector>
+
+#include "cereal/cereal.hpp"
+#include "solid/frame/mprpc/mprpcmessage.hpp"
+#include "solid/reflection/v1/reflection.hpp"
+#include "solid/system/cassert.hpp"
+#include "solid/system/cstring.hpp"
+#include "solid/system/exception.hpp"
 
 namespace ola {
 namespace utility {
@@ -31,6 +33,8 @@ inline constexpr auto metadata_factory = [](const auto& _rt, auto& _rctx, const 
         return solid::reflection::v1::metadata::String{1024 * 4};
     } else if constexpr (solid::is_container<value_t>::value) {
         return solid::reflection::v1::metadata::Container{1024 * 4};
+    } else if constexpr (solid::is_std_array_v<value_t>) {
+        return solid::reflection::v1::metadata::Array{std::tuple_size_v<value_t>, std::tuple_size_v<value_t>};
     } else if constexpr (std::is_base_of_v<std::istream, value_t>) {
         return solid::reflection::v1::metadata::IStream<std::decay_t<decltype(_rctx)>>{};
     } else if constexpr (std::is_base_of_v<std::ostream, value_t>) {
@@ -90,25 +94,25 @@ struct Version {
         return version <= _rthat.version_ && application_ <= _rthat.application_ && build_ <= _rthat.build_ && build_shortcut_ <= _rthat.build_shortcut_ && build_media_ <= _rthat.build_media_ && build_media_entry_ <= _rthat.build_media_entry_ && build_configuration_ <= _rthat.build_configuration_ && list_store_node_ <= _rthat.list_store_node_ && application_list_item_ <= _rthat.application_list_item_ && app_item_entry_ <= _rthat.app_item_entry_;
     }
 
-    SOLID_REFLECT_V1(_s, _rthis, _rctx)
+    SOLID_REFLECT_V1(_r, _rthis, _rctx)
     {
-        _s.add(_rthis.version_, _rctx, 1, "version");
-        _s.add([&_rthis](Reflector& _s, Context& _rctx) {
+        _r.add(_rthis.version_, _rctx, 1, "version");
+        _r.add([&_rthis](Reflector& _r, Context& _rctx) {
             if constexpr (!Reflector::is_const_reflector) {
                 if (_rthis.version > Version::version) {
                     _rthis.clear();
                     return;
                 }
             }
-            _s.add(_rthis.application_, _rctx, 3, "application");
-            _s.add(_rthis.build_, _rctx, 4, "build");
-            _s.add(_rthis.build_shortcut_, _rctx, 5, "build_shortcut");
-            _s.add(_rthis.build_media_, _rctx, 6, "build_media");
-            _s.add(_rthis.build_media_entry_, _rctx, 7, "build_media_entry");
-            _s.add(_rthis.build_configuration_, _rctx, 8, "build_configuration");
-            _s.add(_rthis.list_store_node_, _rctx, 9, "list_store_node");
-            _s.add(_rthis.application_list_item_, _rctx, 10, "application_list_item");
-            _s.add(_rthis.app_item_entry_, _rctx, 11, "app_item_entry");
+            _r.add(_rthis.application_, _rctx, 3, "application");
+            _r.add(_rthis.build_, _rctx, 4, "build");
+            _r.add(_rthis.build_shortcut_, _rctx, 5, "build_shortcut");
+            _r.add(_rthis.build_media_, _rctx, 6, "build_media");
+            _r.add(_rthis.build_media_entry_, _rctx, 7, "build_media_entry");
+            _r.add(_rthis.build_configuration_, _rctx, 8, "build_configuration");
+            _r.add(_rthis.list_store_node_, _rctx, 9, "list_store_node");
+            _r.add(_rthis.application_list_item_, _rctx, 10, "application_list_item");
+            _r.add(_rthis.app_item_entry_, _rctx, 11, "app_item_entry");
         },
             _rctx);
     }
@@ -140,10 +144,10 @@ struct Application {
         flags_ &= (~(1ULL << static_cast<int8_t>(_flag)));
     }
 
-    SOLID_REFLECT_V1(_s, _rthis, _rctx)
+    SOLID_REFLECT_V1(_r, _rthis, _rctx)
     {
-        _s.add(_rthis.name_, _rctx, 1, "name");
-        _s.add(_rthis.flags_, _rctx, 2, "flags");
+        _r.add(_rthis.name_, _rctx, 1, "name");
+        _r.add(_rthis.flags_, _rctx, 2, "flags");
     }
 
     template <class Archive>
@@ -209,13 +213,13 @@ struct Build {
         std::string run_folder_;
         std::string icon_;
 
-        SOLID_REFLECT_V1(_s, _rthis, _rctx)
+        SOLID_REFLECT_V1(_r, _rthis, _rctx)
         {
-            _s.add(_rthis.name_, _rctx, 1, "name");
-            _s.add(_rthis.command_, _rctx, 2, "command");
-            _s.add(_rthis.arguments_, _rctx, 3, "arguments");
-            _s.add(_rthis.run_folder_, _rctx, 4, "run_folder");
-            _s.add(_rthis.icon_, _rctx, 5, "icon");
+            _r.add(_rthis.name_, _rctx, 1, "name");
+            _r.add(_rthis.command_, _rctx, 2, "command");
+            _r.add(_rthis.arguments_, _rctx, 3, "arguments");
+            _r.add(_rthis.run_folder_, _rctx, 4, "run_folder");
+            _r.add(_rthis.icon_, _rctx, 5, "icon");
         }
 
         template <class Archive>
@@ -246,10 +250,10 @@ struct Build {
             {
             }
 
-            SOLID_REFLECT_V1(_s, _rthis, _rctx)
+            SOLID_REFLECT_V1(_r, _rthis, _rctx)
             {
-                _s.add(_rthis.thumbnail_path_, _rctx, 1, "thumbnail_path");
-                _s.add(_rthis.path_, _rctx, 2, "path");
+                _r.add(_rthis.thumbnail_path_, _rctx, 1, "thumbnail_path");
+                _r.add(_rthis.path_, _rctx, 2, "path");
             }
 
             template <class Archive>
@@ -268,10 +272,10 @@ struct Build {
         std::string  name_;
         EntryVectorT entry_vec_;
 
-        SOLID_REFLECT_V1(_s, _rthis, _rctx)
+        SOLID_REFLECT_V1(_r, _rthis, _rctx)
         {
-            _s.add(_rthis.name_, _rctx, 1, "name");
-            _s.add(_rthis.entry_vec_, _rctx, 2, "entry_vec");
+            _r.add(_rthis.name_, _rctx, 1, "name");
+            _r.add(_rthis.entry_vec_, _rctx, 2, "entry_vec");
         }
 
         template <class Archive>
@@ -342,17 +346,17 @@ struct Build {
         StringPairVectorT property_vec_;
         Media             media_;
 
-        SOLID_REFLECT_V1(_s, _rthis, _rctx)
+        SOLID_REFLECT_V1(_r, _rthis, _rctx)
         {
-            _s.add(_rthis.name_, _rctx, 1, "name");
-            _s.add(_rthis.directory_, _rctx, 2, "directory");
-            _s.add(_rthis.flags_, _rctx, 3, "flags");
-            _s.add(_rthis.os_vec_, _rctx, 4, "os_vec");
-            _s.add(_rthis.mount_vec_, _rctx, 5, "mount_vec");
-            _s.add(_rthis.exe_vec_, _rctx, 6, "exe_vec");
-            _s.add(_rthis.shortcut_vec_, _rctx, 7, "shortcut_vec");
-            _s.add(_rthis.property_vec_, _rctx, 8, "property_vec");
-            _s.add(_rthis.media_, _rctx, 9, "media");
+            _r.add(_rthis.name_, _rctx, 1, "name");
+            _r.add(_rthis.directory_, _rctx, 2, "directory");
+            _r.add(_rthis.flags_, _rctx, 3, "flags");
+            _r.add(_rthis.os_vec_, _rctx, 4, "os_vec");
+            _r.add(_rthis.mount_vec_, _rctx, 5, "mount_vec");
+            _r.add(_rthis.exe_vec_, _rctx, 6, "exe_vec");
+            _r.add(_rthis.shortcut_vec_, _rctx, 7, "shortcut_vec");
+            _r.add(_rthis.property_vec_, _rctx, 8, "property_vec");
+            _r.add(_rthis.media_, _rctx, 9, "media");
         }
 
         template <class Archive>
@@ -381,13 +385,13 @@ struct Build {
     StringPairVectorT    property_vec_;
     ConfigurationVectorT configuration_vec_;
 
-    SOLID_REFLECT_V1(_s, _rthis, _rctx)
+    SOLID_REFLECT_V1(_r, _rthis, _rctx)
     {
-        _s.add(_rthis.name_, _rctx, 1, "name");
-        _s.add(_rthis.tag_, _rctx, 2, "tag");
-        _s.add(_rthis.dictionary_dq_, _rctx, 3, "dictionary_dq");
-        _s.add(_rthis.property_vec_, _rctx, 4, "property_vec");
-        _s.add(_rthis.configuration_vec_, _rctx, 5, "configuration_vec");
+        _r.add(_rthis.name_, _rctx, 1, "name");
+        _r.add(_rthis.tag_, _rctx, 2, "tag");
+        _r.add(_rthis.dictionary_dq_, _rctx, 3, "dictionary_dq");
+        _r.add(_rthis.property_vec_, _rctx, 4, "property_vec");
+        _r.add(_rthis.configuration_vec_, _rctx, 5, "configuration_vec");
     }
 
     template <class Archive>
@@ -645,10 +649,10 @@ struct AppItemEntry {
         _a(name_, u_.value_);
     }
 
-    SOLID_REFLECT_V1(_s, _rthis, _rctx)
+    SOLID_REFLECT_V1(_r, _rthis, _rctx)
     {
-        _s.add(_rthis.name_, _rctx, 1, "name");
-        _s.add(_rthis.u_.value_, _rctx, 2, "value");
+        _r.add(_rthis.name_, _rctx, 1, "name");
+        _r.add(_rthis.u_.value_, _rctx, 2, "value");
     }
 };
 
@@ -670,10 +674,10 @@ struct ListStoreNode {
     {
     }
 
-    SOLID_REFLECT_V1(_s, _rthis, _rctx)
+    SOLID_REFLECT_V1(_r, _rthis, _rctx)
     {
-        _s.add(_rthis.name_, _rctx, 1, "name");
-        _s.add(_rthis.size_, _rctx, 2, "size");
+        _r.add(_rthis.name_, _rctx, 1, "name");
+        _r.add(_rthis.size_, _rctx, 2, "size");
     }
 };
 
@@ -723,14 +727,39 @@ struct ApplicationListItem {
         return flags() & (1UL << static_cast<uint8_t>(_flag));
     }
 
-    SOLID_REFLECT_V1(_s, _rthis, _rctx)
+    SOLID_REFLECT_V1(_r, _rthis, _rctx)
     {
-        _s.add(_rthis.id_, _rctx, 1, "id");
-        _s.add(_rthis.unique_, _rctx, 2, "unique");
-        _s.add(_rthis.name_, _rctx, 3, "name");
-        _s.add(_rthis.flags_, _rctx, 4, "flags");
+        _r.add(_rthis.id_, _rctx, 1, "id");
+        _r.add(_rthis.unique_, _rctx, 2, "unique");
+        _r.add(_rthis.name_, _rctx, 3, "name");
+        _r.add(_rthis.flags_, _rctx, 4, "flags");
     }
 };
+
+struct StorageFetchChunk {
+    union {
+        uint32_t data_;
+        struct {
+            uint32_t size_ : 31;
+            uint32_t is_compressed_ : 1;
+        };
+    };
+    uint32_t crc_ = 0;
+
+    bool isCompressed() const
+    {
+        return is_compressed_ == 1;
+    }
+
+    SOLID_REFLECT_V1(_r, _rthis, _rctx)
+    {
+        _r.add(_rthis.data_, _rctx, 1, "data");
+        _r.add(_rthis.crc_, _rctx, 2, "crc");
+    }
+};
+
+constexpr size_t StorageFetchChunkCount = 4;
+using StorageFetchChunkArrayT           = std::array<StorageFetchChunk, StorageFetchChunkCount>;
 
 } //namespace utility
 } //namespace ola

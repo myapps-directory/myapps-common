@@ -29,11 +29,11 @@ struct Version {
         return version_ <= _rthat.version_ && init_request_ <= _rthat.init_request_;
     }
 
-    SOLID_REFLECT_V1(_s, _rthis, _rctx)
+    SOLID_REFLECT_V1(_r, _rthis, _rctx)
     {
-        _s.add(_rthis.version_, _rctx, 1, "version");
-        _s.add(
-            [&_rthis](Reflector& _s, Context& _rctx) {
+        _r.add(_rthis.version_, _rctx, 1, "version");
+        _r.add(
+            [&_rthis](Reflector& _r, Context& _rctx) {
                 if constexpr (!Reflector::is_const_reflector) {
                     if (_rthis.version > Version::version) {
                         _rthis.clear();
@@ -41,7 +41,7 @@ struct Version {
                     }
                 }
                 if (_rthis.version_ == version) {
-                    _s.add(_rthis.init_request_, _rctx, 3, "init_request");
+                    _r.add(_rthis.init_request_, _rctx, 3, "init_request");
                 }
             },
             _rctx);
@@ -55,14 +55,14 @@ struct InitRequest : solid::frame::mprpc::Message {
     core::Version    core_version_;
     utility::Version utility_version_;
 
-    SOLID_REFLECT_V1(_s, _rthis, _rctx)
+    SOLID_REFLECT_V1(_r, _rthis, _rctx)
     {
-        _s.add(_rthis.main_version_, _rctx, 1, "main_version");
-        _s.add(
-            [&_rthis](Reflector& _s, Context& _rctx) {
+        _r.add(_rthis.main_version_, _rctx, 1, "main_version");
+        _r.add(
+            [&_rthis](Reflector& _r, Context& _rctx) {
                 if (_rthis.main_version_.init_request_ == Version::init_request) {
-                    _s.add(_rthis.core_version_, _rctx, 3, "core_version");
-                    _s.add(_rthis.utility_version_, _rctx, 4, "utility_version");
+                    _r.add(_rthis.core_version_, _rctx, 3, "core_version");
+                    _r.add(_rthis.utility_version_, _rctx, 4, "utility_version");
                 }
             },
             _rctx);
@@ -70,7 +70,7 @@ struct InitRequest : solid::frame::mprpc::Message {
 };
 
 struct ListOSesRequest : solid::frame::mprpc::Message {
-    SOLID_REFLECT_V1(_s, _rthis, _rctx) {}
+    SOLID_REFLECT_V1(_r, _rthis, _rctx) {}
 };
 
 struct ListOSesResponse : solid::frame::mprpc::Message {
@@ -85,11 +85,11 @@ struct ListOSesResponse : solid::frame::mprpc::Message {
     {
     }
 
-    SOLID_REFLECT_V1(_s, _rthis, _rctx)
+    SOLID_REFLECT_V1(_r, _rthis, _rctx)
     {
-        _s.add(_rthis.error_, _rctx, 1, "error")
-            .add(_rthis.message_, _rctx, 2, "message");
-        _s.add(_rthis.osvec_, _rctx, 3, "osvec");
+        _r.add(_rthis.error_, _rctx, 1, "error");
+        _r.add(_rthis.message_, _rctx, 2, "message");
+        _r.add(_rthis.osvec_, _rctx, 3, "osvec");
     }
 };
 
@@ -98,9 +98,9 @@ struct ListAppsRequest : solid::frame::mprpc::Message {
         // a - aquired applications
         // A - all applications
 
-    SOLID_REFLECT_V1(_s, _rthis, _rctx)
+    SOLID_REFLECT_V1(_r, _rthis, _rctx)
     {
-        _s.add(_rthis.choice_, _rctx, 1, "choice");
+        _r.add(_rthis.choice_, _rctx, 1, "choice");
     }
 };
 
@@ -118,11 +118,11 @@ struct ListAppsResponse : solid::frame::mprpc::Message {
     {
     }
 
-    SOLID_REFLECT_V1(_s, _rthis, _rctx)
+    SOLID_REFLECT_V1(_r, _rthis, _rctx)
     {
-        _s.add(_rthis.error_, _rctx, 1, "error")
-            .add(_rthis.message_, _rctx, 2, "message");
-        _s.add(_rthis.app_vec_, _rctx, 3, "app_vec");
+        _r.add(_rthis.error_, _rctx, 1, "error");
+        _r.add(_rthis.message_, _rctx, 2, "message");
+        _r.add(_rthis.app_vec_, _rctx, 3, "app_vec");
     }
 };
 
@@ -133,11 +133,11 @@ struct FetchBuildUpdatesRequest : solid::frame::mprpc::Message {
     std::string              os_id_;
     std::vector<StringPairT> app_id_vec_;
 
-    SOLID_REFLECT_V1(_s, _rthis, _rctx)
+    SOLID_REFLECT_V1(_r, _rthis, _rctx)
     {
-        _s.add(_rthis.lang_, _rctx, 1, "lang");
-        _s.add(_rthis.os_id_, _rctx, 2, "os_id");
-        _s.add(_rthis.app_id_vec_, _rctx, 3, "app_id_vec");
+        _r.add(_rthis.lang_, _rctx, 1, "lang");
+        _r.add(_rthis.os_id_, _rctx, 2, "os_id");
+        _r.add(_rthis.app_id_vec_, _rctx, 3, "app_id_vec");
     }
 };
 
@@ -154,11 +154,11 @@ struct FetchBuildUpdatesResponse : solid::frame::mprpc::Message {
     {
     }
 
-    SOLID_REFLECT_V1(_s, _rthis, _rctx)
+    SOLID_REFLECT_V1(_r, _rthis, _rctx)
     {
-        _s.add(_rthis.error_, _rctx, 1, "error")
-            .add(_rthis.message_, _rctx, 2, "message");
-        _s.add(_rthis.app_vec_, _rctx, 3, "app_vec");
+        _r.add(_rthis.error_, _rctx, 1, "error");
+        _r.add(_rthis.message_, _rctx, 2, "message");
+        _r.add(_rthis.app_vec_, _rctx, 3, "app_vec");
     }
 };
 
@@ -166,10 +166,10 @@ struct ListStoreRequest : solid::frame::mprpc::Message {
     std::string storage_id_;
     std::string path_;
 
-    SOLID_REFLECT_V1(_s, _rthis, _rctx)
+    SOLID_REFLECT_V1(_r, _rthis, _rctx)
     {
-        _s.add(_rthis.storage_id_, _rctx, 1, "storage_id");
-        _s.add(_rthis.path_, _rctx, 2, "path");
+        _r.add(_rthis.storage_id_, _rctx, 1, "storage_id");
+        _r.add(_rthis.path_, _rctx, 2, "path");
     }
 };
 
@@ -185,35 +185,41 @@ struct ListStoreResponse : solid::frame::mprpc::Message {
     {
     }
 
-    SOLID_REFLECT_V1(_s, _rthis, _rctx)
+    SOLID_REFLECT_V1(_r, _rthis, _rctx)
     {
-        _s.add(_rthis.error_, _rctx, 1, "error")
-            .add(_rthis.message_, _rctx, 2, "message");
-        _s.add(_rthis.node_dq_, _rctx, 3, "node_dq");
+        _r.add(_rthis.error_, _rctx, 1, "error");
+        _r.add(_rthis.message_, _rctx, 2, "message");
+        _r.add(_rthis.node_dq_, _rctx, 3, "node_dq");
     }
 };
 
 struct FetchStoreRequest : solid::frame::mprpc::Message {
     std::string storage_id_;
     std::string path_;
-    uint64_t    offset_ = 0;
-    uint64_t    size_   = 0;
+    uint64_t    offset_       = 0;
+    uint64_t    size_         = 0;
+    uint32_t    chunk_index_  = 0;
+    uint32_t    chunk_offset_ = 0;
 
-    SOLID_REFLECT_V1(_s, _rthis, _rctx)
+    SOLID_REFLECT_V1(_r, _rthis, _rctx)
     {
-        _s.add(_rthis.storage_id_, _rctx, 1, "storage_id");
-        _s.add(_rthis.path_, _rctx, 2, "path");
-        _s.add(_rthis.offset_, _rctx, 3, "offset");
-        _s.add(_rthis.size_, _rctx, 4, "size");
+        _r.add(_rthis.storage_id_, _rctx, 1, "storage_id");
+        _r.add(_rthis.path_, _rctx, 2, "path");
+        _r.add(_rthis.offset_, _rctx, 3, "offset");
+        _r.add(_rthis.size_, _rctx, 4, "size");
+        _r.add(_rthis.chunk_index_, _rctx, 5, "chunk_index");
+        _r.add(_rthis.chunk_offset_, _rctx, 6, "chunk_offset");
     }
 };
 
 struct FetchStoreResponse : solid::frame::mprpc::Message {
-    uint32_t                   error_ = -1;
-    std::string                message_;
-    int64_t                    size_ = 0;
-    mutable std::istringstream iss_;
-    std::stringstream          ioss_;
+    uint32_t                              error_ = -1;
+    std::string                           message_;
+    int64_t                               size_ = 0;
+    mutable std::istringstream            iss_;
+    std::stringstream                     ioss_;
+    uint32_t                              first_chunk_index_ = 0;
+    ola::utility::StorageFetchChunkArrayT chunk_array_;
 
     FetchStoreResponse() {}
 
@@ -222,11 +228,13 @@ struct FetchStoreResponse : solid::frame::mprpc::Message {
     {
     }
 
-    SOLID_REFLECT_V1(_s, _rthis, _rctx)
+    SOLID_REFLECT_V1(_r, _rthis, _rctx)
     {
-        _s.add(_rthis.error_, _rctx, 1, "error")
-            .add(_rthis.message_, _rctx, 2, "message");
-        _s.add(_rthis.size_, _rctx, 3, "size");
+        _r.add(_rthis.error_, _rctx, 1, "error");
+        _r.add(_rthis.message_, _rctx, 2, "message");
+        _r.add(_rthis.size_, _rctx, 3, "size");
+        _r.add(_rthis.first_chunk_index_, _rctx, 4, "first_chunk_index");
+        _r.add(_rthis.chunk_array_, _rctx, 5, "chunk_array");
 
         if constexpr (Reflector::is_const_reflector) {
             auto progress_lambda = [](Context& _rctx, std::istream& _ris,
@@ -234,7 +242,7 @@ struct FetchStoreResponse : solid::frame::mprpc::Message {
                                        const size_t _index, const char* _name) {
                 // NOTE: here you can use context.anyTuple for actual implementation
             };
-            _s.add(_rthis.iss_, _rctx, 4, "stream", [&progress_lambda](auto& _rmeta) {
+            _r.add(_rthis.iss_, _rctx, 4, "stream", [&progress_lambda](auto& _rmeta) {
                 _rmeta.progressFunction(progress_lambda);
             }); // TODO:
         } else {
@@ -246,7 +254,7 @@ struct FetchStoreResponse : solid::frame::mprpc::Message {
             // NOTE: we need the static cast below, because ioss_ is both an istream
             // and ostream and the metadata dispatch function cannot know which one to
             // take
-            _s.add(static_cast<std::ostream&>(_rthis.ioss_), _rctx, 4, "stream",
+            _r.add(static_cast<std::ostream&>(_rthis.ioss_), _rctx, 4, "stream",
                 [&progress_lambda](auto& _rmeta) {
                     _rmeta.progressFunction(progress_lambda);
                 }); // TODO:
@@ -258,10 +266,10 @@ struct FetchAppRequest : solid::frame::mprpc::Message {
     std::string app_id_;
     std::string os_id_;
 
-    SOLID_REFLECT_V1(_s, _rthis, _rctx)
+    SOLID_REFLECT_V1(_r, _rthis, _rctx)
     {
-        _s.add(_rthis.app_id_, _rctx, 1, "app_id");
-        _s.add(_rthis.os_id_, _rctx, 2, "os_id");
+        _r.add(_rthis.app_id_, _rctx, 1, "app_id");
+        _r.add(_rthis.os_id_, _rctx, 2, "os_id");
     }
 };
 
@@ -271,12 +279,12 @@ struct ChangeAppItemStateRequest : solid::frame::mprpc::Message {
     ola::utility::AppItemEntry item_;
     uint8_t                    new_state_ = 0;
 
-    SOLID_REFLECT_V1(_s, _rthis, _rctx)
+    SOLID_REFLECT_V1(_r, _rthis, _rctx)
     {
-        _s.add(_rthis.app_id_, _rctx, 1, "app_id");
-        _s.add(_rthis.os_id_, _rctx, 2, "os_id");
-        _s.add(_rthis.item_, _rctx, 3, "item");
-        _s.add(_rthis.new_state_, _rctx, 4, "new_state");
+        _r.add(_rthis.app_id_, _rctx, 1, "app_id");
+        _r.add(_rthis.os_id_, _rctx, 2, "os_id");
+        _r.add(_rthis.item_, _rctx, 3, "item");
+        _r.add(_rthis.new_state_, _rctx, 4, "new_state");
     }
 };
 
@@ -300,12 +308,12 @@ struct FetchAppResponse : solid::frame::mprpc::Message {
     {
     }
 
-    SOLID_REFLECT_V1(_s, _rthis, _rctx)
+    SOLID_REFLECT_V1(_r, _rthis, _rctx)
     {
-        _s.add(_rthis.error_, _rctx, 1, "error");
-        _s.add(_rthis.message_, _rctx, 2, "message");
-        _s.add(_rthis.application_, _rctx, 3, "application");
-        _s.add(_rthis.item_vec_, _rctx, 4, "item_vec");
+        _r.add(_rthis.error_, _rctx, 1, "error");
+        _r.add(_rthis.message_, _rctx, 2, "message");
+        _r.add(_rthis.application_, _rctx, 3, "application");
+        _r.add(_rthis.item_vec_, _rctx, 4, "item_vec");
     }
 };
 
@@ -313,10 +321,10 @@ struct FetchBuildRequest : solid::frame::mprpc::Message {
     std::string app_id_;
     std::string build_id_;
 
-    SOLID_REFLECT_V1(_s, _rthis, _rctx)
+    SOLID_REFLECT_V1(_r, _rthis, _rctx)
     {
-        _s.add(_rthis.app_id_, _rctx, 1, "app_id");
-        _s.add(_rthis.build_id_, _rctx, 2, "build_id");
+        _r.add(_rthis.app_id_, _rctx, 1, "app_id");
+        _r.add(_rthis.build_id_, _rctx, 2, "build_id");
     }
 };
 
@@ -334,14 +342,14 @@ struct FetchBuildResponse : solid::frame::mprpc::Message {
     {
     }
 
-    SOLID_REFLECT_V1(_s, _rthis, _rctx)
+    SOLID_REFLECT_V1(_r, _rthis, _rctx)
     {
-        _s.add(_rthis.error_, _rctx, 1, "error");
-        _s.add(_rthis.message_, _rctx, 2, "message");
-        _s.add(_rthis.storage_id_, _rctx, 3, "storage_id");
-        _s.add(_rthis.image_blob_, _rctx, 4, "image_blob",
+        _r.add(_rthis.error_, _rctx, 1, "error");
+        _r.add(_rthis.message_, _rctx, 2, "message");
+        _r.add(_rthis.storage_id_, _rctx, 3, "storage_id");
+        _r.add(_rthis.image_blob_, _rctx, 4, "image_blob",
             [](auto& _rmeta) { _rmeta.maxSize(1024 * 1024); });
-        _s.add(_rthis.build_, _rctx, 5, "build");
+        _r.add(_rthis.build_, _rctx, 5, "build");
     }
 };
 
@@ -353,14 +361,14 @@ struct FetchBuildConfigurationRequest : solid::frame::mprpc::Message {
     ola::utility::Build::FetchOptionBitsetT fetch_options_;
     std::vector<std::string>                property_vec_;
 
-    SOLID_REFLECT_V1(_s, _rthis, _rctx)
+    SOLID_REFLECT_V1(_r, _rthis, _rctx)
     {
-        _s.add(_rthis.app_id_, _rctx, 1, "app_id");
-        _s.add(_rthis.build_id_, _rctx, 2, "build_id");
-        _s.add(_rthis.lang_, _rctx, 3, "lang");
-        _s.add(_rthis.os_id_, _rctx, 4, "os_id");
-        _s.add(_rthis.fetch_options_, _rctx, 5, "fetch_options");
-        _s.add(_rthis.property_vec_, _rctx, 6, "property_vec");
+        _r.add(_rthis.app_id_, _rctx, 1, "app_id");
+        _r.add(_rthis.build_id_, _rctx, 2, "build_id");
+        _r.add(_rthis.lang_, _rctx, 3, "lang");
+        _r.add(_rthis.os_id_, _rctx, 4, "os_id");
+        _r.add(_rthis.fetch_options_, _rctx, 5, "fetch_options");
+        _r.add(_rthis.property_vec_, _rctx, 6, "property_vec");
     }
 };
 
@@ -381,16 +389,16 @@ struct FetchBuildConfigurationResponse : solid::frame::mprpc::Message {
     {
     }
 
-    SOLID_REFLECT_V1(_s, _rthis, _rctx)
+    SOLID_REFLECT_V1(_r, _rthis, _rctx)
     {
-        _s.add(_rthis.error_, _rctx, 1, "error");
-        _s.add(_rthis.message_, _rctx, 2, "message");
-        _s.add(_rthis.app_unique_, _rctx, 3, "app_unique");
-        _s.add(_rthis.build_unique_, _rctx, 4, "build_unique");
-        _s.add(_rthis.build_storage_id_, _rctx, 5, "build_storage_id");
-        _s.add(_rthis.media_storage_id_, _rctx, 6, "media_storage_id");
-        _s.add(_rthis.configuration_, _rctx, 7, "configuration");
-        _s.add(_rthis.image_blob_, _rctx, 8, "image_blob",
+        _r.add(_rthis.error_, _rctx, 1, "error");
+        _r.add(_rthis.message_, _rctx, 2, "message");
+        _r.add(_rthis.app_unique_, _rctx, 3, "app_unique");
+        _r.add(_rthis.build_unique_, _rctx, 4, "build_unique");
+        _r.add(_rthis.build_storage_id_, _rctx, 5, "build_storage_id");
+        _r.add(_rthis.media_storage_id_, _rctx, 6, "media_storage_id");
+        _r.add(_rthis.configuration_, _rctx, 7, "configuration");
+        _r.add(_rthis.image_blob_, _rctx, 8, "image_blob",
             [](auto& _rmeta) { _rmeta.maxSize(1024 * 1024); });
     }
 };
@@ -398,9 +406,9 @@ struct FetchBuildConfigurationResponse : solid::frame::mprpc::Message {
 struct CreateAppRequest : solid::frame::mprpc::Message {
     utility::Application application_;
 
-    SOLID_REFLECT_V1(_s, _rthis, _rctx)
+    SOLID_REFLECT_V1(_r, _rthis, _rctx)
     {
-        _s.add(_rthis.application_, _rctx, 1, "application");
+        _r.add(_rthis.application_, _rctx, 1, "application");
     }
 };
 
@@ -418,15 +426,15 @@ struct CreateBuildRequest : solid::frame::mprpc::Message {
     {
     }
 
-    SOLID_REFLECT_V1(_s, _rthis, _rctx)
+    SOLID_REFLECT_V1(_r, _rthis, _rctx)
     {
-        _s.add(_rthis.app_id_, _rctx, 1, "app_id");
-        _s.add(_rthis.unique_, _rctx, 2, "unique");
-        _s.add(_rthis.size_, _rctx, 3, "size");
-        _s.add(_rthis.sha_sum_, _rctx, 4, "sha_sum");
-        _s.add(_rthis.image_blob_, _rctx, 5, "image_blob",
+        _r.add(_rthis.app_id_, _rctx, 1, "app_id");
+        _r.add(_rthis.unique_, _rctx, 2, "unique");
+        _r.add(_rthis.size_, _rctx, 3, "size");
+        _r.add(_rthis.sha_sum_, _rctx, 4, "sha_sum");
+        _r.add(_rthis.image_blob_, _rctx, 5, "image_blob",
             [](auto& _rmeta) { _rmeta.maxSize(1024 * 1024); });
-        _s.add(_rthis.build_, _rctx, 6, "build");
+        _r.add(_rthis.build_, _rctx, 6, "build");
     }
 };
 
@@ -442,12 +450,12 @@ struct CreateMediaRequest : solid::frame::mprpc::Message {
     {
     }
 
-    SOLID_REFLECT_V1(_s, _rthis, _rctx)
+    SOLID_REFLECT_V1(_r, _rthis, _rctx)
     {
-        _s.add(_rthis.app_id_, _rctx, 1, "app_id");
-        _s.add(_rthis.unique_, _rctx, 2, "unique");
-        _s.add(_rthis.size_, _rctx, 3, "size");
-        _s.add(_rthis.sha_sum_, _rctx, 4, "sha_sum");
+        _r.add(_rthis.app_id_, _rctx, 1, "app_id");
+        _r.add(_rthis.unique_, _rctx, 2, "unique");
+        _r.add(_rthis.size_, _rctx, 3, "size");
+        _r.add(_rthis.sha_sum_, _rctx, 4, "sha_sum");
     }
 };
 
@@ -455,7 +463,7 @@ struct UploadRequest : solid::frame::mprpc::Message {
     mutable std::ifstream ifs_;
     std::ostringstream    oss_;
 
-    SOLID_REFLECT_V1(_s, _rthis, _rctx)
+    SOLID_REFLECT_V1(_r, _rthis, _rctx)
     {
         if constexpr (Reflector::is_const_reflector) {
             auto progress_lambda = [](Context& _rctx, std::istream& _ris,
@@ -463,7 +471,7 @@ struct UploadRequest : solid::frame::mprpc::Message {
                                        const size_t _index, const char* _name) {
                 // NOTE: use _rctx.anyTuple for actual implementation
             };
-            _s.add(_rthis.ifs_, _rctx, 1, "stream", [&progress_lambda](auto& _rmeta) {
+            _r.add(_rthis.ifs_, _rctx, 1, "stream", [&progress_lambda](auto& _rmeta) {
                 _rmeta.size(100 * 1024).progressFunction(progress_lambda);
             });
         } else {
@@ -472,7 +480,7 @@ struct UploadRequest : solid::frame::mprpc::Message {
                                        const size_t _index, const char* _name) {
                 // NOTE: use _rctx.anyTuple for actual implementation
             };
-            _s.add(_rthis.oss_, _rctx, 1, "stream", [&progress_lambda](auto& _rmeta) {
+            _r.add(_rthis.oss_, _rctx, 1, "stream", [&progress_lambda](auto& _rmeta) {
                 _rmeta.maxSize(100 * 1024).progressFunction(progress_lambda);
             });
         }
@@ -483,10 +491,10 @@ struct AcquireAppRequest : solid::frame::mprpc::Message {
     std::string app_id_;
     bool        acquire_ = true;
 
-    SOLID_REFLECT_V1(_s, _rthis, _rctx)
+    SOLID_REFLECT_V1(_r, _rthis, _rctx)
     {
-        _s.add(_rthis.app_id_, _rctx, 1, "app_id");
-        _s.add(_rthis.acquire_, _rctx, 2, "acquire");
+        _r.add(_rthis.app_id_, _rctx, 1, "app_id");
+        _r.add(_rthis.acquire_, _rctx, 2, "acquire");
     }
 };
 
