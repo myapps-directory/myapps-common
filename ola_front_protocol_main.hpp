@@ -177,6 +177,8 @@ struct ListStoreResponse : solid::frame::mprpc::Message {
     uint32_t                                error_ = -1;
     std::string                             message_;
     std::deque<ola::utility::ListStoreNode> node_dq_;
+    uint32_t                                compress_chunk_capacity_ = 0;
+    uint8_t                                 compress_algorithm_type_ = 0;
 
     ListStoreResponse() {}
 
@@ -190,13 +192,14 @@ struct ListStoreResponse : solid::frame::mprpc::Message {
         _r.add(_rthis.error_, _rctx, 1, "error");
         _r.add(_rthis.message_, _rctx, 2, "message");
         _r.add(_rthis.node_dq_, _rctx, 3, "node_dq");
+        _r.add(_rthis.compress_chunk_capacity_, _rctx, 4, "compress_chunk_capacity");
+        _r.add(_rthis.compress_algorithm_type_, _rctx, 5, "compress_algorithm_type");
     }
 };
 
 struct FetchStoreRequest : solid::frame::mprpc::Message {
     std::string storage_id_;
     std::string path_;
-    uint64_t    offset_       = 0;
     uint64_t    size_         = 0;
     uint32_t    chunk_index_  = 0;
     uint32_t    chunk_offset_ = 0;
@@ -205,7 +208,6 @@ struct FetchStoreRequest : solid::frame::mprpc::Message {
     {
         _r.add(_rthis.storage_id_, _rctx, 1, "storage_id");
         _r.add(_rthis.path_, _rctx, 2, "path");
-        _r.add(_rthis.offset_, _rctx, 3, "offset");
         _r.add(_rthis.size_, _rctx, 4, "size");
         _r.add(_rthis.chunk_index_, _rctx, 5, "chunk_index");
         _r.add(_rthis.chunk_offset_, _rctx, 6, "chunk_offset");
