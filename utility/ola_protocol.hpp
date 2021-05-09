@@ -738,7 +738,7 @@ struct ApplicationListItem {
 
 struct StorageFetchChunk {
     union {
-        uint32_t data_;
+        uint32_t data_ = 0;
         struct {
             uint32_t size_ : 31;
             uint32_t is_compressed_ : 1;
