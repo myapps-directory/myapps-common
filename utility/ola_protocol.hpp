@@ -758,9 +758,6 @@ struct StorageFetchChunk {
     }
 };
 
-constexpr size_t StorageFetchChunkCount = 4;
-using StorageFetchChunkArrayT           = std::array<StorageFetchChunk, StorageFetchChunkCount>;
-
 } //namespace utility
 } //namespace ola
 

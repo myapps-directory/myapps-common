@@ -202,7 +202,6 @@ struct FetchStoreRequest : solid::frame::mprpc::Message {
     std::string path_;
     uint32_t    chunk_index_  = 0;
     uint32_t    chunk_offset_ = 0;
-    uint32_t    chunk_count_  = 0;
 
     SOLID_REFLECT_V1(_r, _rthis, _rctx)
     {
@@ -210,17 +209,15 @@ struct FetchStoreRequest : solid::frame::mprpc::Message {
         _r.add(_rthis.path_, _rctx, 2, "path");
         _r.add(_rthis.chunk_index_, _rctx, 5, "chunk_index");
         _r.add(_rthis.chunk_offset_, _rctx, 6, "chunk_offset");
-        _r.add(_rthis.chunk_count_, _rctx, 7, "chunk_count");
     }
 };
 
 struct FetchStoreResponse : solid::frame::mprpc::Message {
-    uint32_t                              error_ = -1;
-    std::string                           message_;
-    int64_t                               size_ = 0;
-    mutable std::istringstream            iss_;
-    std::stringstream                     ioss_;
-    ola::utility::StorageFetchChunkArrayT chunk_array_;
+    uint32_t                        error_ = -1;
+    std::string                     message_;
+    mutable std::istringstream      iss_;
+    std::stringstream               ioss_;
+    ola::utility::StorageFetchChunk chunk_;
 
     FetchStoreResponse() {}
 
@@ -233,8 +230,7 @@ struct FetchStoreResponse : solid::frame::mprpc::Message {
     {
         _r.add(_rthis.error_, _rctx, 1, "error");
         _r.add(_rthis.message_, _rctx, 2, "message");
-        _r.add(_rthis.size_, _rctx, 3, "size");
-        _r.add(_rthis.chunk_array_, _rctx, 5, "chunk_array");
+        _r.add(_rthis.chunk_, _rctx, 5, "chunk");
 
         if constexpr (Reflector::is_const_reflector) {
             auto progress_lambda = [](Context& _rctx, std::istream& _ris,
