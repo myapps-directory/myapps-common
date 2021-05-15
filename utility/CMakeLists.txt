@@ -15,10 +15,16 @@ target_include_directories(ola_utility PRIVATE
     ${Boost_INCLUDE_DIRS}
 )
 
-add_dependencies(ola_utility versioning)
+add_dependencies(ola_utility build-libzip versioning)
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/version_impl.hpp.in ${CMAKE_CURRENT_BINARY_DIR}/version_impl.hpp)
 
-target_link_libraries(ola_utility OpenSSL::Crypto SolidFrame::solid_system Boost::filesystem ${LIBZIP_LIBRARIES} lzma)
+if(WIN32)
+    
+else()
+    set(LIBLZMA_LIBRARIES lzma)
+endif()
+
+target_link_libraries(ola_utility OpenSSL::Crypto SolidFrame::solid_system Boost::filesystem ${LIBZIP_LIBRARIES} ${LIBLZMA_LIBRARIES})
 
 add_subdirectory(test)
