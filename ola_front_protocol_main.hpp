@@ -409,9 +409,8 @@ struct CreateAppRequest : solid::frame::mprpc::Message {
 };
 
 struct CreateBuildRequest : solid::frame::mprpc::Message {
-    std::string app_id_;
-    std::string
-                      unique_; // there cannot be two builds with the same tag per application
+    std::string       app_id_;
+    std::string       unique_; // there cannot be two builds with the same tag per application
     uint64_t          size_;
     std::string       sha_sum_;
     std::vector<char> image_blob_;
@@ -436,8 +435,7 @@ struct CreateBuildRequest : solid::frame::mprpc::Message {
 
 struct CreateMediaRequest : solid::frame::mprpc::Message {
     std::string app_id_;
-    std::string
-                unique_; // there cannot be two media with the same tag per application
+    std::string unique_; // there cannot be two media with the same tag per application
     uint64_t    size_;
     std::string sha_sum_;
 
