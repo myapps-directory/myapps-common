@@ -215,8 +215,7 @@ struct FetchStoreRequest : solid::frame::mprpc::Message {
 struct FetchStoreResponse : solid::frame::mprpc::Message {
     uint32_t                        error_ = -1;
     std::string                     message_;
-    mutable std::istringstream      iss_;
-    std::stringstream               ioss_;
+    mutable std::stringstream       ioss_;
     ola::utility::StorageFetchChunk chunk_;
 
     FetchStoreResponse() {}
@@ -238,7 +237,7 @@ struct FetchStoreResponse : solid::frame::mprpc::Message {
                                        const size_t _index, const char* _name) {
                 // NOTE: here you can use context.anyTuple for actual implementation
             };
-            _r.add(_rthis.iss_, _rctx, 4, "stream", [&progress_lambda](auto& _rmeta) {
+            _r.add(static_cast<std::istream&>(_rthis.ioss_), _rctx, 4, "stream", [&progress_lambda](auto& _rmeta) {
                 _rmeta.progressFunction(progress_lambda);
             }); // TODO:
         } else {
