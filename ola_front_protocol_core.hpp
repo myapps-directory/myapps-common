@@ -105,7 +105,7 @@ struct InitResponse : solid::frame::mprpc::Message {
 
     SOLID_REFLECT_V1(_r, _rthis, _rctx)
     {
-        if (_rctx.anyTuple().template getIf<Version>() && _rctx.anyTuple().template getIf<Version>()->init_response_ == Version::init_response) {
+        if (_rctx.any().template get_if<Version>() && _rctx.any().template get_if<Version>()->init_response_ == Version::init_response) {
             _r.add(_rthis.error_, _rctx, 1, "error");
             _r.add(_rthis.message_, _rctx, 2, "message");
         }

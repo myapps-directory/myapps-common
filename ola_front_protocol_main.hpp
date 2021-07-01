@@ -236,7 +236,7 @@ struct FetchStoreResponse : solid::frame::mprpc::Message {
             auto progress_lambda = [](Context& _rctx, std::istream& _ris,
                                        uint64_t _len, const bool _done,
                                        const size_t _index, const char* _name) {
-                // NOTE: here you can use context.anyTuple for actual implementation
+                // NOTE: here you can use context.any() for actual implementation
             };
             _r.add(_rthis.iss_, _rctx, 4, "stream", [&progress_lambda](auto& _rmeta) {
                 _rmeta.progressFunction(progress_lambda);
@@ -245,7 +245,7 @@ struct FetchStoreResponse : solid::frame::mprpc::Message {
             auto progress_lambda = [](Context& _rctx, std::ostream& _ros,
                                        uint64_t _len, const bool _done,
                                        const size_t _index, const char* _name) {
-                // NOTE: here you can use context.anyTuple for actual implementation
+                // NOTE: here you can use context.any() for actual implementation
             };
             // NOTE: we need the static cast below, because ioss_ is both an istream
             // and ostream and the metadata dispatch function cannot know which one to
@@ -463,7 +463,7 @@ struct UploadRequest : solid::frame::mprpc::Message {
             auto progress_lambda = [](Context& _rctx, std::istream& _ris,
                                        uint64_t _len, const bool _done,
                                        const size_t _index, const char* _name) {
-                // NOTE: use _rctx.anyTuple for actual implementation
+                // NOTE: use _rctx.any() for actual implementation
             };
             _r.add(_rthis.ifs_, _rctx, 1, "stream", [&progress_lambda](auto& _rmeta) {
                 _rmeta.size(100 * 1024).progressFunction(progress_lambda);
@@ -472,7 +472,7 @@ struct UploadRequest : solid::frame::mprpc::Message {
             auto progress_lambda = [](Context& _rctx, std::ostream& _ros,
                                        uint64_t _len, const bool _done,
                                        const size_t _index, const char* _name) {
-                // NOTE: use _rctx.anyTuple for actual implementation
+                // NOTE: use _rctx.any() for actual implementation
             };
             _r.add(_rthis.oss_, _rctx, 1, "stream", [&progress_lambda](auto& _rmeta) {
                 _rmeta.maxSize(100 * 1024).progressFunction(progress_lambda);
