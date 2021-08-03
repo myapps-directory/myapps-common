@@ -439,9 +439,8 @@ enum struct AppItemTypeE : uint8_t {
     Media
 };
 
-constexpr const char* app_item_type_build = "Build";
-constexpr const char* app_item_type_media = "Media";
-
+constexpr const char* app_item_type_build     = "Build";
+constexpr const char* app_item_type_media     = "Media";
 constexpr const char* app_item_private_alpha  = "private_alpha";
 constexpr const char* app_item_public_alpha   = "public_alpha";
 constexpr const char* app_item_public_beta    = "public_beta";
