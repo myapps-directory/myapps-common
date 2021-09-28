@@ -42,12 +42,12 @@ void create_files(const string& _root, size_t _count, size_t _max_size)
 int test_archive(int argc, char* argv[])
 {
     solid::log_start(std::cerr, {".*:EW"});
-
-    system((string("rm -rf ") + archive_root).c_str());
-    system((string("rm -rf ") + archive_path).c_str());
-    system((string("rm -rf ") + archive_extract).c_str());
-
     namespace fs = boost::filesystem;
+
+    boost::system::error_code err;
+    fs::remove_all(archive_root, err);
+    fs::remove_all(archive_path, err);
+    fs::remove_all(archive_extract, err);
 
     for (int j = 0; pattern.size() < 4 * 1024; ++j) {
         for (int i = 0; i < 127; ++i) {
@@ -57,7 +57,7 @@ int test_archive(int argc, char* argv[])
             }
         }
     }
-    boost::system::error_code err;
+    
 
     fs::path archive_root_path(archive_root);
 
