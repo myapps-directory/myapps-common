@@ -2,6 +2,7 @@
 #include "solid/utility/function.hpp"
 #include <fstream>
 #include <string>
+#include <vector>
 
 namespace ola {
 namespace utility {
@@ -10,9 +11,12 @@ constexpr const char* metadata_name = ".ola_metadata";
 
 using FileWriteFunctionT         = solid::Function<bool(const char*, size_t)>;
 using OnCreateDirectoryFunctionT = solid::Function<bool(const char*)>;
-using CreateWriteFunctionT       = solid::Function<FileWriteFunctionT(const char*, uint64_t)>;
+using CreateWriteFunctionT       = solid::Function<FileWriteFunctionT(const char*, uint64_t, const uint8_t*, uint16_t)>;
+using CreateFileMetaFunctionT    = solid::Function<void(const std::string&, std::vector<uint8_t>&)>;
 
-bool archive_create(const std::string& _path, std::string _root, uint64_t& _runcompressed_size);
+bool archive_create(
+    const std::string& _path, std::string _root, uint64_t& _runcompressed_size,
+    CreateFileMetaFunctionT _meta_fnc = [](const std::string&, std::vector<uint8_t>&) {});
 
 bool do_archive_extract(
     const std::string& _path, const std::string& _root, uint64_t& _runcompressed_size,

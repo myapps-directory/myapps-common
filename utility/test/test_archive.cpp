@@ -57,7 +57,6 @@ int test_archive(int argc, char* argv[])
             }
         }
     }
-    
 
     fs::path archive_root_path(archive_root);
 
