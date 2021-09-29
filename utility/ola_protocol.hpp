@@ -658,18 +658,21 @@ struct AppItemEntry {
 struct ListStoreNode {
     std::string name_;
     uint64_t    size_ = 0;
+    int64_t     base_time_ = 0;
 
     ListStoreNode() {}
 
-    ListStoreNode(const std::string& _name, uint64_t _size = 0)
+    ListStoreNode(const std::string& _name, uint64_t _size = 0, int64_t _base_time = 0)
         : name_(_name)
         , size_(_size)
+        , base_time_(_base_time)
     {
     }
 
-    ListStoreNode(std::string&& _name, uint64_t _size = 0)
+    ListStoreNode(std::string&& _name, uint64_t _size = 0, int64_t _base_time = 0)
         : name_(std::move(_name))
         , size_(_size)
+        , base_time_(_base_time)
     {
     }
 
@@ -677,6 +680,7 @@ struct ListStoreNode {
     {
         _r.add(_rthis.name_, _rctx, 1, "name");
         _r.add(_rthis.size_, _rctx, 2, "size");
+        _r.add(_rthis.base_time_, _rctx, 3, "base_time");
     }
 };
 
