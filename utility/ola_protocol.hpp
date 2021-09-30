@@ -657,7 +657,7 @@ struct AppItemEntry {
 
 struct ListStoreNode {
     std::string name_;
-    uint64_t    size_ = 0;
+    uint64_t    size_      = 0;
     int64_t     base_time_ = 0;
 
     ListStoreNode() {}
