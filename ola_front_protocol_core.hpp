@@ -35,11 +35,11 @@ struct Version {
         return version_ <= _rthat.version_ && auth_request <= _rthat.auth_request_ && auth_response_ <= _rthat.auth_response_ && init_response_ <= _rthat.init_response_ && response_ <= _rthat.response_;
     }
 
-    SOLID_REFLECT_V1(_s, _rthis, _rctx)
+    SOLID_REFLECT_V1(_r, _rthis, _rctx)
     {
-        _s.add(_rthis.version_, _rctx, 1, "version");
-        _s.add(
-            [&_rthis](Reflector& _s, Context& _rctx) {
+        _r.add(_rthis.version_, _rctx, 1, "version");
+        _r.add(
+            [&_rthis](Reflector& _r, Context& _rctx) {
                 if constexpr (!Reflector::is_const_reflector) {
                     if (_rthis.version > Version::version) {
                         _rthis.clear();
@@ -47,10 +47,10 @@ struct Version {
                     }
                 }
                 if (_rthis.version_ == version) {
-                    _s.add(_rthis.auth_request_, _rctx, 3, "auth_request");
-                    _s.add(_rthis.auth_response_, _rctx, 4, "auth_response");
-                    _s.add(_rthis.init_response_, _rctx, 5, "init_response");
-                    _s.add(_rthis.response_, _rctx, 6, "response");
+                    _r.add(_rthis.auth_request_, _rctx, 3, "auth_request");
+                    _r.add(_rthis.auth_response_, _rctx, 4, "auth_response");
+                    _r.add(_rthis.init_response_, _rctx, 5, "init_response");
+                    _r.add(_rthis.response_, _rctx, 6, "response");
                 }
             },
             _rctx);
@@ -65,12 +65,12 @@ struct AuthRequest : solid::frame::mprpc::Message {
     std::string captcha_text_;
     std::string captcha_token_;
 
-    SOLID_REFLECT_V1(_s, _rthis, _rctx)
+    SOLID_REFLECT_V1(_r, _rthis, _rctx)
     {
-        _s.add(_rthis.pass_, _rctx, 1, "pass");
-        _s.add(_rthis.user_, _rctx, 2, "user");
-        _s.add(_rthis.captcha_text_, _rctx, 3, "captcha_text")
-            .add(_rthis.captcha_token_, _rctx, 4, "captcha_token");
+        _r.add(_rthis.pass_, _rctx, 1, "pass");
+        _r.add(_rthis.user_, _rctx, 2, "user");
+        _r.add(_rthis.captcha_text_, _rctx, 3, "captcha_text");
+        _r.add(_rthis.captcha_token_, _rctx, 4, "captcha_token");
     }
 };
 
@@ -85,10 +85,10 @@ struct AuthResponse : solid::frame::mprpc::Message {
     {
     }
 
-    SOLID_REFLECT_V1(_s, _rthis, _rctx)
+    SOLID_REFLECT_V1(_r, _rthis, _rctx)
     {
-        _s.add(_rthis.error_, _rctx, 1, "error")
-            .add(_rthis.message_, _rctx, 2, "message");
+        _r.add(_rthis.error_, _rctx, 1, "error");
+        _r.add(_rthis.message_, _rctx, 2, "message");
     }
 };
 
@@ -103,11 +103,11 @@ struct InitResponse : solid::frame::mprpc::Message {
     {
     }
 
-    SOLID_REFLECT_V1(_s, _rthis, _rctx)
+    SOLID_REFLECT_V1(_r, _rthis, _rctx)
     {
-        if (_rctx.anyTuple().template getIf<Version>() && _rctx.anyTuple().template getIf<Version>()->init_response_ == Version::init_response) {
-            _s.add(_rthis.error_, _rctx, 1, "error")
-                .add(_rthis.message_, _rctx, 2, "message");
+        if (_rctx.any().template get_if<Version>() && _rctx.any().template get_if<Version>()->init_response_ == Version::init_response) {
+            _r.add(_rthis.error_, _rctx, 1, "error");
+            _r.add(_rthis.message_, _rctx, 2, "message");
         }
     }
 };
@@ -123,10 +123,10 @@ struct Response : solid::frame::mprpc::Message {
     {
     }
 
-    SOLID_REFLECT_V1(_s, _rthis, _rctx)
+    SOLID_REFLECT_V1(_r, _rthis, _rctx)
     {
-        _s.add(_rthis.error_, _rctx, 1, "error")
-            .add(_rthis.message_, _rctx, 2, "message");
+        _r.add(_rthis.error_, _rctx, 1, "error");
+        _r.add(_rthis.message_, _rctx, 2, "message");
     }
 };
 

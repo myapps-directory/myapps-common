@@ -6,7 +6,7 @@ add_custom_target(versioning
 set_source_files_properties(${CMAKE_CURRENT_BINARY_DIR}/version.cpp PROPERTIES GENERATED TRUE)
 
 
-add_library(ola_utility encode.hpp ola_error.hpp ola_protocol.hpp src/encode.cpp src/ola_error.cpp
+add_library(ola_utility encode.hpp ola_error.hpp ola_protocol.hpp archive.hpp src/encode.cpp src/ola_error.cpp src/archive.cpp
     "${CMAKE_CURRENT_BINARY_DIR}/version.cpp"
 )
 
@@ -15,10 +15,16 @@ target_include_directories(ola_utility PRIVATE
     ${Boost_INCLUDE_DIRS}
 )
 
-add_dependencies(ola_utility versioning)
+add_dependencies(ola_utility build-libzip versioning)
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/version_impl.hpp.in ${CMAKE_CURRENT_BINARY_DIR}/version_impl.hpp)
 
-target_link_libraries(ola_utility OpenSSL::Crypto SolidFrame::solid_system)
+if(WIN32)
+    
+else()
+    set(LIBLZMA_LIBRARIES lzma)
+endif()
+
+target_link_libraries(ola_utility OpenSSL::Crypto SolidFrame::solid_system Boost::filesystem ${LIBZIP_LIBRARIES} ${LIBLZMA_LIBRARIES})
 
 add_subdirectory(test)
