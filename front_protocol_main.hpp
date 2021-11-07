@@ -1,13 +1,13 @@
 #pragma once
 
-#include "ola/common/ola_front_protocol_core.hpp"
+#include "myapps/common/front_protocol_core.hpp"
 #include <limits>
 
 #include <deque>
 #include <fstream>
 #include <sstream>
 
-namespace ola {
+namespace myapps {
 namespace front {
 namespace main {
 
@@ -174,11 +174,11 @@ struct ListStoreRequest : solid::frame::mprpc::Message {
 };
 
 struct ListStoreResponse : solid::frame::mprpc::Message {
-    uint32_t                                error_ = -1;
-    std::string                             message_;
-    std::deque<ola::utility::ListStoreNode> node_dq_;
-    uint32_t                                compress_chunk_capacity_ = 0;
-    uint8_t                                 compress_algorithm_type_ = 0;
+    uint32_t                                   error_ = -1;
+    std::string                                message_;
+    std::deque<myapps::utility::ListStoreNode> node_dq_;
+    uint32_t                                   compress_chunk_capacity_ = 0;
+    uint8_t                                    compress_algorithm_type_ = 0;
 
     ListStoreResponse() {}
 
@@ -213,10 +213,10 @@ struct FetchStoreRequest : solid::frame::mprpc::Message {
 };
 
 struct FetchStoreResponse : solid::frame::mprpc::Message {
-    uint32_t                        error_ = -1;
-    std::string                     message_;
-    mutable std::stringstream       ioss_;
-    ola::utility::StorageFetchChunk chunk_;
+    uint32_t                           error_ = -1;
+    std::string                        message_;
+    mutable std::stringstream          ioss_;
+    myapps::utility::StorageFetchChunk chunk_;
 
     FetchStoreResponse() {}
 
@@ -269,10 +269,10 @@ struct FetchAppRequest : solid::frame::mprpc::Message {
 };
 
 struct ChangeAppItemStateRequest : solid::frame::mprpc::Message {
-    std::string                app_id_;
-    std::string                os_id_;
-    ola::utility::AppItemEntry item_;
-    uint8_t                    new_state_ = 0;
+    std::string                   app_id_;
+    std::string                   os_id_;
+    myapps::utility::AppItemEntry item_;
+    uint8_t                       new_state_ = 0;
 
     SOLID_REFLECT_V1(_r, _rthis, _rctx)
     {
@@ -284,7 +284,7 @@ struct ChangeAppItemStateRequest : solid::frame::mprpc::Message {
 };
 
 struct FetchAppResponse : solid::frame::mprpc::Message {
-    using ItemEntryVectorT = std::vector<ola::utility::AppItemEntry>;
+    using ItemEntryVectorT = std::vector<myapps::utility::AppItemEntry>;
 
     uint32_t             error_ = -1;
     std::string          message_;
@@ -349,12 +349,12 @@ struct FetchBuildResponse : solid::frame::mprpc::Message {
 };
 
 struct FetchBuildConfigurationRequest : solid::frame::mprpc::Message {
-    std::string                             app_id_;
-    std::string                             build_id_;
-    std::string                             lang_;
-    std::string                             os_id_;
-    ola::utility::Build::FetchOptionBitsetT fetch_options_;
-    std::vector<std::string>                property_vec_;
+    std::string                                app_id_;
+    std::string                                build_id_;
+    std::string                                lang_;
+    std::string                                os_id_;
+    myapps::utility::Build::FetchOptionBitsetT fetch_options_;
+    std::vector<std::string>                   property_vec_;
 
     SOLID_REFLECT_V1(_r, _rthis, _rctx)
     {
@@ -368,14 +368,14 @@ struct FetchBuildConfigurationRequest : solid::frame::mprpc::Message {
 };
 
 struct FetchBuildConfigurationResponse : solid::frame::mprpc::Message {
-    uint32_t                           error_ = -1;
-    std::string                        message_;
-    std::string                        app_unique_;
-    std::string                        build_unique_;
-    std::string                        build_storage_id_;
-    std::string                        media_storage_id_;
-    ola::utility::Build::Configuration configuration_;
-    std::vector<char>                  image_blob_;
+    uint32_t                              error_ = -1;
+    std::string                           message_;
+    std::string                           app_unique_;
+    std::string                           build_unique_;
+    std::string                           build_storage_id_;
+    std::string                           media_storage_id_;
+    myapps::utility::Build::Configuration configuration_;
+    std::vector<char>                     image_blob_;
 
     FetchBuildConfigurationResponse() {}
 
@@ -548,4 +548,4 @@ inline void configure_protocol(Reg _rreg)
 }
 } // namespace main
 } // namespace front
-} // namespace ola
+} // namespace myapps

@@ -1,11 +1,11 @@
 #pragma once
 
-#include "ola/common/utility/ola_error.hpp"
-#include "ola/common/utility/ola_protocol.hpp"
+#include "myapps/common/utility/error.hpp"
+#include "myapps/common/utility/protocol.hpp"
 
 #include <string>
 
-namespace ola {
+namespace myapps {
 namespace front {
 
 inline constexpr const char* default_port() { return "4443"; }
@@ -141,4 +141,4 @@ inline void configure_protocol(Reg _rreg)
 
 } // namespace core
 } // namespace front
-} // namespace ola
+} // namespace myapps

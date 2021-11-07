@@ -15,7 +15,7 @@
 #include "solid/system/cstring.hpp"
 #include "solid/system/exception.hpp"
 
-namespace ola {
+namespace myapps {
 namespace utility {
 
 inline constexpr auto metadata_factory = [](const auto& _rt, auto& _rctx, const solid::reflection::v1::TypeMapBase* _ptype_map) -> auto
@@ -762,11 +762,11 @@ struct StorageFetchChunk {
 };
 
 } //namespace utility
-} //namespace ola
+} //namespace myapps
 
-CEREAL_CLASS_VERSION(ola::utility::Application, ola::utility::Version::application);
-CEREAL_CLASS_VERSION(ola::utility::Build, ola::utility::Version::build);
-CEREAL_CLASS_VERSION(ola::utility::Build::Media, ola::utility::Version::build_media);
-CEREAL_CLASS_VERSION(ola::utility::Build::Shortcut, ola::utility::Version::build_shortcut);
-CEREAL_CLASS_VERSION(ola::utility::Build::Configuration, ola::utility::Version::build_configuration);
-CEREAL_CLASS_VERSION(ola::utility::Build::Media::Entry, ola::utility::Version::build_media_entry);
+CEREAL_CLASS_VERSION(myapps::utility::Application, myapps::utility::Version::application);
+CEREAL_CLASS_VERSION(myapps::utility::Build, myapps::utility::Version::build);
+CEREAL_CLASS_VERSION(myapps::utility::Build::Media, myapps::utility::Version::build_media);
+CEREAL_CLASS_VERSION(myapps::utility::Build::Shortcut, myapps::utility::Version::build_shortcut);
+CEREAL_CLASS_VERSION(myapps::utility::Build::Configuration, myapps::utility::Version::build_configuration);
+CEREAL_CLASS_VERSION(myapps::utility::Build::Media::Entry, myapps::utility::Version::build_media_entry);

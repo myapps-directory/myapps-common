@@ -1,4 +1,4 @@
-#include "ola/common/utility/encode.hpp"
+#include "myapps/common/utility/encode.hpp"
 #include "solid/system/exception.hpp"
 #include <iostream>
 #include <string>
@@ -16,7 +16,7 @@ int test_crypto_basic(int argc, char* argv[])
 
     cout << "key = " << key << endl;
 
-    ola::utility::CryptoCoder e;
+    myapps::utility::CryptoCoder e;
     e.configure(key);
 
     string plain_text = "The quick brown fox jumps over the lazy dog";

@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 
-namespace ola {
+namespace myapps {
 namespace utility {
 
 constexpr const char* metadata_name = ".ola_metadata";
@@ -34,4 +34,4 @@ bool archive_extract(const std::string& _path, const std::string& _root, uint64_
 bool archive_extract(const std::string& _path, const std::string& _root, uint64_t& _runcompressed_size);
 
 } //namespace utility
-} //namespace ola
+} //namespace myapps

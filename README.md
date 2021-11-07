@@ -1,3 +1,3 @@
-# ola-common
+# myapps-common
 
-OnLine Applications - client and server common libraries and files
+MyApps - client and server common libraries and files

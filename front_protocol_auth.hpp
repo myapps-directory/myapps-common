@@ -1,9 +1,9 @@
 #pragma once
 #include <limits>
 
-#include "ola/common/ola_front_protocol_core.hpp"
+#include "myapps/common/front_protocol_core.hpp"
 
-namespace ola {
+namespace myapps {
 namespace front {
 namespace auth {
 constexpr uint8_t protocol_id = 1;
@@ -197,4 +197,4 @@ inline void configure_protocol(Reg _rreg)
 
 } // namespace auth
 } // namespace front
-} // namespace ola
+} // namespace myapps

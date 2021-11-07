@@ -1,15 +1,15 @@
-#include "ola/common/utility/archive.hpp"
+#include "myapps/common/utility/archive.hpp"
 #include "solid/system/log.hpp"
 #include "zip.h"
 #include <boost/filesystem.hpp>
 
 using namespace std;
 
-namespace ola {
+namespace myapps {
 namespace utility {
 namespace {
 constexpr uint16_t meta_extra_field_id = 0x3333;
-solid::LoggerT     logger("ola::utility::archive");
+solid::LoggerT     logger("myapps::utility::archive");
 //-----------------------------------------------------------------------------
 
 bool zip_add_file(
@@ -182,4 +182,4 @@ bool archive_extract(const std::string& _path, const std::string& _root, uint64_
 }
 
 } //namespace utility
-} //namespace ola
+} //namespace myapps
