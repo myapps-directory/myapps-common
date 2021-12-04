@@ -1,4 +1,4 @@
-#include "ola/common/utility/encode.hpp"
+#include "myapps/common/utility/encode.hpp"
 
 #include "solid/system/exception.hpp"
 
@@ -21,7 +21,7 @@
 
 using namespace std;
 
-namespace ola {
+namespace myapps {
 namespace utility {
 
 // https://stackoverflow.com/questions/2262386/generate-sha256-with-openssl-and-c
@@ -333,4 +333,4 @@ std::string hex_decode(const std::string& _txt)
 }
 //-----------------------------------------------------------------------------
 } // namespace utility
-} // namespace ola
+} // namespace myapps

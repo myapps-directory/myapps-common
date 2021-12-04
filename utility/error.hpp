@@ -2,7 +2,7 @@
 
 #include "solid/system/error.hpp"
 
-namespace ola {
+namespace myapps {
 namespace utility {
 
 solid::ErrorConditionT make_error(uint32_t _err);
@@ -35,4 +35,4 @@ extern const solid::ErrorConditionT error_storage_invalid;
 extern const solid::ErrorConditionT error_storage;
 extern const solid::ErrorConditionT error_storage_size;
 } // namespace utility
-} // namespace ola
+} // namespace myapps

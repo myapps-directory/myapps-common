@@ -1,7 +1,7 @@
-#include "ola/common/utility/ola_error.hpp"
+#include "myapps/common/utility/error.hpp"
 #include <sstream>
 
-namespace ola {
+namespace myapps {
 namespace utility {
 
 namespace {
@@ -212,4 +212,4 @@ solid::ErrorConditionT make_error(const uint32_t _err)
     error_application_system(cast(ErrorE::ApplicationSystem), category);
 
 } // namespace utility
-} // namespace ola
+} // namespace myapps

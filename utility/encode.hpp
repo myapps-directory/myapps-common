@@ -4,7 +4,7 @@
 #include <istream>
 #include <string>
 
-namespace ola {
+namespace myapps {
 
 namespace utility {
 
@@ -33,4 +33,4 @@ std::string hex_encode(const std::string& _txt);
 std::string hex_decode(const std::string& _txt);
 
 } // namespace utility
-} // namespace ola
+} // namespace myapps

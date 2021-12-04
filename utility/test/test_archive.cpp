@@ -1,4 +1,4 @@
-#include "ola/common/utility/archive.hpp"
+#include "myapps/common/utility/archive.hpp"
 #include "solid/system/exception.hpp"
 #include "solid/system/log.hpp"
 #include <boost/filesystem.hpp>
@@ -70,11 +70,11 @@ int test_archive(int argc, char* argv[])
     create_files((archive_root_path / "second" / "third").generic_string(), 100, 4 * 1024);
 
     uint64_t create_total_size = 0;
-    solid_check(ola::utility::archive_create(archive_path, archive_root, create_total_size));
+    solid_check(myapps::utility::archive_create(archive_path, archive_root, create_total_size));
 
     uint64_t extract_total_size = 0;
     solid_check(fs::create_directory(archive_extract, err));
-    solid_check(ola::utility::archive_extract(archive_path, archive_extract, extract_total_size));
+    solid_check(myapps::utility::archive_extract(archive_path, archive_extract, extract_total_size));
     solid_check(create_total_size == extract_total_size && extract_total_size != 0);
     return 0;
 }
