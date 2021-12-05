@@ -132,8 +132,8 @@ void CryptoCoder::configure(const std::string& _pass)
 {
     lock_guard<mutex> lock1(pimpl_->enc_mtx_);
     lock_guard<mutex> lock2(pimpl_->dec_mtx_);
-    memset(pimpl_->key_, Data::key_capacity, 0);
-    memset(pimpl_->iv_, Data::key_capacity, 0);
+    memset(pimpl_->key_, 0, Data::key_capacity);
+    memset(pimpl_->iv_, 0, Data::key_capacity);
     int count = EVP_BytesToKey(EVP_aes_256_cbc(), EVP_sha1(),
         (unsigned char*)salt.c_str(), nullptr, 0, 1,
         pimpl_->key_, pimpl_->iv_);
