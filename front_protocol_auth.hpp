@@ -147,7 +147,6 @@ struct AmendRequest : solid::frame::mprpc::Message {
     }
 };
 
-
 struct DeleteRequest : solid::frame::mprpc::Message {
     std::string ticket_;
     std::string pass_;
