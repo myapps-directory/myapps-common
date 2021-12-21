@@ -11,7 +11,6 @@
 #include <boost/uuid/uuid_io.hpp>
 
 #include <iomanip>
-#include <mutex>
 #include <openssl/conf.h>
 #include <openssl/err.h>
 #include <openssl/evp.h>
@@ -95,8 +94,6 @@ const string salt = "fda66rt4";
 struct CryptoCoder::Data {
     static constexpr size_t key_capacity = 256;
 
-    std::mutex      enc_mtx_; // TODO: move the mutexes out of CryptoCoder
-    std::mutex      dec_mtx_;
     EVP_CIPHER_CTX* enc_ctx_ = nullptr;
     EVP_CIPHER_CTX* dec_ctx_ = nullptr;
     uint8_t         iv_[key_capacity];
@@ -111,11 +108,9 @@ struct CryptoCoder::Data {
     ~Data()
     {
         if (enc_ctx_) {
-            lock_guard<mutex> lock(enc_mtx_);
             EVP_CIPHER_CTX_free(enc_ctx_);
         }
         if (dec_ctx_) {
-            lock_guard<mutex> lock(dec_mtx_);
             EVP_CIPHER_CTX_free(dec_ctx_);
         }
     }
@@ -130,8 +125,6 @@ CryptoCoder::~CryptoCoder() {}
 
 void CryptoCoder::configure(const std::string& _pass)
 {
-    lock_guard<mutex> lock1(pimpl_->enc_mtx_);
-    lock_guard<mutex> lock2(pimpl_->dec_mtx_);
     memset(pimpl_->key_, 0, Data::key_capacity);
     memset(pimpl_->iv_, 0, Data::key_capacity);
     int count = EVP_BytesToKey(EVP_aes_256_cbc(), EVP_sha1(),
@@ -149,8 +142,6 @@ void CryptoCoder::configure(const std::string& _pass)
 
 std::string CryptoCoder::encode(const std::string& _plain_text)
 {
-
-    lock_guard<mutex> lock(pimpl_->enc_mtx_);
 
     /* Initialise the encryption operation. IMPORTANT - ensure you use a key
    * and IV size appropriate for your cipher
@@ -195,9 +186,6 @@ std::string CryptoCoder::encode(const std::string& _plain_text)
 
 std::string CryptoCoder::decode(const std::string& _cipher_text)
 {
-
-    lock_guard<mutex> lock(pimpl_->dec_mtx_);
-
     /* Initialise the decryption operation. IMPORTANT - ensure you use a key
    * and IV size appropriate for your cipher
    * In this example we are using 256 bit AES (i.e. a 256 bit key). The
