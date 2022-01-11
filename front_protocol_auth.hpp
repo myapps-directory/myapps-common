@@ -147,6 +147,19 @@ struct AmendRequest : solid::frame::mprpc::Message {
     }
 };
 
+struct DeleteRequest : solid::frame::mprpc::Message {
+    std::string ticket_;
+    std::string pass_;
+    std::string reason_;
+
+    SOLID_REFLECT_V1(_r, _rthis, _rctx)
+    {
+        _r.add(_rthis.ticket_, _rctx, 1, "ticket");
+        _r.add(_rthis.pass_, _rctx, 2, "pass");
+        _r.add(_rthis.reason_, _rctx, 3, "reason");
+    }
+};
+
 struct ValidateRequest : solid::frame::mprpc::Message {
     std::string ticket_;
     std::string text_;
@@ -193,6 +206,7 @@ inline void configure_protocol(Reg _rreg)
         solid::TypeToType<CaptchaRequest>());
     _rreg({protocol_id, 9}, "CaptchaResponse",
         solid::TypeToType<CaptchaResponse>());
+    _rreg({protocol_id, 10}, "DeleteRequest", solid::TypeToType<DeleteRequest>());
 }
 
 } // namespace auth

@@ -9,7 +9,8 @@ namespace myapps {
 namespace front {
 
 inline constexpr const char* default_port() { return "4443"; }
-using ProtocolTypeIndexT = std::pair<uint8_t, uint16_t>;
+
+using ProtocolTypeIdT = std::pair<uint8_t, uint16_t>;
 
 namespace core {
 
