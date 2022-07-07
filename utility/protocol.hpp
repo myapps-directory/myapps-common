@@ -124,7 +124,7 @@ enum struct ApplicationFlagE : int8_t {
     Test = 0,
 };
 
-//NOTE: class versioning at the end of the file
+// NOTE: class versioning at the end of the file
 struct Application {
     std::string name_;
     uint64_t    flags_ = 0;
@@ -168,7 +168,7 @@ struct Application {
     }
 };
 
-//NOTE: class versioning at the end of the file
+// NOTE: class versioning at the end of the file
 struct Build {
     enum struct FetchOptionsE : size_t {
         Name = 0,
@@ -181,7 +181,7 @@ struct Build {
         Image,
         Media,
 
-        FetchCount, //NOTE: add above
+        FetchCount, // NOTE: add above
     };
 
     static constexpr size_t OptionsCount = static_cast<size_t>(FetchOptionsE::FetchCount);
@@ -205,7 +205,7 @@ struct Build {
         return _opt_bs[static_cast<size_t>(_opt)];
     }
 
-    //NOTE: class versioning at the end of the file
+    // NOTE: class versioning at the end of the file
     struct Shortcut {
         std::string name_;
         std::string command_;
@@ -296,12 +296,12 @@ struct Build {
         }
     };
 
-    //NOTE: class versioning at the end of the file
+    // NOTE: class versioning at the end of the file
     struct Configuration {
         enum {
             HiddenDirectory = 0,
 
-            LastFlagId //add above
+            LastFlagId // add above
         };
 
         static constexpr const char* flag_names[LastFlagId] = {
@@ -425,7 +425,7 @@ enum struct AppItemStateE : uint8_t {
     PublicBeta,
     PublicRelease,
 
-    StateCount //Add above
+    StateCount // Add above
 };
 
 enum struct AppItemFlagE : int8_t {
@@ -761,8 +761,8 @@ struct StorageFetchChunk {
     }
 };
 
-} //namespace utility
-} //namespace myapps
+} // namespace utility
+} // namespace myapps
 
 CEREAL_CLASS_VERSION(myapps::utility::Application, myapps::utility::Version::application);
 CEREAL_CLASS_VERSION(myapps::utility::Build, myapps::utility::Version::build);

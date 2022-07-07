@@ -37,7 +37,7 @@ void create_files(const string& _root, size_t _count, size_t _max_size)
         create_file(oss.str(), i % _max_size);
     }
 }
-} //namespace
+} // namespace
 
 int test_archive(int argc, char* argv[])
 {

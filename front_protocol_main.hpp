@@ -95,8 +95,8 @@ struct ListOSesResponse : solid::frame::mprpc::Message {
 
 struct ListAppsRequest : solid::frame::mprpc::Message {
     uint8_t choice_; // o - owned applications
-        // a - aquired applications
-        // A - all applications
+                     // a - aquired applications
+                     // A - all applications
 
     SOLID_REFLECT_V1(_r, _rthis, _rctx)
     {

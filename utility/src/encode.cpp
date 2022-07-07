@@ -144,10 +144,10 @@ std::string CryptoCoder::encode(const std::string& _plain_text)
 {
 
     /* Initialise the encryption operation. IMPORTANT - ensure you use a key
-   * and IV size appropriate for your cipher
-   * In this example we are using 256 bit AES (i.e. a 256 bit key). The
-   * IV size for *most* modes is the same as the block size. For AES this
-   * is 128 bits */
+     * and IV size appropriate for your cipher
+     * In this example we are using 256 bit AES (i.e. a 256 bit key). The
+     * IV size for *most* modes is the same as the block size. For AES this
+     * is 128 bits */
     EVP_EncryptInit_ex(pimpl_->enc_ctx_, EVP_aes_256_cbc(), nullptr, pimpl_->key_,
         pimpl_->iv_);
 
@@ -164,14 +164,14 @@ std::string CryptoCoder::encode(const std::string& _plain_text)
     const uint8_t* pplain_d = reinterpret_cast<const uint8_t*>(_plain_text.data());
 
     /* Provide the message to be encrypted, and obtain the encrypted output.
-   * EVP_EncryptUpdate can be called multiple times if necessary
-   */
+     * EVP_EncryptUpdate can be called multiple times if necessary
+     */
     if (1 == EVP_EncryptUpdate(pimpl_->enc_ctx_, pres_d, &len, pplain_d, _plain_text.size())) {
         ciphertext_len = len;
 
         /* Finalise the encryption. Further ciphertext bytes may be written at
-     * this stage.
-     */
+         * this stage.
+         */
         if (1 == EVP_EncryptFinal_ex(pimpl_->enc_ctx_, pres_d + len, &len)) {
             ciphertext_len += len;
         }
@@ -187,10 +187,10 @@ std::string CryptoCoder::encode(const std::string& _plain_text)
 std::string CryptoCoder::decode(const std::string& _cipher_text)
 {
     /* Initialise the decryption operation. IMPORTANT - ensure you use a key
-   * and IV size appropriate for your cipher
-   * In this example we are using 256 bit AES (i.e. a 256 bit key). The
-   * IV size for *most* modes is the same as the block size. For AES this
-   * is 128 bits */
+     * and IV size appropriate for your cipher
+     * In this example we are using 256 bit AES (i.e. a 256 bit key). The
+     * IV size for *most* modes is the same as the block size. For AES this
+     * is 128 bits */
     EVP_DecryptInit_ex(pimpl_->dec_ctx_, EVP_aes_256_cbc(), nullptr, pimpl_->key_,
         pimpl_->iv_);
 
@@ -208,14 +208,14 @@ std::string CryptoCoder::decode(const std::string& _cipher_text)
     const uint8_t* pcipher_d = reinterpret_cast<const uint8_t*>(_cipher_text.data());
 
     /* Provide the message to be decrypted, and obtain the plaintext output.
-   * EVP_DecryptUpdate can be called multiple times if necessary
-   */
+     * EVP_DecryptUpdate can be called multiple times if necessary
+     */
     if (1 == EVP_DecryptUpdate(pimpl_->dec_ctx_, pplain_d, &len, pcipher_d, _cipher_text.size())) {
         plaintext_len = len;
 
         /* Finalise the decryption. Further plaintext bytes may be written at
-     * this stage.
-     */
+         * this stage.
+         */
         if (1 == EVP_DecryptFinal_ex(pimpl_->dec_ctx_, pplain_d + len, &len)) {
             plaintext_len += len;
         }

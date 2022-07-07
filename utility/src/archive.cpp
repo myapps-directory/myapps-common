@@ -57,7 +57,7 @@ bool zip_add_dir(
     }
     return true;
 }
-} //namespace
+} // namespace
 
 bool archive_create(
     const std::string& _zip_path, std::string _root, uint64_t& _runcompressed_size,
@@ -121,7 +121,7 @@ bool do_archive_extract(
             size_t name_len = strlen(stat.name);
             if (stat.name[name_len - 1] == '/') {
 
-                //folder
+                // folder
                 if (!create_directory(_root + '/' + stat.name, error) || !_on_create_dir_function(stat.name)) {
                     return false;
                 }
@@ -130,7 +130,7 @@ bool do_archive_extract(
                 zip_file* pzf = zip_fopen_index(pzip, i, 0);
 
                 if (pzf) {
-                    //std::ofstream ofs(_root + '/' + stat.name);
+                    // std::ofstream ofs(_root + '/' + stat.name);
                     uint16_t    meta_data_size = 0;
                     const auto* meta_data      = zip_file_extra_field_get_by_id(pzip, i, meta_extra_field_id, 0, &meta_data_size, ZIP_FL_LOCAL);
 
@@ -181,5 +181,5 @@ bool archive_extract(const std::string& _path, const std::string& _root, uint64_
     return archive_extract(_path, _root, _runcompressed_size, create_dir_lambda, create_write_lambda);
 }
 
-} //namespace utility
-} //namespace myapps
+} // namespace utility
+} // namespace myapps
