@@ -15,7 +15,7 @@ target_include_directories(myapps_utility PRIVATE
     ${Boost_INCLUDE_DIRS}
 )
 
-add_dependencies(myapps_utility build-libzip versioning)
+add_dependencies(myapps_utility build-libzip build-cereal versioning)
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/version_impl.hpp.in ${CMAKE_CURRENT_BINARY_DIR}/version_impl.hpp)
 
