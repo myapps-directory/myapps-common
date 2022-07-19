@@ -1,5 +1,4 @@
 set( MyAppsUtilityTestSuite
-    test_crypto_basic.cpp
     test_archive.cpp
 )
 
