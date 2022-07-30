@@ -84,7 +84,6 @@ std::string sha256(std::istream& _ris)
     return string(reinterpret_cast<char*>(hash), SHA256_DIGEST_LENGTH);
 }
 
-
 //-----------------------------------------------------------------------------
 // https://stackoverflow.com/questions/7053538/how-do-i-encode-a-string-to-base64-using-only-boost
 namespace {
