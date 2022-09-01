@@ -13,7 +13,7 @@
 #include <iomanip>
 #include <openssl/conf.h>
 #include <openssl/err.h>
-#include <openssl/sha.h>
+#include <openssl/evp.h>
 #include <sstream>
 #include <vector>
 
@@ -22,66 +22,84 @@ using namespace std;
 namespace myapps {
 namespace utility {
 
-// https://stackoverflow.com/questions/2262386/generate-sha256-with-openssl-and-c
+namespace {
+using DigestContextPtrT = std::unique_ptr<EVP_MD_CTX, decltype(&EVP_MD_CTX_free)>;
+} // namespace
+#if 0
 std::string sha256hex(const std::string& str)
 {
-    unsigned char hash[SHA256_DIGEST_LENGTH];
-    SHA256_CTX    sha256;
-    SHA256_Init(&sha256);
-    SHA256_Update(&sha256, str.c_str(), str.size());
-    SHA256_Final(hash, &sha256);
+    unsigned char md_value[EVP_MAX_MD_SIZE];
+    unsigned int md_len;
+    const EVP_MD *md = EVP_sha3_256();
+    DigestContextPtrT digest_ctx_ptr{EVP_MD_CTX_new(), EVP_MD_CTX_free};
+    
+    EVP_DigestInit_ex(digest_ctx_ptr.get(), md, NULL);
+    EVP_DigestUpdate(digest_ctx_ptr.get(), str.c_str(), str.size());
+    EVP_DigestFinal_ex(digest_ctx_ptr.get(), md_value, &md_len);
+
     stringstream ss;
-    for (int i = 0; i < SHA256_DIGEST_LENGTH; i++) {
-        ss << hex << setw(2) << setfill('0') << (int)hash[i];
+    for (size_t i = 0; i < md_len; ++i) {
+        ss << hex << setw(2) << setfill('0') << static_cast<int>(md_value[i]);
     }
     return ss.str();
 }
 
 std::string sha256hex(std::istream& _ris)
 {
-    unsigned char hash[SHA256_DIGEST_LENGTH];
-    SHA256_CTX    sha256;
-    SHA256_Init(&sha256);
-    // SHA256_Update(&sha256, str.c_str(), str.size());
+    unsigned char md_value[EVP_MAX_MD_SIZE];
+    unsigned int md_len;
+    DigestContextPtrT digest_ctx_ptr{EVP_MD_CTX_new(), EVP_MD_CTX_free};
     constexpr size_t bufsz = 1024 * 64;
     char             buf[bufsz];
+    const EVP_MD *md = EVP_sha3_256();
+
+    EVP_DigestInit_ex(digest_ctx_ptr.get(), md, NULL);
+    
     while (!_ris.eof()) {
         _ris.read(buf, bufsz);
-        SHA256_Update(&sha256, buf, _ris.gcount());
+        EVP_DigestUpdate(digest_ctx_ptr.get(), buf, _ris.gcount());
     }
-    SHA256_Final(hash, &sha256);
+    EVP_DigestFinal_ex(digest_ctx_ptr.get(), md_value, &md_len);
+
     stringstream ss;
-    for (int i = 0; i < SHA256_DIGEST_LENGTH; i++) {
-        ss << hex << setw(2) << setfill('0') << (int)hash[i];
+    for (size_t i = 0; i < md_len; ++i) {
+        ss << hex << setw(2) << setfill('0') << static_cast<int>(md_value[i]);
     }
     return ss.str();
 }
+#endif
 
 std::string sha256(const std::string& str)
 {
-    unsigned char hash[SHA256_DIGEST_LENGTH];
-    SHA256_CTX    sha256;
-    SHA256_Init(&sha256);
-    SHA256_Update(&sha256, str.c_str(), str.size());
-    SHA256_Final(hash, &sha256);
+    unsigned char     md_value[EVP_MAX_MD_SIZE];
+    unsigned int      md_len;
+    const EVP_MD*     md = EVP_sha3_256();
+    DigestContextPtrT digest_ctx_ptr{EVP_MD_CTX_new(), EVP_MD_CTX_free};
 
-    return string(reinterpret_cast<char*>(hash), SHA256_DIGEST_LENGTH);
+    EVP_DigestInit_ex(digest_ctx_ptr.get(), md, NULL);
+    EVP_DigestUpdate(digest_ctx_ptr.get(), str.c_str(), str.size());
+    EVP_DigestFinal_ex(digest_ctx_ptr.get(), md_value, &md_len);
+
+    return string(reinterpret_cast<char*>(md_value), md_len);
 }
 
 std::string sha256(std::istream& _ris)
 {
-    unsigned char hash[SHA256_DIGEST_LENGTH];
-    SHA256_CTX    sha256;
-    SHA256_Init(&sha256);
-    // SHA256_Update(&sha256, str.c_str(), str.size());
-    constexpr size_t bufsz = 1024 * 64;
-    char             buf[bufsz];
+    unsigned char     md_value[EVP_MAX_MD_SIZE];
+    unsigned int      md_len;
+    DigestContextPtrT digest_ctx_ptr{EVP_MD_CTX_new(), EVP_MD_CTX_free};
+    constexpr size_t  bufsz = 1024 * 64;
+    char              buf[bufsz];
+    const EVP_MD*     md = EVP_sha3_256();
+
+    EVP_DigestInit_ex(digest_ctx_ptr.get(), md, NULL);
+
     while (!_ris.eof()) {
         _ris.read(buf, bufsz);
-        SHA256_Update(&sha256, buf, _ris.gcount());
+        EVP_DigestUpdate(digest_ctx_ptr.get(), buf, _ris.gcount());
     }
-    SHA256_Final(hash, &sha256);
-    return string(reinterpret_cast<char*>(hash), SHA256_DIGEST_LENGTH);
+    EVP_DigestFinal_ex(digest_ctx_ptr.get(), md_value, &md_len);
+    return string(reinterpret_cast<char*>(md_value), md_len);
 }
 
 //-----------------------------------------------------------------------------
