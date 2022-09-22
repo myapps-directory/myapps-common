@@ -108,7 +108,7 @@ namespace {
 const std::string base64_padding[] = {"", "==", "="};
 } // namespace
 
-std::string base64_encode(const std::string& _txt)
+std::string base64_encode(const std::string_view& _txt)
 {
     namespace bai = boost::archive::iterators;
 
@@ -120,14 +120,14 @@ std::string base64_encode(const std::string& _txt)
         <bai::transform_width<const char*, 6, 8>>
             base64_enc; // compose all the above operations in to a new iterator
 
-    std::copy(base64_enc(_txt.c_str()), base64_enc(_txt.c_str() + _txt.size()),
+    std::copy(base64_enc(_txt.data()), base64_enc(_txt.data() + _txt.size()),
         std::ostream_iterator<char>(os));
 
     os << base64_padding[_txt.size() % 3];
     return os.str();
 }
 
-std::string base64_decode(const std::string& _txt)
+std::string base64_decode(const std::string_view& _txt)
 {
     namespace bai = boost::archive::iterators;
 
@@ -155,7 +155,7 @@ std::string base64_decode(const std::string& _txt)
 }
 
 //-----------------------------------------------------------------------------
-std::string hex_encode(const std::string& _txt)
+std::string hex_encode(const std::string_view& _txt)
 {
     std::ostringstream oss;
     for (const auto& c : _txt) {
@@ -186,11 +186,11 @@ inline char hex_char_decode(const char* _pc)
 
 } // namespace
 
-std::string hex_decode(const std::string& _txt)
+std::string hex_decode(const std::string_view& _txt)
 {
     string out;
     out.resize(_txt.size() / 2);
-    const char* p = _txt.c_str();
+    const char* p = &_txt[0];
     for (size_t i = 0; i < out.size(); ++i) {
         out[i] = hex_char_decode(p);
         p += 2;
