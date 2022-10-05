@@ -374,6 +374,8 @@ struct FetchBuildConfigurationResponse : solid::frame::mprpc::Message {
     std::string                           build_unique_;
     std::string                           build_storage_id_;
     std::string                           media_storage_id_;
+    uint32_t                              build_shard_id_ = 0;
+    uint32_t                              media_shard_id_ = 0;
     myapps::utility::Build::Configuration configuration_;
     std::vector<char>                     image_blob_;
 
@@ -392,8 +394,10 @@ struct FetchBuildConfigurationResponse : solid::frame::mprpc::Message {
         _r.add(_rthis.build_unique_, _rctx, 4, "build_unique");
         _r.add(_rthis.build_storage_id_, _rctx, 5, "build_storage_id");
         _r.add(_rthis.media_storage_id_, _rctx, 6, "media_storage_id");
-        _r.add(_rthis.configuration_, _rctx, 7, "configuration");
-        _r.add(_rthis.image_blob_, _rctx, 8, "image_blob",
+        _r.add(_rthis.build_shard_id_, _rctx, 7, "build_shard_id");
+        _r.add(_rthis.media_shard_id_, _rctx, 8, "media_shard_id");
+        _r.add(_rthis.configuration_, _rctx, 9, "configuration");
+        _r.add(_rthis.image_blob_, _rctx, 10, "image_blob",
             [](auto& _rmeta) { _rmeta.maxSize(1024 * 1024); });
     }
 };
