@@ -258,25 +258,25 @@ struct FetchStoreResponse : solid::frame::mprpc::Message {
 };
 
 struct FetchAppRequest : solid::frame::mprpc::Message {
-    std::string app_id_;
+    std::string application_id_;
     std::string os_id_;
 
     SOLID_REFLECT_V1(_r, _rthis, _rctx)
     {
-        _r.add(_rthis.app_id_, _rctx, 1, "app_id");
+        _r.add(_rthis.application_id_, _rctx, 1, "application_id");
         _r.add(_rthis.os_id_, _rctx, 2, "os_id");
     }
 };
 
 struct ChangeAppItemStateRequest : solid::frame::mprpc::Message {
-    std::string                   app_id_;
+    std::string                   application_id_;
     std::string                   os_id_;
     myapps::utility::AppItemEntry item_;
     uint8_t                       new_state_ = 0;
 
     SOLID_REFLECT_V1(_r, _rthis, _rctx)
     {
-        _r.add(_rthis.app_id_, _rctx, 1, "app_id");
+        _r.add(_rthis.application_id_, _rctx, 1, "application_id");
         _r.add(_rthis.os_id_, _rctx, 2, "os_id");
         _r.add(_rthis.item_, _rctx, 3, "item");
         _r.add(_rthis.new_state_, _rctx, 4, "new_state");
@@ -313,12 +313,12 @@ struct FetchAppResponse : solid::frame::mprpc::Message {
 };
 
 struct FetchBuildRequest : solid::frame::mprpc::Message {
-    std::string app_id_;
+    std::string application_id_;
     std::string build_id_;
 
     SOLID_REFLECT_V1(_r, _rthis, _rctx)
     {
-        _r.add(_rthis.app_id_, _rctx, 1, "app_id");
+        _r.add(_rthis.application_id_, _rctx, 1, "application_id");
         _r.add(_rthis.build_id_, _rctx, 2, "build_id");
     }
 };
@@ -349,7 +349,7 @@ struct FetchBuildResponse : solid::frame::mprpc::Message {
 };
 
 struct FetchBuildConfigurationRequest : solid::frame::mprpc::Message {
-    std::string                                app_id_;
+    std::string                                application_id_;
     std::string                                build_id_;
     std::string                                lang_;
     std::string                                os_id_;
@@ -358,7 +358,7 @@ struct FetchBuildConfigurationRequest : solid::frame::mprpc::Message {
 
     SOLID_REFLECT_V1(_r, _rthis, _rctx)
     {
-        _r.add(_rthis.app_id_, _rctx, 1, "app_id");
+        _r.add(_rthis.application_id_, _rctx, 1, "application_id");
         _r.add(_rthis.build_id_, _rctx, 2, "build_id");
         _r.add(_rthis.lang_, _rctx, 3, "lang");
         _r.add(_rthis.os_id_, _rctx, 4, "os_id");
