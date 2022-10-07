@@ -324,7 +324,8 @@ struct FetchBuildRequest : solid::frame::mprpc::Message {
 };
 
 struct FetchBuildResponse : solid::frame::mprpc::Message {
-    uint32_t          error_ = -1;
+    uint32_t          error_    = -1;
+    uint32_t          shard_id_ = -1;
     std::string       message_;
     std::string       storage_id_;
     std::vector<char> image_blob_;
@@ -342,9 +343,10 @@ struct FetchBuildResponse : solid::frame::mprpc::Message {
         _r.add(_rthis.error_, _rctx, 1, "error");
         _r.add(_rthis.message_, _rctx, 2, "message");
         _r.add(_rthis.storage_id_, _rctx, 3, "storage_id");
-        _r.add(_rthis.image_blob_, _rctx, 4, "image_blob",
+        _r.add(_rthis.shard_id_, _rctx, 4, "shard_id");
+        _r.add(_rthis.image_blob_, _rctx, 5, "image_blob",
             [](auto& _rmeta) { _rmeta.maxSize(1024 * 1024); });
-        _r.add(_rthis.build_, _rctx, 5, "build");
+        _r.add(_rthis.build_, _rctx, 6, "build");
     }
 };
 
