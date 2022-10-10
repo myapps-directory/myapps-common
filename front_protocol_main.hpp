@@ -163,12 +163,14 @@ struct FetchBuildUpdatesResponse : solid::frame::mprpc::Message {
 };
 
 struct ListStoreRequest : solid::frame::mprpc::Message {
+    uint32_t    shard_id_ = -1;
     std::string storage_id_;
     std::string path_;
 
     SOLID_REFLECT_V1(_r, _rthis, _rctx)
     {
-        _r.add(_rthis.storage_id_, _rctx, 1, "storage_id");
+        _r.add(_rthis.shard_id_, _rctx, 1, "shard_id");
+        _r.add(_rthis.storage_id_, _rctx, 2, "storage_id");
         _r.add(_rthis.path_, _rctx, 2, "path");
     }
 };
@@ -198,6 +200,7 @@ struct ListStoreResponse : solid::frame::mprpc::Message {
 };
 
 struct FetchStoreRequest : solid::frame::mprpc::Message {
+    uint32_t    shard_id_ = -1;
     std::string storage_id_;
     std::string path_;
     uint32_t    chunk_index_  = 0;
@@ -205,10 +208,11 @@ struct FetchStoreRequest : solid::frame::mprpc::Message {
 
     SOLID_REFLECT_V1(_r, _rthis, _rctx)
     {
-        _r.add(_rthis.storage_id_, _rctx, 1, "storage_id");
-        _r.add(_rthis.path_, _rctx, 2, "path");
-        _r.add(_rthis.chunk_index_, _rctx, 5, "chunk_index");
-        _r.add(_rthis.chunk_offset_, _rctx, 6, "chunk_offset");
+        _r.add(_rthis.shard_id_, _rctx, 1, "shard_id");
+        _r.add(_rthis.storage_id_, _rctx, 2, "storage_id");
+        _r.add(_rthis.path_, _rctx, 3, "path");
+        _r.add(_rthis.chunk_index_, _rctx, 4, "chunk_index");
+        _r.add(_rthis.chunk_offset_, _rctx, 5, "chunk_offset");
     }
 };
 
