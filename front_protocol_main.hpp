@@ -163,12 +163,14 @@ struct FetchBuildUpdatesResponse : solid::frame::mprpc::Message {
 };
 
 struct ListStoreRequest : solid::frame::mprpc::Message {
+    uint32_t    shard_id_ = -1;
     std::string storage_id_;
     std::string path_;
 
     SOLID_REFLECT_V1(_r, _rthis, _rctx)
     {
-        _r.add(_rthis.storage_id_, _rctx, 1, "storage_id");
+        _r.add(_rthis.shard_id_, _rctx, 1, "shard_id");
+        _r.add(_rthis.storage_id_, _rctx, 2, "storage_id");
         _r.add(_rthis.path_, _rctx, 2, "path");
     }
 };
@@ -198,6 +200,7 @@ struct ListStoreResponse : solid::frame::mprpc::Message {
 };
 
 struct FetchStoreRequest : solid::frame::mprpc::Message {
+    uint32_t    shard_id_ = -1;
     std::string storage_id_;
     std::string path_;
     uint32_t    chunk_index_  = 0;
@@ -205,10 +208,11 @@ struct FetchStoreRequest : solid::frame::mprpc::Message {
 
     SOLID_REFLECT_V1(_r, _rthis, _rctx)
     {
-        _r.add(_rthis.storage_id_, _rctx, 1, "storage_id");
-        _r.add(_rthis.path_, _rctx, 2, "path");
-        _r.add(_rthis.chunk_index_, _rctx, 5, "chunk_index");
-        _r.add(_rthis.chunk_offset_, _rctx, 6, "chunk_offset");
+        _r.add(_rthis.shard_id_, _rctx, 1, "shard_id");
+        _r.add(_rthis.storage_id_, _rctx, 2, "storage_id");
+        _r.add(_rthis.path_, _rctx, 3, "path");
+        _r.add(_rthis.chunk_index_, _rctx, 4, "chunk_index");
+        _r.add(_rthis.chunk_offset_, _rctx, 5, "chunk_offset");
     }
 };
 
@@ -258,25 +262,25 @@ struct FetchStoreResponse : solid::frame::mprpc::Message {
 };
 
 struct FetchAppRequest : solid::frame::mprpc::Message {
-    std::string app_id_;
+    std::string application_id_;
     std::string os_id_;
 
     SOLID_REFLECT_V1(_r, _rthis, _rctx)
     {
-        _r.add(_rthis.app_id_, _rctx, 1, "app_id");
+        _r.add(_rthis.application_id_, _rctx, 1, "application_id");
         _r.add(_rthis.os_id_, _rctx, 2, "os_id");
     }
 };
 
 struct ChangeAppItemStateRequest : solid::frame::mprpc::Message {
-    std::string                   app_id_;
+    std::string                   application_id_;
     std::string                   os_id_;
     myapps::utility::AppItemEntry item_;
     uint8_t                       new_state_ = 0;
 
     SOLID_REFLECT_V1(_r, _rthis, _rctx)
     {
-        _r.add(_rthis.app_id_, _rctx, 1, "app_id");
+        _r.add(_rthis.application_id_, _rctx, 1, "application_id");
         _r.add(_rthis.os_id_, _rctx, 2, "os_id");
         _r.add(_rthis.item_, _rctx, 3, "item");
         _r.add(_rthis.new_state_, _rctx, 4, "new_state");
@@ -313,18 +317,19 @@ struct FetchAppResponse : solid::frame::mprpc::Message {
 };
 
 struct FetchBuildRequest : solid::frame::mprpc::Message {
-    std::string app_id_;
+    std::string application_id_;
     std::string build_id_;
 
     SOLID_REFLECT_V1(_r, _rthis, _rctx)
     {
-        _r.add(_rthis.app_id_, _rctx, 1, "app_id");
+        _r.add(_rthis.application_id_, _rctx, 1, "application_id");
         _r.add(_rthis.build_id_, _rctx, 2, "build_id");
     }
 };
 
 struct FetchBuildResponse : solid::frame::mprpc::Message {
-    uint32_t          error_ = -1;
+    uint32_t          error_    = -1;
+    uint32_t          shard_id_ = -1;
     std::string       message_;
     std::string       storage_id_;
     std::vector<char> image_blob_;
@@ -342,14 +347,15 @@ struct FetchBuildResponse : solid::frame::mprpc::Message {
         _r.add(_rthis.error_, _rctx, 1, "error");
         _r.add(_rthis.message_, _rctx, 2, "message");
         _r.add(_rthis.storage_id_, _rctx, 3, "storage_id");
-        _r.add(_rthis.image_blob_, _rctx, 4, "image_blob",
+        _r.add(_rthis.shard_id_, _rctx, 4, "shard_id");
+        _r.add(_rthis.image_blob_, _rctx, 5, "image_blob",
             [](auto& _rmeta) { _rmeta.maxSize(1024 * 1024); });
-        _r.add(_rthis.build_, _rctx, 5, "build");
+        _r.add(_rthis.build_, _rctx, 6, "build");
     }
 };
 
 struct FetchBuildConfigurationRequest : solid::frame::mprpc::Message {
-    std::string                                app_id_;
+    std::string                                application_id_;
     std::string                                build_id_;
     std::string                                lang_;
     std::string                                os_id_;
@@ -358,7 +364,7 @@ struct FetchBuildConfigurationRequest : solid::frame::mprpc::Message {
 
     SOLID_REFLECT_V1(_r, _rthis, _rctx)
     {
-        _r.add(_rthis.app_id_, _rctx, 1, "app_id");
+        _r.add(_rthis.application_id_, _rctx, 1, "application_id");
         _r.add(_rthis.build_id_, _rctx, 2, "build_id");
         _r.add(_rthis.lang_, _rctx, 3, "lang");
         _r.add(_rthis.os_id_, _rctx, 4, "os_id");
@@ -374,6 +380,8 @@ struct FetchBuildConfigurationResponse : solid::frame::mprpc::Message {
     std::string                           build_unique_;
     std::string                           build_storage_id_;
     std::string                           media_storage_id_;
+    uint32_t                              build_shard_id_ = 0;
+    uint32_t                              media_shard_id_ = 0;
     myapps::utility::Build::Configuration configuration_;
     std::vector<char>                     image_blob_;
 
@@ -392,8 +400,10 @@ struct FetchBuildConfigurationResponse : solid::frame::mprpc::Message {
         _r.add(_rthis.build_unique_, _rctx, 4, "build_unique");
         _r.add(_rthis.build_storage_id_, _rctx, 5, "build_storage_id");
         _r.add(_rthis.media_storage_id_, _rctx, 6, "media_storage_id");
-        _r.add(_rthis.configuration_, _rctx, 7, "configuration");
-        _r.add(_rthis.image_blob_, _rctx, 8, "image_blob",
+        _r.add(_rthis.build_shard_id_, _rctx, 7, "build_shard_id");
+        _r.add(_rthis.media_shard_id_, _rctx, 8, "media_shard_id");
+        _r.add(_rthis.configuration_, _rctx, 9, "configuration");
+        _r.add(_rthis.image_blob_, _rctx, 10, "image_blob",
             [](auto& _rmeta) { _rmeta.maxSize(1024 * 1024); });
     }
 };

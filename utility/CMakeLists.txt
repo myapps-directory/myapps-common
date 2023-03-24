@@ -25,6 +25,6 @@ else()
     set(LIBLZMA_LIBRARIES lzma)
 endif()
 
-target_link_libraries(myapps_utility OpenSSL::Crypto SolidFrame::solid_system Boost::filesystem ${LIBZIP_LIBRARIES} ${LIBLZMA_LIBRARIES})
+target_link_libraries(myapps_utility PUBLIC SolidFrame::solid_system Boost::filesystem ${LIBZIP_LIBRARIES} ${LIBLZMA_LIBRARIES} OpenSSL::Crypto)
 
 add_subdirectory(test)
