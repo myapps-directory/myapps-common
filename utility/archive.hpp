@@ -7,7 +7,7 @@
 namespace myapps {
 namespace utility {
 
-constexpr const char* metadata_name = ".ola_metadata";
+constexpr const char* metadata_name = ".myapps_metadata";
 
 using FileWriteFunctionT         = solid::Function<bool(const char*, size_t)>;
 using OnCreateDirectoryFunctionT = solid::Function<bool(const char*)>;
