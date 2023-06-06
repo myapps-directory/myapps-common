@@ -1,6 +1,6 @@
 #pragma once
-
 #include "solid/system/error.hpp"
+#include <cstdint>
 
 namespace myapps {
 namespace utility {

@@ -18,8 +18,7 @@
 namespace myapps {
 namespace utility {
 
-inline constexpr auto metadata_factory = [](const auto& _rt, auto& _rctx, const solid::reflection::v1::TypeMapBase* _ptype_map) -> auto
-{
+inline constexpr auto metadata_factory = [](const auto& _rt, auto& _rctx, const solid::reflection::v1::TypeMapBase* _ptype_map) -> auto {
     using value_t = std::decay_t<decltype(_rt)>;
     if constexpr (std::is_enum_v<value_t>) {
         return solid::reflection::v1::metadata::Enum{};
