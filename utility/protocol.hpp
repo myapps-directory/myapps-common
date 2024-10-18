@@ -22,7 +22,7 @@ inline constexpr auto metadata_factory = [](const auto& _rt, auto& _rctx, const 
     using value_t = std::decay_t<decltype(_rt)>;
     if constexpr (std::is_enum_v<value_t>) {
         return solid::reflection::v1::metadata::Enum{};
-    } else if constexpr (solid::is_shared_ptr_v<value_t> || solid::is_unique_ptr_v<value_t>) {
+    } else if constexpr (solid::is_shared_ptr_v<value_t> || solid::is_unique_ptr_v<value_t> || solid::is_intrusive_ptr_v<value_t>) {
         return solid::reflection::v1::metadata::Pointer{_ptype_map};
     } else if constexpr (std::is_signed_v<value_t>) {
         return solid::reflection::v1::metadata::SignedInteger{std::numeric_limits<value_t>::min(), std::numeric_limits<value_t>::max()};
