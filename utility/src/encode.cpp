@@ -115,9 +115,9 @@ std::string base64_decode(const std::string_view& _txt)
 std::string hex_encode(const std::string_view& _txt)
 {
     std::ostringstream oss;
-    oss << hex << setw(2) << setfill('0');
+    
     for (const auto& c : _txt) {
-        oss << static_cast<int>(static_cast<uint8_t>(c));
+        oss << hex << setw(2) << setfill('0') << static_cast<int>(static_cast<uint8_t>(c));
     }
     return oss.str();
 }
