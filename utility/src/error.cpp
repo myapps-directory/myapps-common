@@ -20,6 +20,8 @@ enum struct ErrorE : uint32_t {
     AuthenticationLocked,
     AuthenticationWait,
     AuthenticationRelogin,
+    AuthenticationDemo,
+    AuthenticationDemoInvalid,
     AccountInvalid,
     AccountApplicationQuota,
     AccountStorageQuota,
@@ -42,7 +44,7 @@ constexpr uint32_t cast(const ErrorE _e) { return static_cast<uint32_t>(_e); }
 class ErrorCategory : public solid::ErrorCategoryT {
 public:
     ErrorCategory() {}
-    const char* name() const noexcept override { return "solid::frame::mprpc"; }
+    const char* name() const noexcept override { return "myapps::common"; }
     std::string message(int _ev) const override;
 };
 
@@ -94,6 +96,12 @@ std::string ErrorCategory::message(int _ev) const
     case cast(ErrorE::AuthenticationRelogin):
         oss << "Authentication: Relogin";
         break;
+    case cast(ErrorE::AuthenticationDemo):
+        oss << "Authentication: No demo slot available";
+        break;
+    case cast(ErrorE::AuthenticationDemoInvalid):
+        oss << "Authentication: Demo not supported";
+        break;
     case cast(ErrorE::AccountInvalid):
         oss << "Account: Invalid";
         break;
@@ -137,7 +145,7 @@ std::string ErrorCategory::message(int _ev) const
         oss << "Retry";
         break;
     case cast(ErrorE::ArgumentInvalid):
-        oss << "Argument Invalid";
+        oss << "Invalid Argument";
         break;
     default:
         oss << "Unknown";
@@ -180,6 +188,10 @@ solid::ErrorConditionT make_error(const uint32_t _err)
     error_authentication_wait(cast(ErrorE::AuthenticationWait), category);
 /*extern*/ const solid::ErrorConditionT
     error_authentication_relogin(cast(ErrorE::AuthenticationRelogin), category);
+/*extern*/ const solid::ErrorConditionT
+    error_authentication_demo(cast(ErrorE::AuthenticationDemo), category);
+/*extern*/ const solid::ErrorConditionT
+    error_authentication_demo_invalid(cast(ErrorE::AuthenticationDemoInvalid), category);
 /*extern*/ const solid::ErrorConditionT
     error_argument_invalid(cast(ErrorE::ArgumentInvalid), category);
 /*extern*/ const solid::ErrorConditionT
