@@ -19,7 +19,8 @@ namespace myapps {
 namespace utility {
 
 inline constexpr auto metadata_factory = [](const auto& _rt, auto& _rctx, const solid::reflection::v1::TypeMapBase* _ptype_map) -> auto {
-    using value_t = std::decay_t<decltype(_rt)>;
+    using rem_ref_value_t = typename std::remove_reference<decltype(_rt)>::type;
+    using value_t         = std::decay_t<decltype(_rt)>;
     if constexpr (std::is_enum_v<value_t>) {
         return solid::reflection::v1::metadata::Enum{};
     } else if constexpr (solid::is_shared_ptr_v<value_t> || solid::is_unique_ptr_v<value_t> || solid::is_intrusive_ptr_v<value_t>) {
@@ -34,6 +35,8 @@ inline constexpr auto metadata_factory = [](const auto& _rt, auto& _rctx, const 
         return solid::reflection::v1::metadata::Container{1024 * 4};
     } else if constexpr (solid::is_std_array_v<value_t>) {
         return solid::reflection::v1::metadata::Array{std::tuple_size_v<value_t>, std::tuple_size_v<value_t>};
+    } else if constexpr (std::is_array_v<rem_ref_value_t>) {
+        return solid::reflection::v1::metadata::Array{std::size(_rt), std::size(_rt)};
     } else if constexpr (std::is_base_of_v<std::istream, value_t>) {
         return solid::reflection::v1::metadata::IStream<std::decay_t<decltype(_rctx)>>{};
     } else if constexpr (std::is_base_of_v<std::ostream, value_t>) {
