@@ -22,6 +22,7 @@ enum struct ErrorE : uint32_t {
     AuthenticationRelogin,
     AuthenticationDemo,
     AuthenticationDemoInvalid,
+    AuthenticationConnectionCount,
     AccountInvalid,
     AccountApplicationQuota,
     AccountStorageQuota,
@@ -101,6 +102,9 @@ std::string ErrorCategory::message(int _ev) const
         break;
     case cast(ErrorE::AuthenticationDemoInvalid):
         oss << "Authentication: Demo not supported";
+        break;
+    case cast(ErrorE::AuthenticationConnectionCount):
+        oss << " Authentication: Connection Count";
         break;
     case cast(ErrorE::AccountInvalid):
         oss << "Account: Invalid";
@@ -191,7 +195,8 @@ solid::ErrorConditionT make_error(const uint32_t _err)
 /*extern*/ const solid::ErrorConditionT
     error_authentication_demo(cast(ErrorE::AuthenticationDemo), category);
 /*extern*/ const solid::ErrorConditionT
-    error_authentication_demo_invalid(cast(ErrorE::AuthenticationDemoInvalid), category);
+                                        error_authentication_demo_invalid(cast(ErrorE::AuthenticationDemoInvalid), category);
+/*extern*/ const solid::ErrorConditionT error_authentication_connection_count(cast(ErrorE::AuthenticationConnectionCount), category);
 /*extern*/ const solid::ErrorConditionT
     error_argument_invalid(cast(ErrorE::ArgumentInvalid), category);
 /*extern*/ const solid::ErrorConditionT
