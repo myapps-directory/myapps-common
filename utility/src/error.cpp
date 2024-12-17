@@ -38,6 +38,7 @@ enum struct ErrorE : uint32_t {
     ApplicationSystem,
     Retry,
     ArgumentInvalid,
+    RequestCount,
 };
 
 constexpr uint32_t cast(const ErrorE _e) { return static_cast<uint32_t>(_e); }
@@ -151,6 +152,9 @@ std::string ErrorCategory::message(int _ev) const
     case cast(ErrorE::ArgumentInvalid):
         oss << "Invalid Argument";
         break;
+    case cast(ErrorE::RequestCount):
+        oss << "Request Count";
+        break;
     default:
         oss << "Unknown";
         break;
@@ -179,6 +183,9 @@ solid::ErrorConditionT make_error(const uint32_t _err)
     category);
 /*extern*/ const solid::ErrorConditionT error_state(cast(ErrorE::State),
     category);
+/*extern*/ const solid::ErrorConditionT error_request_count(cast(ErrorE::RequestCount),
+    category);
+
 /*extern*/ const solid::ErrorConditionT
     error_request_invalid(cast(ErrorE::RequestInvalid), category);
 /*extern*/ const solid::ErrorConditionT
