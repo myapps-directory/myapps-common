@@ -18,6 +18,11 @@
 namespace myapps {
 namespace utility {
 
+static constexpr size_t server_connection_recv_buffer_start_capacity_kb = 32;
+static constexpr size_t server_connection_send_buffer_start_capacity_kb = 32;
+static constexpr size_t client_connection_recv_buffer_start_capacity_kb = 64;
+static constexpr size_t client_connection_send_buffer_start_capacity_kb = 64;
+
 inline constexpr auto metadata_factory = [](const auto& _rt, auto& _rctx, const solid::reflection::v1::TypeMapBase* _ptype_map) -> auto {
     using rem_ref_value_t = typename std::remove_reference<decltype(_rt)>::type;
     using value_t         = std::decay_t<decltype(_rt)>;
