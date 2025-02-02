@@ -18,8 +18,8 @@
 namespace myapps {
 namespace utility {
 
-static constexpr size_t server_connection_recv_buffer_start_capacity_kb = 32;
-static constexpr size_t server_connection_send_buffer_start_capacity_kb = 32;
+static constexpr size_t server_connection_recv_buffer_start_capacity_kb = 64;
+static constexpr size_t server_connection_send_buffer_start_capacity_kb = 64;
 static constexpr size_t client_connection_recv_buffer_start_capacity_kb = 64;
 static constexpr size_t client_connection_send_buffer_start_capacity_kb = 64;
 
